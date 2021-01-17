@@ -1,0 +1,121 @@
+---
+title: "Introduction to PISA"
+output:
+  learnr::tutorial:
+    progressive: true
+    allow_skip: true
+
+runtime: shiny_prerendered
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## The PISA Data 
+
+### **Introduction**
+
+The Programme for International Student Assessment (PISA) was developed by the Organisation for Economic Cooperation and Development (OECD). It first came into existence in the year 2000 with the goal of collecting data from educational programmes across the globe. PISA records educational outcomes and demographic data from 15-year-old students every three years, covering over 80 countries since its conception. [Click here for a full list of participating countries.](https://www.oecd.org/pisa/aboutpisa/pisa-participants.htm)
+
+### **Aims and Assessment**
+
+PISA assessments are designed to measure students' ability to apply their education to real-world scenarios. Participants are selected for assessment randomly from a cohort of 15-year-olds in each country.
+
+<p>&nbsp;</p>
+
+![PISA Aims and Assessment (Obtained from https://www.oecd.org/pisa/aboutpisa/)](https://youtu.be/i4RGqzaNEtg)
+
+
+The primary aim was not simply to compare performance across countries, but rather to allow countries to identify areas for improvement and learn from each other. Through understanding the characteristics of successful education systems, PISA hopes to shape learning environments that allow students of all backgrounds to fulfill their potential.
+
+### **PISA in Practice** 
+
+Since its conception, there are numerous examples of countries utilising the PISA data to identify and improve aspects of their education system. This usually involves countries that look at summaries of the data and try to make changes based on areas that seem less strong than other countries. The video below outlines several successful cases.
+
+<p>&nbsp;</p>
+
+![PISA in Practice (Obtained from https://www.oecd.org/pisa/aboutpisa/)](https://youtu.be/-xpOn0OzXEw)
+
+
+Though these examples show positive results from countries who have identified areas to improve, the PISA dataset has the potential to offer more sophisticated insight into the key factors that lead to successful educational outcomes. A number of academic papers have used statistical models to develop a better understanding of the factors that predict student success. For example:
+
+<p>&nbsp;</p>
+
+* [Fuchs & Wößmann (2008)](https://link.springer.com/chapter/10.1007/978-3-7908-2022-5_10) investigated the factors that may account for between-country differences in educational outcomes. Through econometric modeling, they showed that one of the main factors that influences student performance is the level of autonomy that schools have. This could suggest that greater autonomy allows for more individualised education.
+
+<p>&nbsp;</p>
+
+* [Stoet & Geary (2013)](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3596327/) found significant sex differences in the areas of reading and mathematics. Boys tended to perform better in maths, whereas girls were significantly better in reading scores. Due to the extensive reach of the PISA data, they were also able to show how this trend varied across nations and across performance brackets, which provided insight as to why these differences occur.
+
+<p>&nbsp;</p>
+
+* [Jiang & McComas (2015)](https://www.tandfonline.com/doi/abs/10.1080/09500693.2014.1000426?casa_token=eVh94wPox7IAAAAA%3APQnNSh3TkBPiOa5I1D7iLY-v-A1tqF7wle20OUrOtzi2VbHMFFmyyAooH5XvAiynoA7kCjDA26TR&journalCode=tsed20) investigated the efficacy of 'inquiry teaching' on student performance. Inquiry teaching is a method of teaching that focuses on posing questions and enabling students to discover things for themselves. This method is well supported in pedagogical literature, but most implementations had been in research settings rather than naturalistic. This paper was able to use PISA to analyse the efficacy of inquiry teaching with real-world data, which yielded significant results in favour of the method.
+
+<p>&nbsp;</p>
+
+These publications are some of the most well-cited analyses of the PISA data, and each has shown promising insights into various aspects of education. However, the analyses protocols employed thus far have typically used supervised methods. In the next section we will highlight some of the potential drawbacks of this before introducing our own project. 
+
+### **Key Links**
+For more information, click on one of the following links to the official OECD website.
+
+* [PISA 2018 Brouchure: Insights and Interpretations](https://www.oecd.org/pisa/PISA%202018%20Insights%20and%20Interpretations%20FINAL%20PDF.pdf)
+* [PISA in Focus: A series of monthly documents that focus on different aspects of educational policy](https://www.oecd-ilibrary.org/education/pisa-in-focus_22260919)
+* [PISA for Development: An initiative to engage lower income countries in the PISA project](https://www.oecd.org/pisa/pisa-for-development/)
+
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+
+## Our Project
+
+### **Introduction**
+
+We live in a world today where data is bigger and more accessible than ever before. The PISA dataset is one such example, and it represents the most comprehensive collection of global pedagogical data. Over the last 20 years it has been used to try and improve our understanding of the factors that foster success in students. Some examples of this are shown in the previous section, and there are some clear cases of positive outcomes being obtained. However, analysisng such a large and heterogenous dataset comes with many challenges, and it may be possible to improve interpretation and value by approaching analysis from a different angle.
+
+###
+
+Some of the key limitations have been highlighted by [Feniger & Lefstein (2014)](https://www.tandfonline.com/doi/abs/10.1080/02680939.2014.892156?casa_token=-74HbC6ltEQAAAAA%3ATLXytARlVkz0D9iuRqu4PXeHYYOZ9gnLpa9xSUhzUPDBCWmqTagB0SB97Gbe3mkZSkBIBca4-Wmu&journalCode=tedp20), who examined students who had immigrated from other countries at a very young age. They found that the PISA profiles of these students tended to be more similar to their original country than their adopted one. This suggested that the education system had less impact on performance than cultural factors, which was used to highlight some important issues in the way PISA is advertised and employed. 
+
+###
+
+Critically, it was in opposition to the idea that PISA can be used to explain why certain countries have higher educational outcomes than others. This means that designing education systems based on more successful countries may not work, since it would seem that there are unseen factors outwith schools that have a greater impact. This can be interpreted further, since there may be interactions between certain cultures and certain educational factors such as number of hours in school. Essentially, what works for one country may be detrimental to another, and most exisitng analyses do not consider this at all. 
+
+###
+
+So what is the solution? We believe that the answer may lie in unsupervised machine learning methods. While using unsupervised methods to find patterns in large datasets is not a new concept, the application of these methods in the social sciences is something that remains underutilised. [Robert Kitchin (2014)](https://journals.sagepub.com/doi/pdf/10.1177/2053951714528481) highlighted the possibilities for such methods to bypass theory and transform social scientific practices, and it would seem that in the case of PISA this approach may have merit. Based on this idea, we designed a project that would test these concepts on real data.
+
+### **Aims**
+
+Most prior analyses have built models using variables in the PISA data and applied them globally or to specific countries. Our goal in this project was to apply unsupervised methods to find patterns in these variables that could then be used to group countries that are similar across the PISA variables. From here we aimed to apply a predictive model that would reveal more relevant results to the identified groups. This approach came with several advantages over some of the previous published analyses: 
+
+* it avoids any assumptions about factors in education that may or may not be important predictors
+* it allows patterns to emerge in the data that are not constrained by theory
+* it allows for inherently different sub-populations to be explained by more tailored modeling
+
+This enabled us to overcome the issues with previous analyses highlighted by [Feniger & Lefstein (2014)](https://www.tandfonline.com/doi/abs/10.1080/02680939.2014.892156?casa_token=-74HbC6ltEQAAAAA%3ATLXytARlVkz0D9iuRqu4PXeHYYOZ9gnLpa9xSUhzUPDBCWmqTagB0SB97Gbe3mkZSkBIBca4-Wmu&journalCode=tedp20). Instead of trying to understand how specific variables predict learning outcomes in general, we aimed to design an anlysis that could find common factors that predict success in emergent groups of countries. 
+
+### **Approach**
+
+The first step in our analysis was selecting which model we should use. We decided to investigate two predictors that appeared to be significant factors that varied widely across countries, and that would have significant ramifications to policy. These predictors were *'educational spending'* and *'weekly hours in the classroom'*. We then designed our model based on the structure of the data and innovations in linear modelling. You can find a description of this process in the **GLMM** section.
+
+The next step was compressing the data so that that thousands of variables recorded in the PISA data set could be more easily modelled and interpreted. This involved a principle component analysis with choices about rotations and how many components to include. While not essential to the analysis, looking at which variables were correlated and therefore placed onto the same components provides was also of interest. Explanations of these concepts can be found in the **Principle Component Analysis** section.
+
+Choosing whether to use clustering and which method in the family to use has a wide range of potential options. You can find examples of just a few possible clustering methods, how they work, and descriptions of how to choose optimal numbers of clusters in the comprehensive **Clustering** section.
+
+Finally, using the insights gained from these sections, we go through a worked example in the **Our Analysis** section using a significant portion of the PISA data to see whether we can answer our research question. As well as exploring the results, we also reflect on how effective our approach was and provide thoughts for future analyses.
+
+### **References**
+
+* Feniger, Y., & Lefstein, A. (2014). How not to reason with PISA data: An ironic investigation. Journal of Education Policy, 29(6), 845-855.
+
+* Fuchs, T., & Wößmann, L. (2008). What accounts for international differences in student prformance? A re-examination using PISA data. In The economics of education and training (pp. 209-240). Physica-Verlag HD.
+
+* Jiang, F., & McComas, W. F. (2015). The effects of inquiry teaching on student science achievement and attitudes: Evidence from propensity score analysis of PISA data. International Journal of Science Education, 37(3), 554-576.
+
+* Kitchin, R. (2014). Big Data, new epistemologies and paradigm shifts. Big data & society, 1(1), 2053951714528481.
+
+* Stoet, G., & Geary, D. C. (2013). Sex differences in mathematics and reading achievement are inversely related: Within-and across-nation assessment of 10 years of PISA data. PloS one, 8(3).
+
+<p>&nbsp;</p>
+<p>&nbsp;</p>
