@@ -10,16 +10,21 @@ runtime: shiny_prerendered
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+set.seed(123) #reproducible simulation
 
 library(tidyverse) #data manipulation 
 library(ggplot2) #visualization features
 library(plotly) #interactive plots
 library(psych) #PCA functions
 library(chemometrics) #mahalanobis distance test
+
+
+### INSTALLING LEARNR AND GRADETHIS FROM GITHUB ###
+#devtools::install_github("rstudio/learnr")
+#devtools::install_github("rstudio-education/gradethis")
 library(learnr) #tutorial format 
 library(gradethis) #custom feedback
 gradethis::gradethis_setup()
-set.seed(123) #reproducible simulation
 
 # load pre-made datasets and functions
 load(file = "PCA.Rdata")
