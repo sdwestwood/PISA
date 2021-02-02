@@ -97,6 +97,7 @@ We will cluster countries based on the same random variables used in the PCA (i.
 
 ```{r data, echo = FALSE, message = FALSE}
 #load in data
+int <- "Amy"
 countrySummary <- read_csv('countrySummary.csv')
 #select relevant variables and omit NA values
 bull_dis <- countrySummary %>% 
