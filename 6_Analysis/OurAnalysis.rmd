@@ -1,8 +1,9 @@
 ---
 title: "Modeling PISA Data by Clusters"
 output:
-  html_document:
-    theme: 'yeti'
+  learnr::tutorial:
+    progressive: true
+    allow_skip: true
 
 runtime: shiny_prerendered
 ---
@@ -24,16 +25,13 @@ library(tidyverse) #data manipulation
 set.seed(123) #reproducible simulation
 ```
 
-
-## Our Analysis {.tabset .tabet-fade .tabset-pills}
-
 ```{r Exmaple data loading, include=FALSE}
 load("FinalExample.RData")
 ```
 
-### Introduction
+## Introduction
 
-#### **Finding a Question**
+### **Finding a Question**
 
 You have now learned about enough statistical techniques to try applying them to the full PISA data set. The question that we are going to be interested in is whether policy changes lead to improved scores on the PISA tests when controlling for educational culture. For example, Northern Europe may have better-performing students because it spends more money on education, or it could be because the students experience less financial instability.
 
@@ -43,7 +41,7 @@ The PISA data has thousands of potentially predictive variables. Not only would 
 
 <p>&nbsp;</p>
 
-#### **Loading the data**
+### **Loading the data**
 
 The first step in any analysis is loading the data. For the purposes of this tutorial, this will be loading a pre-processed dataset which contains the country-level means for a selection of potentially meaningful variables in the student and school questionnaires.
 
@@ -58,9 +56,9 @@ Looking through the selected variables, it's obvious that many of the variables 
 
 <p>&nbsp;</p>
 
-### Principal Components Analysis
+## Principal Components Analysis
 
-#### **Using PCA**
+### **Using PCA**
 
 The way around the problem of correlated variables and subsequently uneven weighting is to use the Principal Components Analysis (PCA) from earlier. There is no definitive answer about how many principal components to choose. For this model, we will aim to use components that explain 90% of the total variance. Any components above this cut-off will be discarded. This should capture a good amount of the differences between countries while still working towards our aim of data compression.
 
@@ -72,7 +70,7 @@ cnt_pca <- principal(countrySummary[3:26],
 ```
 
 <p>&nbsp;</p>
-#### **Interpreting the Output of PCA**
+### **Interpreting the Output of PCA**
 
 ```{r Showing PCA, eval=TRUE, tidy=TRUE}
 cnt_pca
@@ -81,9 +79,9 @@ cnt_pca
 Based on the Cumulative Var output, we can see that 11 components is sufficient to reach 90% of the variance. This has halved the number of variables which will be used to cluster the different countries. Looking at the loadings in the correlation matrix, we can see a nice demonstration of what we were trying to avoid as groups of variables are clearly correlated with each other. The variables representing teacher engagement with student's reading load strongly onto the first factor, the second factor represents the quality and size of the teacher recruitment pool, while the third factor seems to be a combination of funding available for materials and teacher engagement. Finally, the 11th factor is essentially just how much time students spend studying.
 <p>&nbsp;</p>
 
-### Cluster Analysis
+## Cluster Analysis
 
-#### **Choosing a Clustering Method**
+### **Choosing a Clustering Method**
 With the variables compressed into principal components, we can move onto the clustering solution. We will use both k-means and density-based clustering, as explained in the clustering section. The scoring function for the K-Means will be the Calinski-Harabasz index or `r 'Ch'` which minimises the ratio between the summed squared distance within the individual clusters and the cluster space as a whole. `r 'Ch'` tends to lead to evenly shaped and equally sized clusters which can explain less variance but are less vulnerable to overfitting.
 
 ```{r, eval=FALSE}
@@ -121,14 +119,14 @@ filter(principal_dat, cluster == 0) %>%
 ```
 <p>&nbsp;</p>
 
-#### **Interpreting the Results**
+### **Interpreting the Results**
 
 On the one hand, it is disappointing to find that only a single cluster is good enough to describe the data because it suggests that there are no unique groupings of countries based on their teaching culture. However, this also makes the analysis with mixed-effects model easier because it should mean that a single mixed-effects model can be effectively used for the whole data set.
 
 <p>&nbsp;</p>
 
-### Running the Modified Mixed Effects Model
-#### **Defining the Model**
+## Running the Modified Mixed Effects Model
+### **Defining the Model**
 Now that we have found that the countries form a single, large cluster, we can move onto modelling the effecting of spending and learning time on students' scores. To do this, we will be using the mixed-effects models. While it would be possible to include the question subject as a random effect in a single model, we will split them into three models. This is because it may be interesting to see how the effectiveness of spending and learning time changes.
 
 Once again, the first step is to load in the data. This analysis will use 2000 students from the original PISA data set. The data is structured in long format, so each row represents one question answered by a student.
@@ -164,7 +162,7 @@ GLMM_scie <- lmer(Score ~ Spending * Learning +
 GLMM_scie_summary <- summary(GLMM_scie)
 ```
 
-#### **Results**
+### **Results**
 
 Now that we have successfully run the model, we can interpret the results to see if we can answer our original question: Is it always effective to increase education spending and learning time to improve reading, mathematics, and science ability in 15-year-olds?
 
@@ -187,7 +185,7 @@ kable(lme4Summaries, align = 'c') %>%
 
 The tables above show the fixed effects coefficients, the marginal R^2^, and total R^2^ for each of the models. The marginal R^2^ represents the variance explained by our fixed effects, while total R^2^ represents the variance explained by the whole model. We can see here that spending has the largest impact on student performance, while learning time seems to have a small negative effect. However, it is important to note that the positive interaction between spending and learning time means that more time spent learning will generally lead to better performance if their country's spending is above the mean. At the same time, the fixed effects still only account for ~15% of the variance, which would suggest that there are still many other factors affecting students' performance that are not simply correlated with these two variables.
 
-#### **Using the Model to Predict Changes** ####
+### **Using the Model to Predict Changes** ####
 
 Below there is a density plot where you can see the distribution of scores and how they relate to changes in spending and learning time. The line of best fit uses the fixed effects from the models we have generated.
 
@@ -248,8 +246,8 @@ observeEvent(
   })
 ```
 
-### Cross-validation
-#### **PCA**
+## Cross-validation
+### **PCA**
 
 The final step in this process is cross-validation. As explained in the previous section, this involves testing our methods on a different dataset to the one which the models were made with. This is often done using a sub-sample of the training data, but we have the advantage of using data from a long-running project. As such, we will validate our findings on the data collected by PISA in 2015. To do this we follow all of the same steps and see whether the same findings emerge. Not all of the same data was collected in the 2015 batch, but the method we have chosen should be robust enough to have the same trends.
 
@@ -265,7 +263,7 @@ cnt_pca2015
 
 Looking at this PCA output, 11 principal components are sufficient to reach our threshold of explaining 90% of the variance. While the ordering is slightly different, the variables which load together look to be the same as before. It is therefore suitable to move onto the clustering.
 
-#### **Clustering**
+### **Clustering**
 
 For the clustering we will use the same K-Means method as in the original analysis.
 
@@ -283,7 +281,7 @@ km_cluster2015
 
 The results from this clustering also find that a single cluster is the most effective solution, once again agreeing with our original analysis. While a disappointing result, it suggests that our methodological choices are sound.
 
-### Complex Model
+## Complex Model
 
 A unique quality of the PISA data set is that there is data available at the individual, school, and country level. This is a perfect fit for the advantages of Mixed Effects Models, all-be-it with much-increased computation times. For this reason, as a final complex example, below is an example of a model using this more precise data.
 
@@ -307,7 +305,7 @@ Based on this final output, we can see that educational spending is once again t
 The other consideration is that even with more variables in finer detail, the model was only able to account for ~30% of the variance. This would suggest that there are still more factors which are influencing students' scores.
 
 <p>&nbsp;</p>
-### Final Reflections
+## Final Reflections
 
 As much as we would wish it otherwise, ultimately all statistical methods consist of a series of judgment calls. Each decision branch has pros and cons and it is not immediately obvious what these will be. For example, using the linear mixed-effects model on subsections of the PISA dataset was effective, finding robust results despite the lower power. However, the processing power needed to construct these models is prohibitive and essentially rules out using the unique quantity of data available in PISA. At the same time, it may also be necessary to use the data compression in PCA and clustering to make the job of interpretation easier for the humans at the end of the process.
 
