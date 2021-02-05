@@ -1,0 +1,572 @@
+---
+title: "Cross Validation"
+date: "19/10/2020"
+output: html_document
+
+runtime: shiny_prerendered
+---
+### To do list
+* add references
+
+* add quiz
+
+* add section on 'external' cross validation
+
+* Fix js 
+
+<hr>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.1.9/p5.js"></script>
+
+<!-- this is some javascript to make the interactive K-means thing -->
+
+```{js, echo = FALSE}
+let n = 36;
+let p = 16;
+let gridSize = 16;
+let pointSize = 12;
+let k = 12;
+
+let kVec = [2, 4, 8, 16, 32];
+
+let nSlider, pSlider, pause;
+
+let stg = 0;
+let stgMove = 0;
+let phase = 0;
+
+let rands = [];
+let points = [];
+let pointsShuffled = [];
+
+function setup() {
+  kFoldsDiv = createCanvas(400, 200);
+  kFoldsDiv.parent('kFoldsDiv');
+  
+  nSlider = createSlider(32, 192, 144, 32);
+  nSlider.position(0, 180);
+  nSlider.parent('kFoldsDiv')
+  nSlider.style('width', '128px')
+  nSlider.input(reset);
+  
+  kSlider = createSlider(0, 4, 1, 1);
+  kSlider.position(140, 180);
+  kSlider.parent('kFoldsDiv')
+  kSlider.style('width', '128px')
+  kSlider.input(reset);
+  
+  for (let i = 0; i < n; i++) {
+    rands[i] = i;
+  }
+  
+  k = kVec[kSlider.value()];
+  stgMove = floor(n/k);
+  
+  n = nSlider.value();
+  p = stgMove;
+  
+  for (let i = 0; i < n; i++) {
+    
+    points[i] = new Point(gridSize+i%24*gridSize, gridSize+floor(i/24)*gridSize, pointSize, 
+                          i, i, points);
+      
+  }
+  
+  pointsShuffled = shuffle(points, false);
+  
+}
+
+function draw() {
+  background(255);
+  if (phase == 0) {
+    phase0();
+  } else if (phase == 1) {
+    phase1();
+  } else if (phase == 2) {
+    //points = [];
+    phase2();
+  }
+  
+}
+
+function phase1() {
+  
+  // checking two points have finished moving
+  if (round(points[0].x) == pointsShuffled[points[0].i1].xStart & frameCount % 40 == 0) {
+    if (round(points[10].x) == pointsShuffled[points[10].i1].xStart & frameCount % 40 == 0) {
+      phase = 2;
+    } 
+  }
+
+  for (let i = 0; i < n; i++) {
+    
+    points[i].move(); 
+    points[i].show1();
+    
+    if (i % p == 0) {
+      stroke(255, 50, 50);
+      strokeWeight(2)
+      line(gridSize+i%24*gridSize-gridSize/2, gridSize+floor(i/24)*gridSize+6, 
+           gridSize+i%24*gridSize-gridSize/2, gridSize+floor(i/24)*gridSize-6)
+    }
+      
+  }
+  
+  
+  
+  n = nSlider.value();
+  k = kVec[kSlider.value()];
+  
+  // TEXT
+  textSize(24);
+  fill(0);
+  text("N = ", 8, 180);
+  text(n, 52, 180);
+  
+  text("k = ", 148, 180);
+  text(k, 188, 180);
+  
+  // Shuffling!
+  text("Shuffling...", 278, 194)
+
+}
+
+function phase0() {
+  k = kVec[kSlider.value()];
+  stgMove = floor(n/k);
+  
+  n = nSlider.value();
+  p = stgMove;
+  
+  
+  for (i = 0; i < n; i++) {
+    fill(50, 50, 255);
+    noStroke();
+    ellipse(gridSize+i%24*gridSize, gridSize+floor(i/24)*gridSize, pointSize)
+    if (i % p == 0) {
+      stroke(255, 50, 50);
+      strokeWeight(2)
+      line(gridSize+i%24*gridSize-gridSize/2, gridSize+floor(i/24)*gridSize+6, 
+           gridSize+i%24*gridSize-gridSize/2, gridSize+floor(i/24)*gridSize-6)
+    }
+  }
+  
+  // TEXT
+  textSize(24);
+  fill(0);
+  text("N = ", 8, 180);
+  text(n, 52, 180);
+  
+  text("k = ", 148, 180);
+  text(k, 188, 180);
+  
+  if (p > n) {
+    fill(255, 50, 50);
+    textSize(16);
+    text("p > N", 236, 176);
+  }
+  
+  // BUTTON
+    fill(50, 50, 240);
+    noStroke(0);
+    rect(288, 160, 96, 36, 20);
+    fill(255);
+    textSize(24);
+    text("Start", 308, 186);
+  
+}
+
+function mousePressed() {
+  
+  if (mouseX > 288 & mouseX < 288+96 & mouseY > 160 & mouseY < 160+36 & phase == 0) {
+    phase = 1;
+    for (let i = 0; i < n; i++) {
+      points[i] = new Point(gridSize+i%24*gridSize, gridSize+floor(i/24)*gridSize, pointSize, 
+                            i, i, points);
+    }
+  
+  pointsShuffled = shuffle(points, false);
+  }
+ 
+}
+
+function phase2() {
+  
+  k = kVec[kSlider.value()];
+  stgMove = floor(n/k);
+  
+  if (frameCount % 40 == 0 & stg < n) {
+    stg += stgMove;
+  }
+  
+  if (stg > n) {
+    stg = 0;
+  }
+  
+  n = nSlider.value();
+  p = stgMove;
+  
+  startP = stg;
+  endP = startP + p;
+  
+  for (i = 0; i < n; i++) {
+    if (endP <= n) {
+      if (i+1 <= endP & i+1 > startP & stg < n) {
+        fill(255, 50, 50);
+      } else {
+        fill(50, 50, 255);
+      }
+    } else {
+    
+      if (i+1 > startP | i+1 <= endP-n & stg < n) {
+        fill(255, 50, 50);
+      } else {
+        fill(50, 50, 255);
+      }
+    }
+    
+    noStroke();
+    ellipse(gridSize+i%24*gridSize, gridSize+floor(i/24)*gridSize, pointSize)
+    
+  }
+  
+  
+  // TEXT
+  textSize(24);
+  fill(0);
+  text("N = ", 8, 180);
+  text(n, 52, 180);
+  
+  text("k = ", 148, 180);
+  text(k, 188, 180);
+  
+  if (p > n) {
+    fill(255, 50, 50);
+    textSize(16);
+    text("p > N", 236, 176);
+  }
+  
+  // KEY
+  noFill();
+  stroke(0);
+  rect(288, 144, 96, 48);
+  noStroke();
+  fill(50, 50, 255);
+  ellipse(300, 158, pointSize);
+  fill(0);
+  textSize(16);
+  text("= training", 312, 164);
+  
+  fill(255, 50, 50);
+  ellipse(300, 178, pointSize);
+  fill(0);
+  textSize(16);
+  text("= testing", 312, 184);
+  
+  if (stg >= n) {
+    
+    phase = 0;
+    stg = 0;
+  
+  }
+  
+}
+
+function togglePause() {
+  if (stgMove == 1) {
+    stgMove = 0;
+  } else {
+    stgMove = 1;
+  }
+}
+
+function reset() {
+  phase = 0;
+  stg = 0;
+  stgMove = 0;
+  
+  for (let i = 0; i < n; i++) {
+    rands[i] = i;
+  }
+  
+  points = [];
+  k = kVec[kSlider.value()];
+  stgMove = floor(n/k);
+  
+  n = nSlider.value();
+  p = stgMove;
+  
+  for (let i = 0; i < n; i++) {
+    
+    points[i] = new Point(gridSize+i%24*gridSize, gridSize+floor(i/24)*gridSize, pointSize, 
+                          i, i);
+      
+  }
+  
+  pointsShuffled = shuffle(points, false);
+  
+}
+
+class Point {
+  constructor(x, y, size, index_2, index_1, vector) {
+  
+      this.x = x;
+      this.y = y;
+      this.xStart = x;
+      this.yStart = y;
+      this.size = size;
+      this.i1 = index_1;
+      this.i2 = index_2;
+      
+      this.vector = vector;
+  
+  }
+  
+  move() {
+  
+    this.x = lerp(this.x, pointsShuffled[this.i1].xStart, 0.05);
+    this.y = lerp(this.y, pointsShuffled[this.i1].yStart, 0.05);
+  
+  }
+  
+  show1() {
+    
+    noStroke();
+    fill(50, 50, 255)
+    ellipse(this.x, this.y, this.size)
+  
+  }
+  
+  show2() {
+  
+    if (endP <= n) {
+      if (this.i2+1 <= endP & this.i2+1 > startP) {
+        fill(255, 50, 50);
+      } else {
+        fill(50, 50, 255);
+      }
+    } else {
+    
+      if (this.i2+1 > startP | this.i2+1 <= endP-n) {
+        fill(255, 50, 50);
+      } else {
+        fill(50, 50, 255);
+      }
+    }
+    
+    noStroke();
+    ellipse(this.x, this.y, this.size)
+  
+  }
+  
+}
+
+
+```
+
+After fitting a model to your data, you might want to know how well it would fit other, similar data. If your model does not fit other data very well, it may not be representative of the true relationships between the variables in your model. It may only represent relationships in the data used to fit the model. Determining the fit of a model on data that was not used to derive model parameters is known as cross-validation.
+
+In some cases, you would be able to collect new data to perform cross-validation, i.e., see how well the model fitted to your original data fits to newly collected data. In others, it may be unfeasible to collect more data, but you are still interested in what would happen if you had more data from the same data collection process, i.e., if your sample size was larger. 
+
+Essentially, sometimes you are interested in how well your model would perform on unseen data, without the ability or motivation to collect that data. If you are in this situation, there are methods that can be used to cross-validate your model.
+
+## Holdout Cross-Validation
+Cross-validation methods that do not require new data collection are based on the idea of a *holdout* sample. You split your data into two parts: a training set and a testing (or *holdout*) set. A model is fitted on the training set and 'tested' on the holdout set. The idea of 'testing' here refers to checking how well the model fits to the holdout sample. If the model fits well on both samples, this offers evidence for the generalisability of your model to a hypothetical larger sample of data (REF). It will tend to fit well on the training sample, as that is the sample from which the model parameters were derived.
+
+Typically, a training set is over half of the original sample (say, 80%). So, only a small proportion of the full dataset is used to test the model fitted to the training set. *DISCUSSION ABOUT PROPORTIONS*
+
+<div id = "holdoutDiv" style = "position: relative;"></div>
+
+## Repeated Cross-Validation
+The simple holdout algorithm can be expanded to include iterations, i.e., you can separate your dataset into testing and training data more than once, in different ways. Metrics of interest can be averaged across iterations, the result of which can be used to draw conclusions about the generalisability of the model (REF). By iterating over cross-validation algorithms, the bias of model-fit indicators (e.g., RMSEA, BIC) is reduced compared to simple, singular holdout cross-validation (REF).
+
+<!-- The **Leave-p-Out** algorithm randomly selects $p$ observations to exclude from the training set. These $p$ observations constitute the testing set. A model is fitted to the training data and tested on the testing data. The selection, training and testing process is repeated until all possible combinations of $p$ observations are used as a testing set. The number $p$ could theoretically be any number smaller than the number of observations in the full dataset ($N$). For some values of $p$ there will be many, *many* possible configurations of training and testing data. If $N = 1000$ and $p = 50$, then the total number of ways to split the data into testing and training is around $10\times e^{84}$. (*Note: you can calculate this for other combinations of $N$ and $p$ using the R code* `choose(N, p)`.) -->
+
+A popular method of repeated cross-validation is the **$k$-folds** algorithm by which data-points are randomly partitioned into $k$ sub-samples. One after another, each sub-sample is used as the testing set for a model fit to the data in all other sub-samples. See below for a demonstration of the k-folds algorithm. *DISCUSS VALUE OF K*
+
+*THIS DOESN'T WORK WITH SHINY_PRERENDERED - MIGHT WORK WHEN HOSTED ON A SERVER* 
+
+*USE THIS LINK TO SEE WHAT IT'S SUPPOSED TO LOOK LIKE https://editor.p5js.org/daikman/present/U2GomNWcK*
+<div id = "kFoldsDiv" style = "position: relative; border-style: solid; width: 406px"></div>
+
+## Applying Cross-Validation in R
+
+The plot below shows a clear positive relationship between variables $x$ and $y$. To demonstrate the application of cross-validation, we will train and test the model $y_{i} = \beta_0 + \beta_1x_{i}$ using this dataset. This is a simple linear regression model.
+
+```{r, echo = FALSE}
+set.seed(1111)
+
+dataset <- data.frame(x = seq(0, 100, 0.05) + rnorm(2001, sd = 10),
+                      y = seq(-10, 10, 0.01) + rnorm(2001, sd = 2))
+
+ggplot(dataset, 
+       aes(x = x, y = y)) +
+  geom_point(alpha = 0.5, color = 'pink') +
+  theme_minimal()
+```
+
+### Holdout Cross-Validation
+
+This first step for simple holdout cross-validation is splitting the dataset into testing and training data.
+
+```{r}
+# Defining the proportion of the data to be used for training (the rest will be used for testing)
+training_proportion <- 0.8
+
+# Randomly selecting rows from the full dataset (must be in wide format)
+training_rows <- sample(1:nrow(dataset), floor(nrow(dataset)*training_proportion))
+
+training_data <- dataset[training_rows, ]
+
+# Selecting the remaining (non-training) rows to be used for testing
+testing_data <- dataset[-training_rows, ]
+```
+
+Next, we can fit a model to the training data and find the desired fit index ($R^2$ in this case).
+
+```{r}
+# Fitting a model to the training data
+train.fit <- lm(y ~ x, training_data)
+
+# Extracting R-Squared from the training model
+train_R_Squared <- summary(train.fit)$r.squared # (it's around 0.8)
+```
+
+Using the model fitted to the training data, we need to calculate predictions for the values of $y$ in the testing data based on the observed values of $x$ in the testing data and the parameters $\beta_0$ and $\beta_1$ from the model fitted above. 
+
+```{r}
+# Predicting values of y, using the model fit to the training data, from the values of x in the testing data.
+prediction <- predict(train.fit, data.frame(x = testing_data$x))
+```
+
+$R^2$ for this prediction can be calculated from the differences between each predicted value of $y$ and the corresponding observed value of $y$. These differences are known as residuals. The $R^2$ statistic, in this case, will tell us how well the model parameters derived from the training sample fit the data in the testing sample.
+
+```{r}
+# Subtracting predicted values of y from actual values of y
+residuals <- testing_data$y - prediction
+
+# Calculating R-Squared
+residuals_ss <- sum((residuals)^2)
+total_ss <- sum((testing_data$y - mean(testing_data$y))^2)
+
+test_R_Squared <- 1 - residuals_ss/total_ss
+```
+
+The model fitted to the training data fits that data with an $R^2$ of around `r signif(train_R_Squared, digits = 3)`. This same model fit the testing data with an $R^2$ of around `r signif(test_R_Squared, digits = 3)`. 
+
+This means that the model fit both sub-samples of data well. The fact that the testing data was 'unseen' during the model fitting process suggests the model would fit well to other unseen data (e.g., data collected in the future), providing evidence of predictive validity. 
+
+### K-folds Cross-Validation
+
+Implementing $k$-folds cross validation works much the same as above, only we repeat the process using different divisions of the data (into training and testing sub-samples) each time. We can essentially wrap all the R code above in [a loop, or use an iterative function](https://r4ds.had.co.nz/iteration.html#the-map-functions).
+
+First, we need to decide on the value of $k$. For this demonstration, we will set $k$ to 5.
+
+```{r}
+k <- 5
+```
+
+Next, we need to split the data into $k$ (5) training and testing sets, where the testing sets are 1/5th the size of the whole dataset.
+
+```{r}
+# Shuffling the data
+
+## generating new random row numbers
+set.seed(1111)
+new_positions <- sample(1:nrow(dataset), nrow(dataset), replace = FALSE)
+
+## sorting dataset by random row numbers
+dataset <- arrange(dataset, new_positions)
+
+# Dividing data into k training and testing sets
+## pre-allocating list to store results of the loop below
+testing_indexes <- list()
+
+## using a loop to define the rows of data to use for testing in each fold
+## the mathematical part of this loop produces the numbers 1-400, 401-800... when k = 5.
+for (i in 1:k) {
+  testing_indexes[[i]] <- floor(
+    (1+(i-1)*nrow(dataset)/k):((i)*nrow(dataset)/k)
+  ) 
+}
+
+```
+
+Now we need to iterate through all the testing sub-samples (as defined by `testing_indexes`) using the rest of the data to train the model. (This will be the same model as above: $y_{i} = \beta_0 + \beta_1x_{i}$).
+
+```{r}
+# Pre-allocating vectors to store the results of each iteration
+train_R_Squared_Repeated <- vector()
+test_R_Squared_Repeated <- vector()
+
+# 'Looping through' each of the training/testing data combinations. 
+## this loop could be combined with the loop above (as they both use `i in 1:k`).
+for (i in 1:k) {
+  
+  # Selecting the testing data from the full dataset, using the indexes defined above
+  testing_data <- dataset[testing_indexes[[i]], ]
+
+  # Selecting the remaining (non-training) rows to be used for testing
+  training_data <- dataset[-testing_indexes[[i]], ]
+  
+  # Fitting a model to the training data
+  train.fit <- lm(y ~ x, training_data)
+  
+  # Extracting R-Squared from the training model
+  train_R_Squared_Repeated[i] <- summary(train.fit)$r.squared
+  
+  # Predicting values of y, using the model fit to the training data, from the values of x in the testing data.
+  prediction <- predict(train.fit, data.frame(x = testing_data$x))
+  
+  # Subtracting predicted values of y from actual values of y
+  residuals <- testing_data$y - prediction
+  
+  # Calculating R-Squared
+  residuals_ss <- sum((residuals)^2)
+  total_ss <- sum((testing_data$y - mean(testing_data$y))^2)
+  
+  test_R_Squared_Repeated[i] <- 1 - residuals_ss/total_ss
+  
+}
+  
+```
+
+<div style = "width: 50%;">
+
+```{r, echo = FALSE}
+kfoldsData <- data.frame(Fold = 1:5,
+                         Testing = test_R_Squared_Repeated, 
+                         Training = train_R_Squared_Repeated)
+
+knitr::kable(
+  kfoldsData, 
+  styling = 'html',
+  caption = 'The R-Squared values for each of the datasets'
+)
+```
+
+</div>
+
+```{r, echo = FALSE}
+ggplot(kfoldsData,
+       aes(x = Training, y = Testing)) +
+  geom_line() +
+  geom_point(size = 3, color = 'grey') +
+  theme_minimal()
+```
+
+The table and figure above display the $R^2$ values for each of the sub-samples, for each 'fold'. The results are similar across folds, with all $R^2$ values being quite high.
+
+In the figure, you can see that models that fit better to the training data fit worse on the testing data. This is known as *overfitting*, which occurs when a model's parameters are fit so well to a dataset that they are highly influenced by the random error in the that dataset, making them less accurate for unseen data, as unseen data will not contain the same random error.
+
+However, in this case we are not interesting in overfitting. We want to know the results of our repeated cross-validation. To do that, we can average the $R^2$ value (or any other fit index) over iterations. 
+
+The mean $R^2$ for the training sub-samples is `r round(mean(train_R_Squared_Repeated), 3)` (to 3 decimal places), which is slightly higher than the mean $R^2$ for the testing sub-samples, `r round(mean(test_R_Squared_Repeated), 3)`.
+
+The conclusion we could draw from this analysis is the same as the conclusion we drew above, from the simple holdout cross-validation. The model performs well on unseen data, providing evidence of its predictive validity.
+
+
