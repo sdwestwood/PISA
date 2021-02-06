@@ -1,0 +1,330 @@
+---
+title: "Modeling PISA Data by Clusters"
+output:
+  learnr::tutorial:
+    progressive: true
+    allow_skip: true
+
+runtime: shiny_prerendered
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(dbscan) #computing density based clustering
+library(fpc) #computing density based clustering
+library(ggrepel) #geom labels
+library(kableExtra) #Table layout
+library(knitr) #Markdown
+library(lme4) #Mixed effects models
+library(maps) #Maps
+library(MuMIn) #Mixed effects variance
+library(psych) #PCA
+library(shiny) #*everything*
+library(tidyverse) #data manipulation 
+
+set.seed(123) #reproducible simulation
+```
+
+```{r Exmaple data loading, include=FALSE}
+load("FinalExample.RData")
+```
+
+## Introduction
+
+### **Finding a Question**
+
+You have now learned about enough statistical techniques to try applying them to the full PISA data set. The question that we are going to be interested in is whether policy changes lead to improved scores on the PISA tests when controlling for educational culture. For example, Northern Europe may have better-performing students because it spends more money on education, or it could be because the students experience less financial instability.
+
+The way that we are going to answer this question is by seeing whether countries form clusters with each other. If there are clusters of countries with similar educational environments, we can use mixed-effects models to see whether the policy levers most available to governments, level of spending and the time the students are expected to dedicate to learning, are equally effective.
+
+The PISA data has thousands of potentially predictive variables. Not only would this lead to the clustering methods taking a long time to run, but correlations between variables can cause problems. We will therefore want to use the PCA techniques to compress the data into more easily handled dimensions.
+
+<p>&nbsp;</p>
+
+### **Loading the data**
+
+The first step in any analysis is loading the data. For the purposes of this tutorial, this will be loading a pre-processed dataset which contains the country-level means for a selection of potentially meaningful variables in the student and school questionnaires.
+
+```{r, eval=FALSE}
+countrySummary <- read_csv("countrySummary.csv")
+```
+```{r Heading the final data - ui, eval=TRUE, tidy=TRUE}
+names(countrySummary[,1:26])
+```
+
+Looking through the selected variables, it's obvious that many of the variables are measuring similar things and will probably be highly correlated. For example, it makes sense that higher spending on education will lead to fewer staff and material shortages, leading to a lower student-teacher ratio. This is a problem because one of the main weaknesses of clustering algorithms is that they default to equally weighting variables when calculating Euclidean distances. This is why in the previous example the predictive variables were scaled. In this case, leaving the variables as they are now would probably lead to levels of spending being more important than any other relevant factor. The solution to this problem is from the Principal Components Analysis, which will be implemented in the next section.
+
+<p>&nbsp;</p>
+
+## Principal Components Analysis
+
+### **Using PCA**
+
+The way around the problem of correlated variables and subsequently uneven weighting is to use the Principal Components Analysis (PCA) from earlier. There is no definitive answer about how many principal components to choose. For this model, we will aim to use components that explain 90% of the total variance. Any components above this cut-off will be discarded. This should capture a good amount of the differences between countries while still working towards our aim of data compression.
+
+```{r Running PCA, eval=FALSE}
+cnt_pca <- principal(countrySummary[3:26], 
+                     nfactors = 11, #Number of factors to include in the solution
+                     rotate = 'varimax', #Method to decide the rotation of the components. Leads to different interpretations of the components (i.e. whether they can be correlated) but does not change the explained variance.
+                     missing = TRUE) #Predict component values if some data is missing
+```
+
+<p>&nbsp;</p>
+### **Interpreting the Output of PCA**
+
+```{r Showing PCA, eval=TRUE, tidy=TRUE}
+cnt_pca$loadings
+```
+
+Based on the Cumulative Var output, we can see that 11 components is sufficient to reach 90% of the variance. This has halved the number of variables which will be used to cluster the different countries. 
+Looking at the loadings in the correlation matrix, we can see a nice demonstration of what we were trying to avoid as groups of variables are clearly correlated with each other. The variables representing teacher engagement with student's reading load strongly onto the first factor, the second factor represents the quality and size of the teacher recruitment pool, while the third factor seems to be a combination of funding available for materials and teacher engagement. Finally, the 11th factor is essentially just how much time students spend studying.
+<p>&nbsp;</p>
+
+## Cluster Analysis
+
+### **Density Clustering**
+With the variables compressed into principal components, we can move onto the clustering solution. We will use both k-means and density-based clustering, as explained in the clustering section.
+
+The first step is to determine the parameters for the density clustering. As the number of data points is still quite small, MinPts can be set to 3. We can then use a K-Nearest Neighbors plot to find $\epsilon$ by looking for an elbow.
+
+```{r, eval=TRUE}
+dbscan::kNNdistplot(principal_dat[2:12], k = 3)
+abline(h = 3.6, lty = 2)
+```
+
+When looking at this graph, the most obvious elbow is after the plateau when the distance is 3.6, so this will be used for the analysis.
+
+```{r, eval=TRUE}
+db <- fpc::dbscan(principal_dat[2:12], eps = 3.6, MinPts = 3)
+principal_dat$cluster <- as.factor(db$cluster)
+
+db
+```
+
+As you can see from this output, the `dbscan` function has determined that there is a single cluster of countries with six outliers. These countries are listed in the table below. This is not ideal for our research plan, which assumed that clusters of countries would be found. It will therefore be interesting to see if this result replicates when using the K-means algorithm.
+
+```{r, echo=FALSE, eval=TRUE}
+filter(principal_dat, cluster == 0) %>%
+  select("Outliers" = Country) %>%
+    kable %>% kable_styling(full_width = F, position = "left")
+```
+### **K-Means Clustering**
+The scoring function for the K-Means will be the Calinski-Harabasz index or `r "Ch"` which minimises the ratio between the summed squared distance within the individual clusters and the cluster space as a whole. `r "Ch"` tends to lead to evenly shaped and equally sized clusters which can explain less variance but are less vulnerable to overfitting.
+
+```{r, eval=FALSE}
+principal_dat <- cbind(countrySummary[,2], cnt_pca$scores)
+
+km_cluster <- kmeansCBI(principal_dat[,2:12],
+                     krange = 1:(nrow(principal_dat)-1), #Automatically tests every value of K up from one to one less than the number of countries
+                     criterion = "ch",
+                     runs = 400) #The number of random centroid positions to try
+```
+```{r, echo=FALSE}
+km_cluster
+```
+
+Despite checking 73 different values of K 400 times, the K-Means method also found an optimal clustering solution with a single cluster. This does not support our hypothesis that there are different clusters of teaching cultures.
+
+<p>&nbsp;</p>
+
+### **Interpreting the Results**
+
+On the one hand, it is disappointing to find that only a single cluster is good enough to describe the data because it suggests that there are no unique groupings of countries based on their teaching culture. However, this also makes the analysis with mixed-effects model easier because it should mean that a single mixed-effects model can be effectively used for the whole data set.
+
+However, for the purpose of demonstration, we will also run another K-Means analysis which does not allow a single cluster as an option.
+
+### **Modified K-Means Clusterng
+
+The initial steps are exactly the same, however, the krange will start from 2 rather than 1.
+```{r, eval=FALSE}
+km_cluster_demo <- kmeansCBI(principal_dat[,2:12],
+                             krange = 2:(nrow(principal_dat)-1), #Automatically tests every value of K up from one to one less than the number of countries
+                             criterion = "ch",
+                             runs = 400) #The number of random centroid positions to try
+```
+
+As you can see from the results of this modified function, the ten clusters seem valid according to our prior knowledge that nations which are geographically close are more likely to have similar educational cultures. Interestingly, the English speaking world also seems to be closer to each other than their neighbours. This would suggest that there is some worth to using a clustering approach, even if it was not the most effective solution for these data.
+
+```{r, eval = TRUE}
+ggplot() +
+  geom_polygon(data = map.world, aes(x = long, y = lat, group = group, fill = cluster), colour = "#444444") +
+  scale_fill_manual(values = c("#8dd3c7", "#ffffb3", "#bebada", "#fb8072", "#80b1d3",
+                        "#fdb462", "#b3de69", "#fccde5", "#bc80bd", "#ccebc5"),
+                    na.value = "#d9d9d9") +
+  geom_point(data = country.points, aes(x = long, y = lat, fill = cluster), size = 1.5, pch = 21) +
+  theme(legend.position = "none") +
+  theme_void()
+```
+
+<p>&nbsp;</p>
+
+## Running the Modified Mixed Effects Model
+### **Defining the Model**
+Now that we have found that the countries form a single, large cluster, we can move onto modelling the effecting of spending and learning time on students' scores. To do this, we will be using the mixed-effects models. While it would be possible to include the question subject as a random effect in a single model, we will split them into three models. This is because it may be interesting to see how the effectiveness of spending and learning time changes.
+
+Once again, the first step is to load in the data. This analysis will use 2000 students from the original PISA data set. The data is structured in long format, so each row represents one question answered by a student.
+
+```{r, eval=FALSE}
+dat <- read_csv("Sample_Students.csv") %>% 
+  inner_join(select(countrySummary, CNT), by = "CNT")
+```
+
+We can now run a model for each type of question answered by the students. In this most basic model, when setting up the random effects, we have the spending and learning time variables which vary by country, each question answered, and the individual taking the test.
+
+```{r, eval=FALSE}
+#Builds mixed effect model using all countries
+GLMM_read <- lmer(Score ~ Spending * Learning +
+                   (1 + Spending * Learning | CNT) +
+                   (1 | ID) +
+                   (1 | Item),
+                 data = filter(dat, str_detect(Item, "READ")))
+GLMM_read_summary <- summary(GLMM_read)
+
+GLMM_math <- lmer(Score ~ Spending * Learning +
+                   (1 + Spending * Learning | CNT) +
+                   (1 | ID) +
+                   (1 | Item),
+                 data = filter(dat, str_detect(Item, "MATH")))
+GLMM_math_summary <- summary(GLMM_math)
+
+GLMM_scie <- lmer(Score ~ Spending * Learning +
+                   (1 + Spending * Learning | CNT) +
+                   (1 | ID) +
+                   (1 | Item),
+                 data = filter(dat, str_detect(Item, "SCIE")))
+GLMM_scie_summary <- summary(GLMM_scie)
+```
+
+### **Results**
+
+Now that we have successfully run the model, we can interpret the results to see if we can answer our original question: Is it always effective to increase education spending and learning time to improve reading, mathematics, and science ability in 15-year-olds?
+
+```{r, echo=FALSE, eval=TRUE}
+kable(lme4Summaries, align = 'c') %>%
+  kable_styling
+```
+
+The tables above show the fixed effects coefficients, the marginal R^2^, and total R^2^ for each of the models. The marginal R^2^ represents the variance explained by our fixed effects, while total R^2^ represents the variance explained by the whole model. We can see here that spending has the largest impact on student performance, while learning time seems to have a small negative effect. However, it is important to note that the positive interaction between spending and learning time means that more time spent learning will generally lead to better performance if their country's spending is above the mean. At the same time, the fixed effects still only account for ~15% of the variance, which would suggest that there are still many other factors affecting students' performance that are not simply correlated with these two variables.
+
+### **Using the Model to Predict Changes** ####
+
+Below there is a density plot where you can see the distribution of scores and how they relate to changes in spending and learning time. The line of best fit uses the fixed effects from the models we have generated.
+
+```{r Description Graph GUI, eval=TRUE, echo=FALSE}
+inputPanel(
+  selectInput("x_axis", label = "Key Variable",
+              choices = c("Spending", "Learning"), selected = 1),
+  selectInput("Type", label = "Question Type",
+              choices = c("Reading", "Science", "Maths"), selected = 1)
+)
+plotOutput("countryPlot")
+```
+
+```{r Description Graph server, eval=TRUE, context = 'server', echo=TRUE}
+observeEvent(
+  {input$x_axis
+    input$Type
+  },{
+    setShow <- switch(input$Type,
+                      "Maths" = "MATH",
+                      "Reading" = "READ",
+                      "Science" = "SCIE")
+    
+    student_dat <- filter(dat, str_detect(Item, setShow))
+    country_dat <- filter(learnSpend, Type == setShow)
+    
+    intercept <- switch(input$Type,
+                        "Maths" = GLMM_math_summary$coefficients[1,1],
+                        "Reading" = GLMM_read_summary$coefficients[1,1],
+                        "Science" = GLMM_scie_summary$coefficients[1,1]
+    )
+    if (input$x_axis == "Spending") {
+      gradient <- switch(input$Type,
+                         "Maths" = GLMM_math_summary$coefficients[2,1],
+                         "Reading" = GLMM_read_summary$coefficients[2,1],
+                         "Science" = GLMM_scie_summary$coefficients[2,1])
+    } else {
+      gradient <- switch(input$Type,
+                         "Maths" = GLMM_math_summary$coefficients[3,1],
+                         "Reading" = GLMM_read_summary$coefficients[3,1],
+                         "Science" = GLMM_scie_summary$coefficients[3,1])
+    }
+    
+    output$countryPlot <- renderPlot({
+      ggplot(country_dat, aes(x = !!as.name(input$x_axis), y = Mean)) +
+        geom_bin2d(data = student_dat, aes(y = Score), bins = 50) +
+        scale_fill_gradientn(colours=rainbow(3)) +
+        geom_point() +
+                geom_abline(slope = gradient, intercept = intercept) +
+        geom_text_repel(aes(label = Country), alpha = 1, colour = 'black', size = 3) +
+        labs(y = "Score",
+             fill = "Count")
+    })
+  })
+```
+
+## Cross-validation
+### **PCA**
+
+The final step in this process is cross-validation. As explained in the previous section, this involves testing our methods on a different dataset to the one which the models were made with. This is often done using a sub-sample of the training data, but we have the advantage of using data from a long-running project. As such, we will validate our findings on the data collected by PISA in 2015. To do this we follow all of the same steps and see whether the same findings emerge. Not all of the same data was collected in the 2015 batch, but the method we have chosen should be robust enough to have the same trends.
+
+```{r, eval=FALSE}
+#Read the data
+countrySummary2015 <- read_csv("CountrySummary2015.csv")
+```
+```{r, eval=TRUE, tidy=TRUE}
+#PCA
+cnt_pca2015 <- principal(countrySummary2015[3:24], nfactors = 11)
+cnt_pca2015
+```
+
+Looking at this PCA output, 11 principal components are sufficient to reach our threshold of explaining 90% of the variance. While the ordering is slightly different, the variables which load together look to be the same as before. It is therefore suitable to move onto the clustering.
+
+### **Clustering**
+
+For the clustering we will use the same K-Means method as in the original analysis.
+
+```{r, eval=FALSE}
+principal_dat2015 <- cbind(countrySummary2015[,2], cnt_pca2015$scores) %>% na.omit
+km_cluster2015 <- kmeansCBI(principal_dat2015[2:12],
+                            krange = 1:(nrow(principal_dat2015)-1),
+                            criterion = "ch",
+                            runs = 400)
+```
+
+```{r, eval=TRUE, echo=FALSE}
+km_cluster2015
+```
+
+The results from this clustering also find that a single cluster is the most effective solution, once again agreeing with our original analysis. While a disappointing result, it suggests that our methodological choices are sound.
+
+## Complex Model
+
+A unique quality of the PISA data set is that there is data available at the individual, school, and country level. This is a perfect fit for the advantages of Mixed Effects Models, all-be-it with much-increased computation times. For this reason, as a final complex example, below is an example of a model using this more precise data.
+
+```{r, echo=TRUE, eval=FALSE}
+mixed_model <- lmer(Score ~ Spending * LearningTime + PhysicalInfrastructure + InternetComputers + PropTeachersQual + ClassSize +
+                      ParentEducation + Wealth + TeacherInterest + WellBeing + Resilience + Bullied +
+                      (1 + Spending | CNT) +
+                      (1 + PhysicalInfrastructure + InternetComputers + PropTeachersQual + ClassSize | SchID) +
+                      (1 + ParentEducation + LearningTime + Wealth + TeacherInterest + WellBeing + Resilience + Bullied | ID) +
+                      (1 | Item),
+                    data = test_dat)
+```
+
+```{r, eval=TRUE}
+summary(mixed_model)
+r.squaredGLMM(mixed_model)
+```
+
+Based on this final output, we can see that educational spending is once again the greatest predictive factor for scores on all questions in the PISA data set. This is useful to know because it means that generally increasing spending on education will lead to tangible improvements in outcomes. Less encouraging is the general lack of impact of cultural predictors, with the next two strongest fixed effects being household wealth and parental education. These are much harder to influence in the short term, though it would suggest that investment in education will continue to have an impact over a generation.
+
+The other consideration is that even with more variables in finer detail, the model was only able to account for ~30% of the variance. This would suggest that there are still more factors which are influencing students' scores.
+
+<p>&nbsp;</p>
+## Final Reflections
+
+As much as we would wish it otherwise, ultimately all statistical methods consist of a series of judgment calls. Each decision branch has pros and cons and it is not immediately obvious what these will be. For example, using the linear mixed-effects model on subsections of the PISA dataset was effective, finding robust results despite the lower power. However, the processing power needed to construct these models is prohibitive and essentially rules out using the unique quantity of data available in PISA. At the same time, it may also be necessary to use the data compression in PCA and clustering to make the job of interpretation easier for the humans at the end of the process.
+
+Ultimately, our efforts in this learning app are a step forward in applying more sophisticated analyses to the PISA set, rather than relying on simple comparisons of country-level means. Potential future directions could either build on what we have achieved here or start from a completely different point. For example, K-means is not necessarily the best clustering method in this situation, how would the results change if density clustering was used? Another advancement would be more effectively using the breadth of data available, such as using mixed-effect models which vary by student, school, and teacher.
