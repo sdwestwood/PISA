@@ -15,9 +15,34 @@ km_cluster <- kmeansCBI(principal_dat[,2:12],
                         runs = 400) #The number of random centroid positions to try
 
 km_cluster_demo <- kmeansCBI(principal_dat[,2:12],
-                             krange = 2:(nrow(principal_dat)-1), #Automatically tests every value of K up from one to one less than the number of countries
+                             krange = 2:20,
                              criterion = "ch",
                              runs = 400) #The number of random centroid positions to try
+
+mapSummary <- mutate(countrySummary,
+                         cluster = as.factor(km_cluster_demo$partition))
+
+countryMap <- select(mapSummary, Country, cluster)
+countryMap$Country <- recode(countryMap$Country,
+                             "United States" = "USA",
+                             "United Kingdom" = "UK",
+                             "Viet Nam" = "Vietnam",
+                             "Brunei Darussalam" = "Brunei",
+                             "Korea" = "South Korea",
+                             "Slovak Republic" = "Slovakia",
+                             "North Macedonia" = "Macedonia",
+                             "Hong Kong (China)" = "Hong Kong",
+                             "Macao (China)" = "Macao"
+)
+map.world <- map_data("world") %>%
+  left_join(countryMap, by = c("region" = "Country"))
+country.points <- data.frame(
+  Country = c("Brunei", "Hong Kong", "Luxembourg", "Macao", "Singapore", "Qatar", "United Arab Emirates"),
+  lat = c(4.5353, 22.3193, 49.6116, 22.1987, 1.3521, 25.3548, 23.4241),
+  long = c(114.7277, 114.1694, 6.1319, 113.5439, 103.8198, 51.1839, 53.8478),
+  stringsAsFactors = FALSE
+) %>%
+  left_join(countryMap, by = "Country")
 
 dat <- read_csv("./shared_data/Sample_Students.csv") %>% 
   inner_join(select(countrySummary, CNT), by = "CNT")
