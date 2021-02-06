@@ -17,6 +17,7 @@ library(ggrepel) #geom labels
 library(kableExtra) #Table layout
 library(knitr) #Markdown
 library(lme4) #Mixed effects models
+library(maps) #Maps
 library(MuMIn) #Mixed effects variance
 library(psych) #PCA
 library(shiny) #*everything*
@@ -82,7 +83,7 @@ Looking at the loadings in the correlation matrix, we can see a nice demonstrati
 
 ## Cluster Analysis
 
-### **Choosing a Clustering Method**
+### **Density Clustering**
 With the variables compressed into principal components, we can move onto the clustering solution. We will use both k-means and density-based clustering, as explained in the clustering section.
 
 The first step is to determine the parameters for the density clustering. As the number of data points is still quite small, MinPts can be set to 3. We can then use a K-Nearest Neighbors plot to find $\epsilon$ by looking for an elbow.
@@ -108,6 +109,7 @@ filter(principal_dat, cluster == 0) %>%
   select("Outliers" = Country) %>%
     kable %>% kable_styling(full_width = F, position = "left")
 ```
+### **K-Means Clustering**
 The scoring function for the K-Means will be the Calinski-Harabasz index or `r "Ch"` which minimises the ratio between the summed squared distance within the individual clusters and the cluster space as a whole. `r "Ch"` tends to lead to evenly shaped and equally sized clusters which can explain less variance but are less vulnerable to overfitting.
 
 ```{r, eval=FALSE}
@@ -130,13 +132,29 @@ Despite checking 73 different values of K 400 times, the K-Means method also fou
 
 On the one hand, it is disappointing to find that only a single cluster is good enough to describe the data because it suggests that there are no unique groupings of countries based on their teaching culture. However, this also makes the analysis with mixed-effects model easier because it should mean that a single mixed-effects model can be effectively used for the whole data set.
 
-However, for the purpose of demonstration, we will also run an analysis which does not allow a single cluster as an option.
+However, for the purpose of demonstration, we will also run another K-Means analysis which does not allow a single cluster as an option.
 
+### **Modified K-Means Clusterng
+
+The initial steps are exactly the same, however, the krange will start from 2 rather than 1.
 ```{r, eval=FALSE}
 km_cluster_demo <- kmeansCBI(principal_dat[,2:12],
                              krange = 2:(nrow(principal_dat)-1), #Automatically tests every value of K up from one to one less than the number of countries
                              criterion = "ch",
                              runs = 400) #The number of random centroid positions to try
+```
+
+As you can see from the results of this modified function, the ten clusters seem valid according to our prior knowledge that nations which are geographically close are more likely to have similar educational cultures. Interestingly, the English speaking world also seems to be closer to each other than their neighbours. This would suggest that there is some worth to using a clustering approach, even if it was not the most effective solution for these data.
+
+```{r, eval = TRUE}
+ggplot() +
+  geom_polygon(data = map.world, aes(x = long, y = lat, group = group, fill = cluster), colour = "#444444") +
+  scale_fill_manual(values = c("#8dd3c7", "#ffffb3", "#bebada", "#fb8072", "#80b1d3",
+                        "#fdb462", "#b3de69", "#fccde5", "#bc80bd", "#ccebc5"),
+                    na.value = "#d9d9d9") +
+  geom_point(data = country.points, aes(x = long, y = lat, fill = cluster), size = 1.5, pch = 21) +
+  theme(legend.position = "none") +
+  theme_void()
 ```
 
 <p>&nbsp;</p>
@@ -182,22 +200,10 @@ GLMM_scie_summary <- summary(GLMM_scie)
 
 Now that we have successfully run the model, we can interpret the results to see if we can answer our original question: Is it always effective to increase education spending and learning time to improve reading, mathematics, and science ability in 15-year-olds?
 
-```{r, eval=FALSE, echo=FALSE}
-lme4Summaries <- tibble(
-  Subject = c("Reading", "Maths", "Science"),
-  Spending = c(GLMM_read_summary$coefficients[2,1], GLMM_math_summary$coefficients[2,1], GLMM_scie_summary$coefficients[2,1]),
-  "Learning Time" = c(GLMM_read_summary$coefficients[3,1], GLMM_math_summary$coefficients[3,1], GLMM_scie_summary$coefficients[3,1]),
-  "Spending x Learning" = c(GLMM_read_summary$coefficients[4,1], GLMM_math_summary$coefficients[4,1], GLMM_scie_summary$coefficients[4,1]),
-  "Marginal R2" = c(r.squaredGLMM(GLMM_read)[1], r.squaredGLMM(GLMM_math)[1],r.squaredGLMM(GLMM_scie)[1]),
-  "Total R2" = c(r.squaredGLMM(GLMM_read)[2], r.squaredGLMM(GLMM_math)[2],r.squaredGLMM(GLMM_scie)[2])) %>%
-  mutate(across(where(is.numeric), round, 2))
-```
 ```{r, echo=FALSE, eval=TRUE}
 kable(lme4Summaries, align = 'c') %>%
   kable_styling
-
 ```
-
 
 The tables above show the fixed effects coefficients, the marginal R^2^, and total R^2^ for each of the models. The marginal R^2^ represents the variance explained by our fixed effects, while total R^2^ represents the variance explained by the whole model. We can see here that spending has the largest impact on student performance, while learning time seems to have a small negative effect. However, it is important to note that the positive interaction between spending and learning time means that more time spent learning will generally lead to better performance if their country's spending is above the mean. At the same time, the fixed effects still only account for ~15% of the variance, which would suggest that there are still many other factors affecting students' performance that are not simply correlated with these two variables.
 
@@ -205,10 +211,6 @@ The tables above show the fixed effects coefficients, the marginal R^2^, and tot
 
 Below there is a density plot where you can see the distribution of scores and how they relate to changes in spending and learning time. The line of best fit uses the fixed effects from the models we have generated.
 
-```{r, eval=FALSE, echo=FALSE}
-learnSpend <- dat %>% separate(Item, into = c("Item", "Type"), sep = -4) %>% group_by(Country, Type) %>%
-  summarise(Mean = mean(Score)) %>% right_join(unique(select(dat, Country, Spending, Learning)))
-```
 ```{r Description Graph GUI, eval=TRUE, echo=FALSE}
 inputPanel(
   selectInput("x_axis", label = "Key Variable",
