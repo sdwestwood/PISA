@@ -73,16 +73,42 @@ cnt_pca <- principal(countrySummary[3:26],
 ### **Interpreting the Output of PCA**
 
 ```{r Showing PCA, eval=TRUE, tidy=TRUE}
-cnt_pca
+cnt_pca$loadings
 ```
 
-Based on the Cumulative Var output, we can see that 11 components is sufficient to reach 90% of the variance. This has halved the number of variables which will be used to cluster the different countries. Looking at the loadings in the correlation matrix, we can see a nice demonstration of what we were trying to avoid as groups of variables are clearly correlated with each other. The variables representing teacher engagement with student's reading load strongly onto the first factor, the second factor represents the quality and size of the teacher recruitment pool, while the third factor seems to be a combination of funding available for materials and teacher engagement. Finally, the 11th factor is essentially just how much time students spend studying.
+Based on the Cumulative Var output, we can see that 11 components is sufficient to reach 90% of the variance. This has halved the number of variables which will be used to cluster the different countries. 
+Looking at the loadings in the correlation matrix, we can see a nice demonstration of what we were trying to avoid as groups of variables are clearly correlated with each other. The variables representing teacher engagement with student's reading load strongly onto the first factor, the second factor represents the quality and size of the teacher recruitment pool, while the third factor seems to be a combination of funding available for materials and teacher engagement. Finally, the 11th factor is essentially just how much time students spend studying.
 <p>&nbsp;</p>
 
 ## Cluster Analysis
 
 ### **Choosing a Clustering Method**
-With the variables compressed into principal components, we can move onto the clustering solution. We will use both k-means and density-based clustering, as explained in the clustering section. The scoring function for the K-Means will be the Calinski-Harabasz index or `r 'Ch'` which minimises the ratio between the summed squared distance within the individual clusters and the cluster space as a whole. `r 'Ch'` tends to lead to evenly shaped and equally sized clusters which can explain less variance but are less vulnerable to overfitting.
+With the variables compressed into principal components, we can move onto the clustering solution. We will use both k-means and density-based clustering, as explained in the clustering section.
+
+The first step is to determine the parameters for the density clustering. As the number of data points is still quite small, MinPts can be set to 3. We can then use a K-Nearest Neighbors plot to find $\epsilon$ by looking for an elbow.
+
+```{r, eval=TRUE}
+dbscan::kNNdistplot(principal_dat[2:12], k = 3)
+abline(h = 3.6, lty = 2)
+```
+
+When looking at this graph, the most obvious elbow is after the plateau when the distance is 3.6, so this will be used for the analysis.
+
+```{r, eval=TRUE}
+db <- fpc::dbscan(principal_dat[2:12], eps = 3.6, MinPts = 3)
+principal_dat$cluster <- as.factor(db$cluster)
+
+db
+```
+
+As you can see from this output, the `dbscan` function has determined that there is a single cluster of countries with six outliers. These countries are listed in the table below. This is not ideal for our research plan, which assumed that clusters of countries would be found. It will therefore be interesting to see if this result replicates when using the K-means algorithm.
+
+```{r, echo=FALSE, eval=TRUE}
+filter(principal_dat, cluster == 0) %>%
+  select("Outliers" = Country) %>%
+    kable %>% kable_styling(full_width = F, position = "left")
+```
+The scoring function for the K-Means will be the Calinski-Harabasz index or `r Ch` which minimises the ratio between the summed squared distance within the individual clusters and the cluster space as a whole. `r Ch` tends to lead to evenly shaped and equally sized clusters which can explain less variance but are less vulnerable to overfitting.
 
 ```{r, eval=FALSE}
 principal_dat <- cbind(countrySummary[,2], cnt_pca$scores)
@@ -96,32 +122,22 @@ km_cluster <- kmeansCBI(principal_dat[,2:12],
 km_cluster
 ```
 
-Despite checking 73 different values of K 400 times, the K-Means method found an optimal clustering solution with a single cluster. This does not support our hypothesis that there are different clusters of teaching cultures. It will therefore be interesting to see if this result also replicates when using DBSCAN.
+Despite checking 73 different values of K 400 times, the K-Means method also found an optimal clustering solution with a single cluster. This does not support our hypothesis that there are different clusters of teaching cultures.
 
-```{r, eval=TRUE}
-dbscan::kNNdistplot(principal_dat[2:12], k = 3)
-abline(h = 3.6, lty = 2)
-```
-
-When looking at this graph, the most obvious elbow is after the plateau when the distance is 3.5, so this will be used for the analysis.
-
-```{r, eval=TRUE}
-db <- fpc::dbscan(principal_dat[2:12], eps = 3.6, MinPts = 3)
-principal_dat$cluster <- as.factor(db$cluster)
-```
-
-The result from DBSCAN is very similar to the K-Means analysis, finding one large cluster with a few countries labelled as outliers. The countries which are found to be outleirs are listed in the table below.
-
-```{r, echo=FALSE, eval=TRUE}
-filter(principal_dat, cluster == 0) %>%
-  select("Outliers" = Country) %>%
-    kable %>% kable_styling(full_width = F)
-```
 <p>&nbsp;</p>
 
 ### **Interpreting the Results**
 
 On the one hand, it is disappointing to find that only a single cluster is good enough to describe the data because it suggests that there are no unique groupings of countries based on their teaching culture. However, this also makes the analysis with mixed-effects model easier because it should mean that a single mixed-effects model can be effectively used for the whole data set.
+
+However, for the purpose of demonstration, we will also run an analysis which does not allow a single cluster as an option.
+
+```{r, eval=FALSE}
+km_cluster_demo <- kmeansCBI(principal_dat[,2:12],
+                             krange = 2:(nrow(principal_dat)-1), #Automatically tests every value of K up from one to one less than the number of countries
+                             criterion = "ch",
+                             runs = 400) #The number of random centroid positions to try
+```
 
 <p>&nbsp;</p>
 
