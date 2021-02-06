@@ -162,76 +162,68 @@ $(document).ready(function () {
 </div>
 <div id="section-interpreting-the-output-of-pca" class="section level3">
 <h3><strong>Interpreting the Output of PCA</strong></h3>
-<pre class="r"><code>cnt_pca</code></pre>
-<pre><code>## Principal Components Analysis
-## Call: principal(r = countrySummary[3:26], nfactors = 11, rotate = &quot;varimax&quot;, 
-##     missing = TRUE)
-## Standardized loadings (pattern matrix) based upon correlation matrix
-##                       RC2   RC1   RC3   RC4  RC11   RC6   RC5  RC10   RC9   RC8
-## GNI                  0.03 -0.21 -0.70 -0.30 -0.21 -0.08  0.10  0.12 -0.24  0.08
-## StudentTeacherRatio  0.13  0.93  0.08  0.14  0.16  0.14  0.08  0.00  0.06 -0.02
-## TeacherMasters       0.12  0.93  0.09  0.13  0.17  0.14  0.08  0.00  0.05 -0.02
-## ClassSize            0.20  0.67  0.08  0.01  0.44 -0.05  0.15 -0.17 -0.06  0.02
-## ExtraCur             0.22 -0.03 -0.02 -0.14  0.07  0.00 -0.06 -0.02 -0.01  0.88
-## MaterialShortages   -0.11  0.09  0.76  0.17  0.35  0.17 -0.03  0.03  0.02 -0.21
-## StaffShortages      -0.20  0.12  0.21 -0.12  0.34  0.34  0.36 -0.09 -0.56 -0.23
-## StudentBehaviour    -0.06  0.12  0.08  0.03 -0.09  0.90 -0.17 -0.14  0.13 -0.08
-## TeacherBehaviour    -0.09  0.08 -0.09  0.03  0.04  0.87  0.23 -0.04 -0.18  0.07
-## Attitude             0.07  0.08 -0.15  0.10  0.05  0.12  0.86  0.03  0.03 -0.07
-## Bullying             0.84  0.22 -0.10  0.14  0.13  0.09 -0.18 -0.16 -0.06 -0.03
-## Discipline           0.07 -0.05  0.67 -0.34 -0.15 -0.24  0.01  0.39 -0.05  0.20
-## SocioEcoStatus      -0.13 -0.44 -0.35 -0.18 -0.75  0.04 -0.07  0.08 -0.13  0.01
-## ParentEducation     -0.02 -0.28 -0.07 -0.12 -0.91  0.03 -0.06  0.03 -0.04 -0.09
-## Competitiveness      0.68  0.00 -0.10  0.01  0.11 -0.07  0.30  0.35 -0.02  0.26
-## Cooperation          0.16 -0.08  0.07 -0.13 -0.09 -0.15  0.02  0.91  0.15 -0.04
-## TeacherFeedback      0.81  0.12  0.09 -0.09 -0.11 -0.17  0.17  0.20  0.14  0.15
-## TeacherEngagment     0.52  0.15  0.63 -0.09 -0.01 -0.19  0.14  0.08  0.20  0.25
-## TeacherInterest      0.53  0.27  0.22 -0.01  0.10 -0.10  0.58  0.13  0.30  0.10
-## TeacherSupport       0.54  0.28  0.33  0.10  0.10 -0.17  0.57 -0.07  0.07 -0.01
-## TruantDay            0.03  0.11  0.07  0.97  0.10  0.02  0.07 -0.07  0.03 -0.06
-## TruantClass          0.01  0.12  0.06  0.97  0.09  0.02  0.04 -0.07  0.04 -0.08
-## PositiveAffect       0.07  0.10  0.31  0.06  0.19  0.03  0.22  0.16  0.81 -0.08
-## LearningTime         0.04  0.15 -0.05 -0.10 -0.04  0.01  0.13  0.05  0.02  0.20
-##                       RC7   h2    u2 com
-## GNI                  0.11 0.78 0.223 2.4
-## StudentTeacherRatio  0.08 0.97 0.034 1.3
-## TeacherMasters       0.08 0.97 0.030 1.2
-## ClassSize            0.05 0.74 0.255 2.3
-## ExtraCur             0.21 0.90 0.096 1.3
-## MaterialShortages    0.18 0.86 0.139 2.1
-## StaffShortages       0.25 0.91 0.089 5.5
-## StudentBehaviour    -0.01 0.92 0.082 1.3
-## TeacherBehaviour     0.02 0.87 0.135 1.3
-## Attitude             0.19 0.84 0.156 1.3
-## Bullying             0.15 0.89 0.108 1.6
-## Discipline          -0.23 0.89 0.111 3.3
-## SocioEcoStatus      -0.01 0.96 0.042 2.5
-## ParentEducation      0.06 0.95 0.052 1.3
-## Competitiveness      0.09 0.78 0.220 2.5
-## Cooperation          0.06 0.94 0.065 1.3
-## TeacherFeedback     -0.09 0.85 0.154 1.7
-## TeacherEngagment    -0.09 0.87 0.126 3.2
-## TeacherInterest     -0.06 0.87 0.128 3.7
-## TeacherSupport      -0.15 0.89 0.106 3.7
-## TruantDay           -0.06 0.98 0.017 1.1
-## TruantClass         -0.05 0.98 0.018 1.1
-## PositiveAffect       0.09 0.90 0.095 1.8
-## LearningTime         0.90 0.91 0.094 1.2
+<pre class="r"><code>cnt_pca$loadings</code></pre>
+<pre><code>## 
+## Loadings:
+##                     RC2    RC1    RC3    RC4    RC11   RC6    RC5    RC10  
+## GNI                        -0.208 -0.700 -0.304 -0.206                0.122
+## StudentTeacherRatio  0.132  0.927         0.145  0.162  0.135              
+## TeacherMasters       0.125  0.931         0.126  0.170  0.137              
+## ClassSize            0.203  0.666                0.442         0.145 -0.167
+## ExtraCur             0.224               -0.145                            
+## MaterialShortages   -0.106         0.763  0.169  0.352  0.171              
+## StaffShortages      -0.204  0.117  0.214 -0.123  0.338  0.337  0.362       
+## StudentBehaviour            0.121                       0.900 -0.168 -0.143
+## TeacherBehaviour                                        0.866  0.225       
+## Attitude                          -0.155                0.116  0.861       
+## Bullying             0.842  0.216 -0.104  0.135  0.128        -0.182 -0.157
+## Discipline                         0.666 -0.341 -0.146 -0.237         0.388
+## SocioEcoStatus      -0.128 -0.436 -0.352 -0.183 -0.752                     
+## ParentEducation            -0.283        -0.119 -0.910                     
+## Competitiveness      0.681        -0.102         0.108         0.296  0.351
+## Cooperation          0.159               -0.130        -0.148         0.908
+## TeacherFeedback      0.808  0.118               -0.112 -0.173  0.172  0.204
+## TeacherEngagment     0.521  0.147  0.633               -0.190  0.136       
+## TeacherInterest      0.527  0.267  0.218                       0.580  0.135
+## TeacherSupport       0.542  0.281  0.331               -0.172  0.575       
+## TruantDay                   0.115         0.967                            
+## TruantClass                 0.122         0.969                            
+## PositiveAffect              0.100  0.312         0.193         0.220  0.157
+## LearningTime                0.146        -0.104                0.131       
+##                     RC9    RC8    RC7   
+## GNI                 -0.242         0.111
+## StudentTeacherRatio                     
+## TeacherMasters                          
+## ClassSize                               
+## ExtraCur                    0.883  0.206
+## MaterialShortages          -0.207  0.183
+## StaffShortages      -0.560 -0.228  0.247
+## StudentBehaviour     0.130              
+## TeacherBehaviour    -0.181              
+## Attitude                           0.189
+## Bullying                           0.145
+## Discipline                  0.199 -0.228
+## SocioEcoStatus      -0.125              
+## ParentEducation                         
+## Competitiveness             0.264       
+## Cooperation          0.151              
+## TeacherFeedback      0.143  0.148       
+## TeacherEngagment     0.203  0.247       
+## TeacherInterest      0.296  0.102       
+## TeacherSupport                    -0.149
+## TruantDay                               
+## TruantClass                             
+## PositiveAffect       0.814              
+## LearningTime                0.196  0.899
 ## 
-##                        RC2  RC1  RC3  RC4 RC11  RC6  RC5 RC10  RC9  RC8  RC7
-## SS loadings           2.92 2.83 2.45 2.32 2.09 1.96 1.92 1.31 1.30 1.17 1.15
-## Proportion Var        0.12 0.12 0.10 0.10 0.09 0.08 0.08 0.05 0.05 0.05 0.05
-## Cumulative Var        0.12 0.24 0.34 0.44 0.53 0.61 0.69 0.74 0.80 0.84 0.89
-## Proportion Explained  0.14 0.13 0.11 0.11 0.10 0.09 0.09 0.06 0.06 0.05 0.05
-## Cumulative Proportion 0.14 0.27 0.38 0.49 0.59 0.68 0.77 0.83 0.89 0.95 1.00
-## 
-## Mean item complexity =  2.1
-## Test of the hypothesis that 11 components are sufficient.
-## 
-## The root mean square of the residuals (RMSR) is  0.03 
-##  with the empirical chi square  37.71  with prob &lt;  1 
-## 
-## Fit based upon off diagonal values = 0.99</code></pre>
+##                  RC2   RC1   RC3   RC4  RC11   RC6   RC5  RC10   RC9   RC8
+## SS loadings    2.917 2.835 2.451 2.318 2.088 1.963 1.917 1.315 1.299 1.168
+## Proportion Var 0.122 0.118 0.102 0.097 0.087 0.082 0.080 0.055 0.054 0.049
+## Cumulative Var 0.122 0.240 0.342 0.438 0.525 0.607 0.687 0.742 0.796 0.845
+##                  RC7
+## SS loadings    1.154
+## Proportion Var 0.048
+## Cumulative Var 0.893</code></pre>
 Based on the Cumulative Var output, we can see that 11 components is sufficient to reach 90% of the variance. This has halved the number of variables which will be used to cluster the different countries. Looking at the loadings in the correlation matrix, we can see a nice demonstration of what we were trying to avoid as groups of variables are clearly correlated with each other. The variables representing teacher engagement with student’s reading load strongly onto the first factor, the second factor represents the quality and size of the teacher recruitment pool, while the third factor seems to be a combination of funding available for materials and teacher engagement. Finally, the 11th factor is essentially just how much time students spend studying.
 <p>
  
@@ -242,53 +234,23 @@ Based on the Cumulative Var output, we can see that 11 components is sufficient 
 <h2>Cluster Analysis</h2>
 <div id="section-choosing-a-clustering-method" class="section level3">
 <h3><strong>Choosing a Clustering Method</strong></h3>
-<p>With the variables compressed into principal components, we can move onto the clustering solution. We will use both k-means and density-based clustering, as explained in the clustering section. The scoring function for the K-Means will be the Calinski-Harabasz index or Ch which minimises the ratio between the summed squared distance within the individual clusters and the cluster space as a whole. Ch tends to lead to evenly shaped and equally sized clusters which can explain less variance but are less vulnerable to overfitting.</p>
-<pre class="r"><code>principal_dat &lt;- cbind(countrySummary[,2], cnt_pca$scores)
-
-km_cluster &lt;- kmeansCBI(principal_dat[,2:12],
-                     krange = 1:(nrow(principal_dat)-1), #Automatically tests every value of K up from one to one less than the number of countries
-                     criterion = &quot;ch&quot;,
-                     runs = 400) #The number of random centroid positions to try</code></pre>
-<pre><code>## $result
-## $result$crit
-##  [1]  0.000000  6.176530  6.258898  6.201724  6.291688  6.360891  6.474517
-##  [8]  6.615525  6.728376  6.761301  6.729177  6.585650  6.472134  6.379713
-## [15]  6.334435  6.314895  6.339055  6.366854  6.359381  6.363773  6.361853
-## [22]  6.385987  6.376729  6.376774  6.331273  6.328175  6.283256  6.303657
-## [29]  6.314999  6.284320  6.313901  6.281976  6.292365  6.276400  6.261911
-## [36]  6.247600  6.254213  6.252827  6.278181  6.284741  6.326677  6.391446
-## [43]  6.373742  6.395336  6.447006  6.454858  6.570632  6.607553  6.681523
-## [50]  6.752154  6.923700  7.019090  7.078487  7.181103  7.398446  7.649617
-## [57]  7.918348  8.162383  8.266233  8.195360  8.298937  8.702421  9.173124
-## [64]  9.302729  9.271752  9.892587  9.669763 10.645791 10.803030 11.814091
-## [71] 13.502450 17.536846 31.667346
-## 
-## $result$bestk
-## [1] 1
-## 
-## 
-## $nc
-## [1] 1
-## 
-## $clusterlist
-## $clusterlist[[1]]
-## logical(0)
-## 
-## 
-## $partition
-## NULL
-## 
-## $clustermethod
-## [1] &quot;kmeans&quot;</code></pre>
-<p>Despite checking 73 different values of K 400 times, the K-Means method found an optimal clustering solution with a single cluster. This does not support our hypothesis that there are different clusters of teaching cultures. It will therefore be interesting to see if this result also replicates when using DBSCAN.</p>
+<p>With the variables compressed into principal components, we can move onto the clustering solution. We will use both k-means and density-based clustering, as explained in the clustering section.</p>
+<p>The first step is to determine the parameters for the density clustering. As the number of data points is still quite small, MinPts can be set to 3. We can then use a K-Nearest Neighbors plot to find <span class="math inline">\(\epsilon\)</span> by looking for an elbow.</p>
 <pre class="r"><code>dbscan::kNNdistplot(principal_dat[2:12], k = 3)
 abline(h = 3.6, lty = 2)</code></pre>
-<p><img src="OurAnalysis_files/figure-html/unnamed-chunk-4-1.png" width="624" /></p>
-<p>When looking at this graph, the most obvious elbow is after the plateau when the distance is 3.5, so this will be used for the analysis.</p>
+<p><img src="OurAnalysis_files/figure-html/unnamed-chunk-2-1.png" width="624" /></p>
+<p>When looking at this graph, the most obvious elbow is after the plateau when the distance is 3.6, so this will be used for the analysis.</p>
 <pre class="r"><code>db &lt;- fpc::dbscan(principal_dat[2:12], eps = 3.6, MinPts = 3)
-principal_dat$cluster &lt;- as.factor(db$cluster)</code></pre>
-<p>The result from DBSCAN is very similar to the K-Means analysis, finding one large cluster with a few countries labelled as outliers. The countries which are found to be outliers are listed in the table below.</p>
-<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+principal_dat$cluster &lt;- as.factor(db$cluster)
+
+db</code></pre>
+<pre><code>## dbscan Pts=74 MinPts=3 eps=3.6
+##        0  1
+## border 6  3
+## seed   0 65
+## total  6 68</code></pre>
+<p>As you can see from this output, the <code>dbscan</code> function has determined that there is a single cluster of countries with six outliers. These countries are listed in the table below. This is not ideal for our research plan, which assumed that clusters of countries would be found. It will therefore be interesting to see if this result replicates when using the K-means algorithm.</p>
+<table class="table" style="width: auto !important; ">
 <thead>
 <tr>
 <th style="text-align:left;">
@@ -329,6 +291,45 @@ Saudi Arabia
 </tr>
 </tbody>
 </table>
+<p>The scoring function for the K-Means will be the Calinski-Harabasz index or Ch which minimises the ratio between the summed squared distance within the individual clusters and the cluster space as a whole. Ch tends to lead to evenly shaped and equally sized clusters which can explain less variance but are less vulnerable to overfitting.</p>
+<pre class="r"><code>principal_dat &lt;- cbind(countrySummary[,2], cnt_pca$scores)
+
+km_cluster &lt;- kmeansCBI(principal_dat[,2:12],
+                     krange = 1:(nrow(principal_dat)-1), #Automatically tests every value of K up from one to one less than the number of countries
+                     criterion = &quot;ch&quot;,
+                     runs = 400) #The number of random centroid positions to try</code></pre>
+<pre><code>## $result
+## $result$crit
+##  [1]  0.000000  6.176530  6.258898  6.175005  6.250257  6.423459  6.477061
+##  [8]  6.615525  6.728376  6.761301  6.729177  6.573668  6.472134  6.379101
+## [15]  6.331047  6.277774  6.328722  6.325142  6.403328  6.376392  6.342129
+## [22]  6.370233  6.347342  6.376774  6.351821  6.328892  6.310824  6.317438
+## [29]  6.319252  6.335003  6.343203  6.289129  6.290141  6.256650  6.234466
+## [36]  6.249156  6.272368  6.279613  6.351396  6.303066  6.340823  6.387358
+## [43]  6.326672  6.410381  6.447263  6.454858  6.489848  6.621450  6.746584
+## [50]  6.874731  6.832196  6.997924  7.135003  7.230307  7.502836  7.668662
+## [57]  7.595735  8.223813  8.211969  8.215140  8.322746  8.941426  8.902007
+## [64]  9.439655  9.318651  9.764008 10.407223 10.890498 11.203785 13.116208
+## [71] 13.412406 17.536846 31.667346
+## 
+## $result$bestk
+## [1] 1
+## 
+## 
+## $nc
+## [1] 1
+## 
+## $clusterlist
+## $clusterlist[[1]]
+## logical(0)
+## 
+## 
+## $partition
+## NULL
+## 
+## $clustermethod
+## [1] &quot;kmeans&quot;</code></pre>
+<p>Despite checking 73 different values of K 400 times, the K-Means method also found an optimal clustering solution with a single cluster. This does not support our hypothesis that there are different clusters of teaching cultures.</p>
 <p>
  
 </p>
@@ -336,6 +337,11 @@ Saudi Arabia
 <div id="section-interpreting-the-results" class="section level3">
 <h3><strong>Interpreting the Results</strong></h3>
 <p>On the one hand, it is disappointing to find that only a single cluster is good enough to describe the data because it suggests that there are no unique groupings of countries based on their teaching culture. However, this also makes the analysis with mixed-effects model easier because it should mean that a single mixed-effects model can be effectively used for the whole data set.</p>
+<p>However, for the purpose of demonstration, we will also run an analysis which does not allow a single cluster as an option.</p>
+<pre class="r"><code>km_cluster_demo &lt;- kmeansCBI(principal_dat[,2:12],
+                             krange = 2:(nrow(principal_dat)-1), #Automatically tests every value of K up from one to one less than the number of countries
+                             criterion = &quot;ch&quot;,
+                             runs = 400) #The number of random centroid positions to try</code></pre>
 <p>
  
 </p>
@@ -582,11 +588,11 @@ km_cluster2015 &lt;- kmeansCBI(principal_dat2015[2:12],
 ## $result$crit
 ##  [1]  0.000000  5.516918  5.839344  5.701987  5.798150  5.877510  5.932540
 ##  [8]  5.997221  6.068068  6.098370  6.064645  6.053620  6.018401  5.991588
-## [15]  5.946800  5.934627  5.907314  5.921622  5.908194  5.961748  6.018612
-## [22]  6.036741  6.054341  6.026281  6.027587  6.038852  6.079910  6.143251
-## [29]  6.225003  6.347657  6.404397  6.562130  6.734633  6.866147  7.089074
-## [36]  7.409315  7.636997  8.084930  8.599146  9.186522  9.782508 10.133498
-## [43] 10.452528 10.542406 10.750086 10.866607 11.177081 11.495718 12.363072
+## [15]  5.947941  5.931782  5.904781  5.921622  5.930589  5.961748  6.018612
+## [22]  6.036741  6.054341  6.027528  6.027587  6.038852  6.079910  6.143251
+## [29]  6.202660  6.347657  6.460505  6.575421  6.651805  6.821424  7.089074
+## [36]  7.370057  7.636997  8.029539  8.599146  8.949380  9.782508 10.133498
+## [43] 10.452528 10.542406 10.750086 10.863562 11.177081 11.495718 12.363072
 ## [50] 13.359066
 ## 
 ## $result$bestk
@@ -629,42 +635,42 @@ km_cluster2015 &lt;- kmeansCBI(principal_dat2015[2:12],
 ##     PropTeachersQual + ClassSize | SchID) + (1 + ParentEducation +  
 ##     LearningTime + Wealth + TeacherInterest + WellBeing + Resilience +  
 ##     Bullied | ID) + (1 | Item)
-##    Data: test_dat
+##    Data: expanded_dat
 ## 
-## REML criterion at convergence: 156340.7
+## REML criterion at convergence: 61671.1
 ## 
 ## Scaled residuals: 
 ##     Min      1Q  Median      3Q     Max 
-## -5.0339 -0.6437 -0.0008  0.6419  5.6825 
+## -4.4803 -0.6458  0.0018  0.6474  4.9450 
 ## 
 ## Random effects:
 ##  Groups   Name                   Variance  Std.Dev. Corr                   
-##  ID       (Intercept)            3.009e-01 0.548586                        
-##           ParentEducation        1.282e-02 0.113207  0.28                  
-##           LearningTime           7.579e-03 0.087056 -0.07 -0.16            
-##           Wealth                 8.716e-03 0.093360  0.45 -0.52  0.41      
-##           TeacherInterest        1.443e-02 0.120124 -0.05 -0.53  0.49  0.72
-##           WellBeing              1.119e-02 0.105781 -0.38 -0.42 -0.26 -0.07
-##           Resilience             9.900e-03 0.099496  0.19 -0.22  0.13  0.43
-##           Bullied                3.964e-03 0.062962  0.20  0.18  0.17  0.49
-##  SchID    (Intercept)            1.233e-01 0.351140                        
-##           PhysicalInfrastructure 3.042e-03 0.055158 -0.40                  
-##           InternetComputers      1.561e-04 0.012496  0.59  0.50            
-##           PropTeachersQual       2.170e-02 0.147302  0.42  0.02  0.41      
-##           ClassSize              7.350e-03 0.085735 -0.49 -0.38 -0.80  0.20
-##  CNT      (Intercept)            5.909e-02 0.243094                        
-##           Spending               6.752e-02 0.259849 0.83                   
-##  Item     (Intercept)            5.561e-05 0.007457                        
-##  Residual                        1.420e-01 0.376825                        
+##  ID       (Intercept)            1.782e-01 0.422110                        
+##           ParentEducation        2.323e-02 0.152398  0.37                  
+##           LearningTime           2.106e-02 0.145109  0.02  0.43            
+##           Wealth                 1.350e-02 0.116192  0.05 -0.42 -0.29      
+##           TeacherInterest        1.654e-02 0.128612 -0.50  0.39  0.10 -0.13
+##           WellBeing              1.703e-02 0.130514 -0.07 -0.44  0.08  0.46
+##           Resilience             1.868e-02 0.136662 -0.15  0.23 -0.44  0.32
+##           Bullied                1.367e-02 0.116899 -0.02  0.75 -0.05 -0.56
+##  SchID    (Intercept)            1.344e-01 0.366578                        
+##           PhysicalInfrastructure 1.376e-02 0.117318 -0.21                  
+##           InternetComputers      1.197e-02 0.109394 -0.11 -0.42            
+##           PropTeachersQual       2.245e-03 0.047386  0.29 -0.84 -0.15      
+##           ClassSize              1.550e-02 0.124495 -0.57  0.27 -0.72  0.14
+##  CNT      (Intercept)            6.477e-02 0.254491                        
+##           Spending               8.062e-02 0.283929 0.73                   
+##  Item     (Intercept)            6.031e-05 0.007766                        
+##  Residual                        1.402e-01 0.374461                        
 ##                   
 ##                   
 ##                   
 ##                   
 ##                   
 ##                   
-##   0.30            
-##   0.02 -0.73      
-##   0.64  0.00  0.03
+##  -0.66            
+##   0.33  0.05      
+##   0.54 -0.56  0.54
 ##                   
 ##                   
 ##                   
@@ -674,24 +680,24 @@ km_cluster2015 &lt;- kmeansCBI(principal_dat2015[2:12],
 ##                   
 ##                   
 ##                   
-## Number of obs: 150000, groups:  ID, 5000; SchID, 3657; CNT, 49; Item, 30
+## Number of obs: 60000, groups:  ID, 2000; SchID, 1721; CNT, 49; Item, 30
 ## 
 ## Fixed effects:
 ##                         Estimate Std. Error t value
-## (Intercept)             0.310862   0.047497   6.545
-## Spending                0.391193   0.061972   6.312
-## LearningTime            0.006631   0.010043   0.660
-## PhysicalInfrastructure -0.055287   0.011437  -4.834
-## InternetComputers       0.077186   0.013873   5.564
-## PropTeachersQual        0.033849   0.012795   2.645
-## ClassSize               0.031548   0.013047   2.418
-## ParentEducation         0.154441   0.012073  12.792
-## Wealth                  0.088638   0.014676   6.040
-## TeacherInterest         0.048284   0.010816   4.464
-## WellBeing              -0.053748   0.011244  -4.780
-## Resilience              0.051296   0.011518   4.453
-## Bullied                -0.079003   0.010689  -7.391
-## Spending:LearningTime  -0.003829   0.008798  -0.435</code></pre>
+## (Intercept)             0.357955   0.052408   6.830
+## Spending                0.394163   0.072450   5.440
+## LearningTime            0.032770   0.016564   1.978
+## PhysicalInfrastructure -0.001462   0.016907  -0.086
+## InternetComputers       0.054136   0.025475   2.125
+## PropTeachersQual        0.034952   0.018110   1.930
+## ClassSize              -0.002760   0.018830  -0.147
+## ParentEducation         0.130413   0.017790   7.331
+## Wealth                  0.118943   0.021701   5.481
+## TeacherInterest         0.036862   0.016043   2.298
+## WellBeing              -0.033373   0.017097  -1.952
+## Resilience              0.029271   0.017374   1.685
+## Bullied                -0.068764   0.016944  -4.058
+## Spending:LearningTime   0.001254   0.012279   0.102</code></pre>
 <pre><code>## 
 ## Correlation matrix not shown by default, as p = 14 &gt; 12.
 ## Use print(x, correlation=TRUE)  or
@@ -701,7 +707,7 @@ km_cluster2015 &lt;- kmeansCBI(principal_dat2015[2:12],
 <pre class="r"><code>r.squaredGLMM(mixed_model)</code></pre>
 <pre><code>## Warning: &#39;r.squaredGLMM&#39; now calculates a revised statistic. See the help page.</code></pre>
 <pre><code>##            R2m       R2c
-## [1,] 0.2979005 0.8754932</code></pre>
+## [1,] 0.3087671 0.8773526</code></pre>
 <p>Based on this final output, we can see that educational spending is once again the greatest predictive factor for scores on all questions in the PISA data set. This is useful to know because it means that generally increasing spending on education will lead to tangible improvements in outcomes. Less encouraging is the general lack of impact of cultural predictors, with the next two strongest fixed effects being household wealth and parental education. These are much harder to influence in the short term, though it would suggest that investment in education will continue to have an impact over a generation.</p>
 <p>The other consideration is that even with more variables in finer detail, the model was only able to account for ~30% of the variance. This would suggest that there are still more factors which are influencing students’ scores.</p>
 <p>

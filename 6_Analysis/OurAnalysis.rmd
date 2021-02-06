@@ -108,7 +108,7 @@ filter(principal_dat, cluster == 0) %>%
   select("Outliers" = Country) %>%
     kable %>% kable_styling(full_width = F, position = "left")
 ```
-The scoring function for the K-Means will be the Calinski-Harabasz index or `r Ch` which minimises the ratio between the summed squared distance within the individual clusters and the cluster space as a whole. `r Ch` tends to lead to evenly shaped and equally sized clusters which can explain less variance but are less vulnerable to overfitting.
+The scoring function for the K-Means will be the Calinski-Harabasz index or `r "Ch"` which minimises the ratio between the summed squared distance within the individual clusters and the cluster space as a whole. `r "Ch"` tends to lead to evenly shaped and equally sized clusters which can explain less variance but are less vulnerable to overfitting.
 
 ```{r, eval=FALSE}
 principal_dat <- cbind(countrySummary[,2], cnt_pca$scores)
