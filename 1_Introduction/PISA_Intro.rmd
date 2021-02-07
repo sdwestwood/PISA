@@ -1,5 +1,6 @@
 ---
 title: "Introduction to PISA"
+author: "Sean Westwood"
 output:
   learnr::tutorial:
     progressive: true
