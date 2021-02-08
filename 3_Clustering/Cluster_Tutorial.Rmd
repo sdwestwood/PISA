@@ -1,85 +1,39 @@
 ---
-title: "Clustering"
+title: "Cluster Analysis"
 output:
-  html_document:
-    theme: 'yeti'
+  learnr::tutorial:
+    progressive: true
+    allow_skip: true
     
 runtime: shiny_prerendered
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-library(tidyverse) #data manipulation 
-library(shiny)
-library(plotly)
+set.seed(123) #reproducible simulation
+
+library(tidyverse) #data manipulation
+library(plotly) #visualization features
 library(ggplot2) #visualization features
-library(ggalt) #visualization features
-library(ggrepel) #geom labels
+library(shiny) #interactive plots
+
 library(kmodR) #k-means simultaneous outlier detection 
 library(cluster) #clustering algorithms
 library(factoextra) #clustering visualization
-library(dendextend) #dendrograms
+library(dendextend) #dendrograms visualization
 library(fpc) #computing density based clustering
 library(dbscan) #computing density based clustering
+
+### INSTALLING LEARNR AND GRADETHIS FROM GITHUB ###
+#devtools::install_github("rstudio/learnr")
+#devtools::install_github("rstudio-education/gradethis")
+
 library(learnr) #quiz/exercise questions
 library(gradethis) #quiz/exercise questions
 gradethis::gradethis_setup()
-set.seed(123) #reproducible simulation
-```
 
-```{r cluster functions, include=FALSE}
-# Writing functions
-plot_clusters <- function(data = dat) {
-  
-  
-  clusters <- filter(data, cluster != 0)
-  
-  outliers <- filter(data, cluster == 0)
-  
-  ggplot(data = clusters, aes(x = Bullying, y = Discipline)) +
-    geom_point(size = 2, alpha = 0.7, aes(color = cluster)) +
-    geom_encircle(expand = 0, size = 0, alpha = 0.1, aes(fill = cluster)) +
-    geom_point(data = outliers, aes(x = Bullying, y = Discipline), color = 'black',
-               shape = 4, size = 3) +
-    theme_minimal() +
-    theme(legend.position="none")
-  
-  
-  
-}
-
-wss.all <- function(k.top = 15, data = dat[,2:3]) {
-  
-  wss <- vector()
-  
-  for (i in 1:k.top) {
-    
-    wss[i] <- kmeans(data, i)$tot.withinss
-    
-  }
-  
-  return(wss)
-  
-}
-
-h_plot <- function(hcluster, heightplot) {
-  
-  linecolor = rgb(0.9, 0.5, 0, alpha=0.7)
-  plot(as.dendrogram(hcluster), type = "rectangle", ylab = "Height", 
-       leaflab = "none")
-  abline(h = heightplot, col = linecolor, lwd = 5)
-  
-}
-```
-
-```{r interactive data, echo = FALSE, context = 'setup', message = FALSE}
-# loading data
-countrySummary <- read_csv('countrySummary.csv')
-#select relevant variables and omit NA values
-dat <- countrySummary %>% 
-  select(Country, Bullying, Discipline) %>%
-  na.omit() %>% 
-  as.data.frame()
+# load pre-made datasets and functions
+load(file = "Cluster.Rdata")
 ```
 
 ## Clustering {.tabset .tabet-fade .tabset-pills}
@@ -91,19 +45,9 @@ Continuing with the PISA data, we might want to understand what predictors best 
 
 <p>&nbsp;</p>
 
-#### **Loading, Visualising and Scaling Data**
+#### **Visualising and Scaling Data**
 
 We will cluster countries based on the same random variables used in the PCA (i.e. levels of bullying and teacher discipline). Just like in PCA it is important to visualise the data first. Clusters are determined based on the distance between points so when your variables are in different units one variable may have more weight in the outcomes of clustering than the other. The variables we are using are already scaled. Let's recap what the data that we are using looks like. 
-
-```{r data, echo = FALSE, message = FALSE}
-#load in data
-int <- "Amy"
-countrySummary <- read_csv('countrySummary.csv')
-#select relevant variables and omit NA values
-bull_dis <- countrySummary %>% 
-  select(Country, Bullying, Discipline) %>%
-  na.omit() 
-```
 
 ```{r scatter plot, echo = FALSE}
 #Bullying and Discipline Plot
@@ -1055,59 +999,11 @@ observeEvent({input$d
 
 ### Combining Clustering and PCA
 
-```{r  map country clusters function, echo=FALSE}
-country_cluster_map <- function(base_data, clus_vector){
-
-teach_visual <- base_data %>% 
-  mutate(cluster = as.factor(clus_vector)) %>%
-  select(Country, cluster)
-teach_visual$Country <- recode(teach_visual$Country,
-                            "United States" = "USA",
-                            "United Kingdom" = "UK",
-                            "Viet Nam" = "Vietnam",
-                            "Brunei Darussalam" = "Brunei",
-                            "Korea" = "South Korea",
-                            "Slovak Republic" = "Slovakia",
-                            "North Macedonia" = "Macedonia",
-                            "Hong Kong (China)" = "Hong Kong",
-                            "Macao (China)" = "Macao"
-                            )
-
-teachmap.world <- map_data("world") %>%
-  left_join(teach_visual, by = c("region" = "Country"))
-country.points <- data.frame(
-  Country = c("Brunei", "Hong Kong", "Luxembourg", "Macao", "Singapore", "Qatar", "United Arab Emirates"),
-  lat = c(4.5353, 22.3193, 49.6116, 22.1987, 1.3521, 25.3548, 23.4241),
-  long = c(114.7277, 114.1694, 6.1319, 113.5439, 103.8198, 51.1839, 53.8478),
-  stringsAsFactors = FALSE
-) %>%
-  left_join(teach_visual, by = "Country")
-
-ggplotly(
-ggplot() +
-  geom_polygon(data = teachmap.world, aes(x = long, y = lat, group = group, fill = cluster), colour = "#444444") +
-  scale_fill_manual(values = c("#8dd3c7", "#ffffb3", "#bebada", "#fb8072"),
-                    na.value = "#d9d9d9", name = "Cluster") +
-  geom_point(data = country.points, aes(x = long, y = lat, fill = cluster), size = 1.5, pch = 21) +
-  theme_void()) %>%
-  layout(xaxis = list(autorange = TRUE),
-         yaxis = list(autorange = TRUE))
-
-  
-}
-```
-
 Now that you have learned the basics of clustering lets try a more complex example! When working with large data sets like the PISA data it is likely that you will want to cluster based on more than two variables. We could, therefore, cluster based on all the variables in the original `countrySummary` data we loaded in. However, this would be a very high-dimensional analysis since there are 26 variables in total. In instances where you are working with high-dimensional data it is possible to combine both PCA and Clustering. 
 
 PCA is first used to reduce the dimension of the data set, like you learned to do in the PCA section. Then instead of clustering based on the original variables you cluster based on the principle components. Using this method can lead to more stable clustering when you are working with a large data set like PISA. For more information see [Husson, Josse & Pages, (2010)](https://www.semanticscholar.org/paper/Principal-component-methods-hierarchical-clustering-Josse/04335d99d840ac3370f5aeb262828cf127d3ff1c?fbclid=IwAR2LZqx2iaZFX_s_884N1SWmy0N41uihOn6ZI-FcGARQVIFRmY0YFkRnUP0)
 
 In the last section you ran a PCA analysis on 7 teacher-related variables and determined that keeping the first 4 principle components was sufficient. In this section you will use your new clustering knowledge to run clustering analyses (k-means, hierarchical and DBSCAN) based on these 4 principle components. To do this we first need to extract the PCA data: 
-
-```{r teacher data, message=FALSE, echo=FALSE}
-#load teach_dat from last section behind the scenes
-teach_dat <- countrySummary %>% select(Country, contains("Teacher")) %>%
-  na.omit() 
-```
 
 ```{r teach_pca, echo=FALSE}
 #run teach_pca from last section behind the scenes
