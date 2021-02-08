@@ -1,5 +1,6 @@
 ---
 title: "Clustering"
+author: "Amy Roger"
 output:
   html_document:
     theme: 'yeti'
