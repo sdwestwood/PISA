@@ -36,12 +36,12 @@ gradethis::gradethis_setup()
 load(file = "Cluster.Rdata")
 ```
 
-## Clustering {.tabset .tabet-fade .tabset-pills}
+## The Basics
 
-###  Introduction
+###  **Introduction**
 Clustering methods are unsupervised algorithms which identify sub-groups in a data set. These methods create groups of data points that are as similar as possible while making data points between groups as dissimilar as possible. There is no dependent variable in this type of analysis and so it is known as unsupervised learning. 
 
-Continuing with the PISA data, we might want to understand what predictors best explain academic performance. This could be achieved by looking at a global model across all countries, which may not be informative given the variation in education systems. Instead we could look at predicting countries on an individual level, but given the number of countries we would need to run a lot of models and it ignores the fact that there is similarity within countries education systems. Therefore, we might want to try and find groups of countries that are similar so we can create prediction models for those groups. 
+Continuing with the PISA data, we might want to understand what predictors best explain academic performance. This could be achieved by looking at a global model across all countries, which may not be informative given the variation in education systems. Instead we could look at predicting countries on an individual level, but given the number of countries we would need to run many models and this ignores the fact that there is similarity within countries education systems. Therefore, we might want to try and find groups of countries that are similar so we can create prediction models for those groups. 
 
 <p>&nbsp;</p>
 
@@ -67,7 +67,7 @@ tooltip = "fill")
 <p>&nbsp;</p>
 <p>&nbsp;</p>
 
-### K-means Analysis 
+## K-means Analysis 
 
 K-means analysis is a method of partitioning your data set into $k$ clusters, where $k$ is pre-set by the researcher. Observations in the same cluster are as similar as possible and observations between different clusters are as dissimilar as possible. Clusters are defined by their center (i.e. mean of the observations assigned to each cluster).
 
@@ -150,12 +150,24 @@ You can see from this plot that $k$ = 3 or $k$ = 4, are suitable values of $k$ a
 
 ```
 
-```{r elbow-exercise-hint}
+```{r elbow-exercise-hint-1}
 #Look back at the {r manual elbow method} code chunk first to see our explanation
+
+## DATA ##
 #make sure you are using the right data set i.e. bull_dis
 #Make sure that you are only using the bullying and discipline columns of the data set i.e.  [,2:3]
+
+## FUNCTION ##
 #Make sure you have the correct value analysis method i.e. kmeans
 #Make sure you have the correct method argument i.e. "silhouette"
+```
+
+```{r elbow-exercise-hint-2}
+## FUNCTION ##
+#Make sure you have the correct value analysis method i.e. kmeans
+#Make sure you have the correct method argument i.e. "silhouette"
+
+# WARNING: next hint shows full solution
 ```
 
 ```{r elbow-exercise-solution}
@@ -276,7 +288,7 @@ quiz(
            answer("3", correct = TRUE),
            answer("5"),
            allow_retry = TRUE, 
-           correct = "Correct! The elbow in the first graph is around k = 3 and the peak in average silhouette is at k =3"))
+           correct = "Correct! The elbow in the first graph is around k = 3 and the peak in average silhouette is at k = 3"))
 ```
 
 Now that you know the optimal value for $k$ try to run the analysis. Use the `kmeans` function. NOTE: Do not assign your analysis to an object name. 
@@ -285,12 +297,20 @@ Now that you know the optimal value for $k$ try to run the analysis. Use the `km
 
 ```
 
-```{r kmeans-exercise-hint}
+```{r kmeans-exercise-hint-1}
 #Look back at the "Running this analysis section" first to see what we did
+
+## DATA ##
 #make sure you are using the right dataset i.e. outlier_data
 #Make sure that you are only using the bullying and discipline columns of the data set i.e.  [,2:3]
+```
+
+```{r kmeans-exercise-hint-2}
+## FUNCTION ##
 #Make sure you have the correct value for k i.e. see question above
-#Make sure you are running multiple initial configurations of the kmeans algorithm i.e. nstart =
+#Make sure you are running multiple initial configurations of the kmeans algorithm i.e. nstart = 100
+
+# WARNING: next hint shows full solution
 ```
 
 ```{r kmeans-exercise-solution}
@@ -410,11 +430,20 @@ The clusters are identical to the prior k-means example except the `kmod` approa
 
 ```
 
-```{r kmod-exercise-hint}
+```{r kmod-exercise-hint-1}
 #Look back at the {r kmod} code chunk first to see what we did
+
+## DATA ##
 #make sure you are using the right dataset i.e. outlier_data
 #Make sure that you are only using the bullying and discipline columns of the data set i.e.  [,2:3]
 #Make sure you have the correct value for k and l specified
+```
+
+```{r kmod-exercise-hint-2}
+## FUNCTION ##
+#Make sure you have the correct value for k and l specified
+
+# WARNING: next hint shows full solution
 ```
 
 ```{r kmod-exercise-solution}
@@ -438,8 +467,12 @@ Now that you have stored your analysis as `kmod_k3l3` you can use this to assess
 
 ```{r lindex-exercise-hint}
 #Look back at the second line of code in the {r kmod} code chunk first to see what we did
+
+## DATA ##
 #You first need to index the outlier data country column i.e. outlier_data$Country
 #You also need to index the L-index output from your kmod_k3l3 analysis i.e. kmod_k3l3$L_index
+
+# WARNING: next hint shows full solution
 ```
 
 ```{r lindex-exercise-solution}
@@ -533,7 +566,7 @@ Try running two k-means analyses with 4 clusters (by moving the slider away from
 <p>&nbsp;</p>
 
 
-### Hierarchical Clustering
+## Hierarchical Clustering
 
 The Hierarchical Clustering outlined in this section is a bottom-up approach which considers each object (i.e. each country) as a single-element cluster (leafs) initially and then the two most similar clusters are combined into a bigger cluster (nodes). This process continues until all leafs are a member of one cluster (the root). This method by default is calculated via Euclidean distance. The leafs of nodes lower down in the hierarchical tree are more similar than the leafs of nodes higher up. Hierarchical clustering is depicted through dendrograms and the height indicates the similarity of different leafs.
 
@@ -564,12 +597,20 @@ Not that you have seen us run the hierarchical clustering with complete linkage 
 
 ```
 
-```{r hclust-exercise-hint}
+```{r hclust-exercise-hint-1}
 #Look back at the first line of code in the {r hclust complete} code chunk first to see what we did
+
+## DATA ##
 #Make sure you are using the right dataset i.e. bull_dis
 #Make sure that you are only using the bullying and discipline columns of the data set i.e.  [,2:3]
-#Have you remember to compute the distance matrix of the data i.e. dist(bull_dis[,2:3])
+```
+
+```{r hclust-exercise-hint-2}
+## FUNCTION ##
+#Have you remembered to compute the distance matrix of the data i.e. dist(bull_dis[,2:3])
 #Have you used the right linkage method i.e. method = "average"
+
+# WARNING: next hint shows full solution
 ```
 
 ```{r hclust-exercise-solution}
@@ -634,13 +675,25 @@ To get 3 clusters the height of the dendrogram is cut around 3.8 and for 4 subgr
 
 ```
 
-```{r dendhclust-exercise-hint}
+```{r dendhclust-exercise-hint-1}
 #Look back at the first line of code in the {r height complet} code chunk first to see what we did
+
+## DATA ##
 #Have you correctly assigned your dendrogram? See instructions above.
 #Make sure that you are using the right analysis object i.e. hclust_ave
 #Make sure you are setting the labels correctly i.e. set("labels", bull_dis$Country[hclust_ave$order])
+
+## FUNCTION ##
 #Make sure you have used the plot function to dictate what you want to plot and give informative labels i.e. plot(dend_ave, ylab = "Height", main = 'Average Linkage')
 #Have you used rect.hclust to create the coloured boders round the clusters i.e. rect.hclust(hclust_ave, k = 3, border = 2:5)
+```
+
+```{r dendhclust-exercise-hint-2}
+## FUNCTION ##
+#Make sure you have used the plot function to dictate what you want to plot and give informative labels i.e. plot(dend_ave, ylab = "Height", main = 'Average Linkage')
+#Have you used rect.hclust to create the coloured boders round the clusters i.e. rect.hclust(hclust_ave, k = 3, border = 2:5)
+
+# WARNING: next hint shows full solution
 ```
 
 ```{r dendhclust-exercise-solution, fig.width=12, fig.height=8}
@@ -806,7 +859,7 @@ observeEvent({input$h
 <p>&nbsp;</p>
 <p>&nbsp;</p>
 
-### DBSCAN
+## DBSCAN
 
 **Density Based Spatial Clustering of Applications with Noise** (DBSCAN) is another method that does not need you to pre-specify the number of clusters. It also allows the data to be clustered into whatever arbitrary shape best fits the cluster. This is more flexible than the k-means and hierarchical approaches. It is designed to help work with data where we are dealing with clusters of differing size, shape and density. This method groups together data points that are in close proximity based on distance (i.e. Euclidean or other) and a minimum number of points. It identifies outliers in the data set that sit in a low density space and does not include these within the resultant clusters. This is advantageous over `kmod` as you do not need to preset the number of outliers.  
 
@@ -997,7 +1050,7 @@ observeEvent({input$d
 
 <p>&nbsp;</p>
 
-### Combining Clustering and PCA
+## Combining Clustering and PCA
 
 Now that you have learned the basics of clustering lets try a more complex example! When working with large data sets like the PISA data it is likely that you will want to cluster based on more than two variables. We could, therefore, cluster based on all the variables in the original `countrySummary` data we loaded in. However, this would be a very high-dimensional analysis since there are 26 variables in total. In instances where you are working with high-dimensional data it is possible to combine both PCA and Clustering. 
 
@@ -1027,13 +1080,26 @@ Using what you learned in the previous clustering sections use the `fviz_nbclust
 
 ```
 
-```{r teachopk-exercise-hint}
+```{r teachopk-exercise-hint-1}
 #Look back at the {r manual elbow method} code chunk if you need to refresh your knowledge 
+
+## DATA ##
 #make sure you are using the right data set i.e. teach_pca_dat
 #Make sure that you are only using the bullying and discipline columns of the data set i.e.  [,1:4]
+
+## FUNCTION ##
 #Make sure you have the correct value analysis method i.e. kmeans
 #Make sure you have the correct method arguments i.e. "wss" silhouette"
 #Make sure you are running the the elbow method first then silhouette
+```
+
+```{r teachopk-exercise-hint-1}
+## FUNCTION ##
+#Make sure you have the correct value analysis method i.e. kmeans
+#Make sure you have the correct method arguments i.e. "wss" silhouette"
+#Make sure you are running the the elbow method first then silhouette
+
+# WARNING: next hint shows full solution
 ```
 
 ```{r teachopk-exercise-solution}
@@ -1064,9 +1130,15 @@ Now that you know the optimal $k$ use the `kmod()` function to run a $k$-means a
 
 ```{r teachkmod-exercise-hint}
 #Look back at the {r kmod} code chunk if you need to refresh your knowledge
+
+## DATA ##
 #make sure you are using the right dataset i.e. teach_pca_dat
 #Make sure that you are only using the bullying and discipline columns of the data set i.e.  [,1:4]
+
+## FUNCTION ##
 #Make sure you have the correct value for k (opitmal k from previously) and l specified
+
+# WARNING: next hint shows full solution
 ```
 
 ```{r teachkmod-exercise-solution}
@@ -1101,13 +1173,24 @@ Now try and run hierarchical clustering on the PCA data. Use the `hlcust` functi
 
 ```
 
-```{r teachhclust-exercise-hint}
+```{r teachhclust-exercise-hint-1}
 #Look back at the first line of code in the {r hclust complete} code chunk if you need to refresh your knowledge
+
+## DATA ##
 #Make sure you are using the right dataset i.e. teach_pca_dat
 #Make sure that you are only using the bullying and discipline columns of the data set i.e.  [,1:4]
 #Have you remember to compute the distance matrix of the data i.e. dist(teach_pca_dat[,1:4])
 #Have you used the right linkage method i.e. method = "complete"
 #Have you assigned the analysis correctly i.e. teach_hclust <- 
+```
+
+```{r teachhclust-exercise-hint-2}
+## FUNCTION ##
+#Have you remember to compute the distance matrix of the data i.e. dist(teach_pca_dat[,1:4])
+#Have you used the right linkage method i.e. method = "complete"
+#Have you assigned the analysis correctly i.e. teach_hclust <- 
+
+# WARNING: next hint shows full solution
 ```
 
 ```{r teachhclust-exercise-solution}
@@ -1148,13 +1231,21 @@ Finally lets run a DBSCAN analysis. You first need to determine $\epsilon$. Use 
 
 ```
 
-```{r teachKNNelbow-exercise-hint}
+```{r teachKNNelbow-exercise-hint-1}
 #Look back at the first line of code in the {r KNN elbow} code chunk if you need to refresh your knowledge
+
+## DATA ##
 #Make sure that you are calling the function properly i.e. dbscan::kNNdistplot()
 #Make sure you are using the right dataset i.e. teach_pca_dat
 #Make sure that you are only using the bullying and discipline columns of the data set i.e.  [,1:4]
+```
+
+```{r teachKNNelbow-exercise-hint-2}
+## FUNCTION ##
 #Make sure you have set k = 3
 #To get the dashed line make sure you run abline(h = , lty = )
+
+# WARNING: next hint shows full solution
 ```
 
 ```{r teachKNNelbow-exercise-solution}
@@ -1185,12 +1276,22 @@ Now that you have a value for $\epsilon$ you can run the DSCAN analysis. Use the
 
 ```
 
-```{r teachdbscan-exercise-hint}
+```{r teachdbscan-exercise-hint-1}
 #Look back at the first line of code in the {r DBSCAN} code chunk if you need to refresh your knowledge
+
+## DATA ##
 #Make sure that you are calling the function properly i.e. fpc::dbscan()
 #Make sure you are using the right dataset i.e. teach_pca_dat
 #Make sure that you are only using the bullying and discipline columns of the data set i.e.  [,1:4]
+
 #Make sure you have set eps = and MinPts to the correct values specified earlier i.e. eps = 1.8 and MinPts = 3
+```
+
+```{r teachdbscan-exercise-hint-2}
+## FUNCTION ##
+#Make sure you have set eps = and MinPts to the correct values specified earlier i.e. eps = 1.8 and MinPts = 3
+
+# WARNING: next hint shows full solution
 ```
 
 ```{r teachdbscan-exercise-solution}
