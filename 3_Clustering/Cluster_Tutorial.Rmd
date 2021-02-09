@@ -1,110 +1,59 @@
 ---
+<<<<<<< HEAD
 title: "Clustering"
 author: "Amy Roger"
+=======
+title: "Cluster Analysis"
+>>>>>>> amy
 output:
-  html_document:
-    theme: 'yeti'
+  learnr::tutorial:
+    progressive: true
+    allow_skip: true
     
 runtime: shiny_prerendered
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-library(tidyverse) #data manipulation 
-library(shiny)
-library(plotly)
+set.seed(123) #reproducible simulation
+
+library(tidyverse) #data manipulation
+library(plotly) #visualization features
 library(ggplot2) #visualization features
 library(ggalt) #visualization features
-library(ggrepel) #geom labels
+library(shiny) #interactive plots
+
 library(kmodR) #k-means simultaneous outlier detection 
 library(cluster) #clustering algorithms
 library(factoextra) #clustering visualization
-library(dendextend) #dendrograms
+library(dendextend) #dendrograms visualization
 library(fpc) #computing density based clustering
 library(dbscan) #computing density based clustering
+
+### INSTALLING LEARNR AND GRADETHIS FROM GITHUB ###
+#devtools::install_github("rstudio/learnr")
+#devtools::install_github("rstudio-education/gradethis")
+
 library(learnr) #quiz/exercise questions
 library(gradethis) #quiz/exercise questions
 gradethis::gradethis_setup()
-set.seed(123) #reproducible simulation
+
+# load pre-made datasets and functions
+load(file = "Cluster.Rdata")
 ```
 
-```{r cluster functions, include=FALSE}
-# Writing functions
-plot_clusters <- function(data = dat) {
-  
-  
-  clusters <- filter(data, cluster != 0)
-  
-  outliers <- filter(data, cluster == 0)
-  
-  ggplot(data = clusters, aes(x = Bullying, y = Discipline)) +
-    geom_point(size = 2, alpha = 0.7, aes(color = cluster)) +
-    geom_encircle(expand = 0, size = 0, alpha = 0.1, aes(fill = cluster)) +
-    geom_point(data = outliers, aes(x = Bullying, y = Discipline), color = 'black',
-               shape = 4, size = 3) +
-    theme_minimal() +
-    theme(legend.position="none")
-  
-  
-  
-}
+## The Basics
 
-wss.all <- function(k.top = 15, data = dat[,2:3]) {
-  
-  wss <- vector()
-  
-  for (i in 1:k.top) {
-    
-    wss[i] <- kmeans(data, i)$tot.withinss
-    
-  }
-  
-  return(wss)
-  
-}
-
-h_plot <- function(hcluster, heightplot) {
-  
-  linecolor = rgb(0.9, 0.5, 0, alpha=0.7)
-  plot(as.dendrogram(hcluster), type = "rectangle", ylab = "Height", 
-       leaflab = "none")
-  abline(h = heightplot, col = linecolor, lwd = 5)
-  
-}
-```
-
-```{r interactive data, echo = FALSE, context = 'setup', message = FALSE}
-# loading data
-countrySummary <- read_csv('countrySummary.csv')
-#select relevant variables and omit NA values
-dat <- countrySummary %>% 
-  select(Country, Bullying, Discipline) %>%
-  na.omit() %>% 
-  as.data.frame()
-```
-
-## Clustering {.tabset .tabet-fade .tabset-pills}
-
-###  Introduction
+###  **Introduction**
 Clustering methods are unsupervised algorithms which identify sub-groups in a data set. These methods create groups of data points that are as similar as possible while making data points between groups as dissimilar as possible. There is no dependent variable in this type of analysis and so it is known as unsupervised learning. 
 
-Continuing with the PISA data, we might want to understand what predictors best explain academic performance. This could be achieved by looking at a global model across all countries, which may not be informative given the variation in education systems. Instead we could look at predicting countries on an individual level, but given the number of countries we would need to run a lot of models and it ignores the fact that there is similarity within countries education systems. Therefore, we might want to try and find groups of countries that are similar so we can create prediction models for those groups. 
+Continuing with the PISA data, we might want to understand what predictors best explain academic performance. This could be achieved by looking at a global model across all countries, which may not be informative given the variation in education systems. Instead we could look at predicting countries on an individual level, but given the number of countries we would need to run many models and this ignores the fact that there is similarity within countries education systems. Therefore, we might want to try and find groups of countries that are similar so we can create prediction models for those groups. 
 
 <p>&nbsp;</p>
 
-#### **Loading, Visualising and Scaling Data**
+#### **Visualising and Scaling Data**
 
 We will cluster countries based on the same random variables used in the PCA (i.e. levels of bullying and teacher discipline). Just like in PCA it is important to visualise the data first. Clusters are determined based on the distance between points so when your variables are in different units one variable may have more weight in the outcomes of clustering than the other. The variables we are using are already scaled. Let's recap what the data that we are using looks like. 
-
-```{r data, echo = FALSE, message = FALSE}
-#load in data
-int <- "Amy"
-countrySummary <- read_csv('countrySummary.csv')
-#select relevant variables and omit NA values
-bull_dis <- countrySummary %>% 
-  select(Country, Bullying, Discipline) %>%
-  na.omit() 
-```
 
 ```{r scatter plot, echo = FALSE}
 #Bullying and Discipline Plot
@@ -124,7 +73,7 @@ tooltip = "fill")
 <p>&nbsp;</p>
 <p>&nbsp;</p>
 
-### K-means Analysis 
+## K-means Analysis 
 
 K-means analysis is a method of partitioning your data set into $k$ clusters, where $k$ is pre-set by the researcher. Observations in the same cluster are as similar as possible and observations between different clusters are as dissimilar as possible. Clusters are defined by their center (i.e. mean of the observations assigned to each cluster).
 
@@ -142,7 +91,7 @@ This iterative approach used in k-means and other clustering techniques is Expec
 
 <p>&nbsp;</p>
 
-#### **Deciding on a value for k**
+### **Deciding on a value for k**
 
 There are numerous methods to help choose the optimum number for $k$. The elbow method method allows you to assess the variance explained (i.e. total within-cluster sums of squares) as a function of the number of clusters used ($k$). The code below walks you through this method step-by-step:
 
@@ -207,12 +156,24 @@ You can see from this plot that $k$ = 3 or $k$ = 4, are suitable values of $k$ a
 
 ```
 
-```{r elbow-exercise-hint}
+```{r elbow-exercise-hint-1}
 #Look back at the {r manual elbow method} code chunk first to see our explanation
+
+## DATA ##
 #make sure you are using the right data set i.e. bull_dis
 #Make sure that you are only using the bullying and discipline columns of the data set i.e.  [,2:3]
+
+## FUNCTION ##
 #Make sure you have the correct value analysis method i.e. kmeans
 #Make sure you have the correct method argument i.e. "silhouette"
+```
+
+```{r elbow-exercise-hint-2}
+## FUNCTION ##
+#Make sure you have the correct value analysis method i.e. kmeans
+#Make sure you have the correct method argument i.e. "silhouette"
+
+# WARNING: next hint shows full solution
 ```
 
 ```{r elbow-exercise-solution}
@@ -273,7 +234,7 @@ quiz(
 ```
 <p>&nbsp;</p>
 
-#### **Running the Analysis**
+### **Running the Analysis**
 
 Now that we have our $k$ value ($k$ = 4) we can run our analysis.
 
@@ -305,7 +266,7 @@ tooltip = "group")
 ```
 <p>&nbsp;</p>
 
-#### **Dealing with outliers**
+### **Dealing with outliers**
 
 One assumption of k-means is that clusters are of similar size and density. You can see from the plot that cluster with Brunei Darussalam and the Philippines violates this assumption. K-means, using Euclidean distance, is very sensitive to outliers and their presence can effect the number and make up of clusters. Brunei Darussalam and the Philippines seem to be outliers when we look at the plot. One way to deal with global outliers is to remove them from your data and re-run the k-means analysis shown below.
 
@@ -333,7 +294,7 @@ quiz(
            answer("3", correct = TRUE),
            answer("5"),
            allow_retry = TRUE, 
-           correct = "Correct! The elbow in the first graph is around k = 3 and the peak in average silhouette is at k =3"))
+           correct = "Correct! The elbow in the first graph is around k = 3 and the peak in average silhouette is at k = 3"))
 ```
 
 Now that you know the optimal value for $k$ try to run the analysis. Use the `kmeans` function. NOTE: Do not assign your analysis to an object name. 
@@ -342,12 +303,20 @@ Now that you know the optimal value for $k$ try to run the analysis. Use the `km
 
 ```
 
-```{r kmeans-exercise-hint}
+```{r kmeans-exercise-hint-1}
 #Look back at the "Running this analysis section" first to see what we did
+
+## DATA ##
 #make sure you are using the right dataset i.e. outlier_data
 #Make sure that you are only using the bullying and discipline columns of the data set i.e.  [,2:3]
+```
+
+```{r kmeans-exercise-hint-2}
+## FUNCTION ##
 #Make sure you have the correct value for k i.e. see question above
-#Make sure you are running multiple initial configurations of the kmeans algorithm i.e. nstart =
+#Make sure you are running multiple initial configurations of the kmeans algorithm i.e. nstart = 100
+
+# WARNING: next hint shows full solution
 ```
 
 ```{r kmeans-exercise-solution}
@@ -467,11 +436,20 @@ The clusters are identical to the prior k-means example except the `kmod` approa
 
 ```
 
-```{r kmod-exercise-hint}
+```{r kmod-exercise-hint-1}
 #Look back at the {r kmod} code chunk first to see what we did
+
+## DATA ##
 #make sure you are using the right dataset i.e. outlier_data
 #Make sure that you are only using the bullying and discipline columns of the data set i.e.  [,2:3]
 #Make sure you have the correct value for k and l specified
+```
+
+```{r kmod-exercise-hint-2}
+## FUNCTION ##
+#Make sure you have the correct value for k and l specified
+
+# WARNING: next hint shows full solution
 ```
 
 ```{r kmod-exercise-solution}
@@ -495,8 +473,12 @@ Now that you have stored your analysis as `kmod_k3l3` you can use this to assess
 
 ```{r lindex-exercise-hint}
 #Look back at the second line of code in the {r kmod} code chunk first to see what we did
+
+## DATA ##
 #You first need to index the outlier data country column i.e. outlier_data$Country
 #You also need to index the L-index output from your kmod_k3l3 analysis i.e. kmod_k3l3$L_index
+
+# WARNING: next hint shows full solution
 ```
 
 ```{r lindex-exercise-solution}
@@ -515,7 +497,7 @@ K-means is the most commonly known approach but the decisions over what distance
 
 <p>&nbsp;</p>
 
-#### **Interactive K-means**
+### **Interactive K-means**
 
 Take a look at how specifying $k$ affects the clustering solution. 
 
@@ -590,7 +572,7 @@ Try running two k-means analyses with 4 clusters (by moving the slider away from
 <p>&nbsp;</p>
 
 
-### Hierarchical Clustering
+## Hierarchical Clustering
 
 The Hierarchical Clustering outlined in this section is a bottom-up approach which considers each object (i.e. each country) as a single-element cluster (leafs) initially and then the two most similar clusters are combined into a bigger cluster (nodes). This process continues until all leafs are a member of one cluster (the root). This method by default is calculated via Euclidean distance. The leafs of nodes lower down in the hierarchical tree are more similar than the leafs of nodes higher up. Hierarchical clustering is depicted through dendrograms and the height indicates the similarity of different leafs.
 
@@ -621,12 +603,20 @@ Not that you have seen us run the hierarchical clustering with complete linkage 
 
 ```
 
-```{r hclust-exercise-hint}
+```{r hclust-exercise-hint-1}
 #Look back at the first line of code in the {r hclust complete} code chunk first to see what we did
+
+## DATA ##
 #Make sure you are using the right dataset i.e. bull_dis
 #Make sure that you are only using the bullying and discipline columns of the data set i.e.  [,2:3]
-#Have you remember to compute the distance matrix of the data i.e. dist(bull_dis[,2:3])
+```
+
+```{r hclust-exercise-hint-2}
+## FUNCTION ##
+#Have you remembered to compute the distance matrix of the data i.e. dist(bull_dis[,2:3])
 #Have you used the right linkage method i.e. method = "average"
+
+# WARNING: next hint shows full solution
 ```
 
 ```{r hclust-exercise-solution}
@@ -666,7 +656,7 @@ So now that we have our dendrograms how do we decipher how many clusters there a
 
 <p>&nbsp;</p>
 
-#### **Height and the number of clusters**
+### **Height and the number of clusters**
 
 The height of the dendrogram is used to determined the number of clusters, much like $k$ did in the $k$-means method. By cutting the dendrogram at different heights, we can identify different subgroups. Below is an example on the complete linkage dendrogram. You should assess the different cluster groups across different height values.
 
@@ -691,13 +681,25 @@ To get 3 clusters the height of the dendrogram is cut around 3.8 and for 4 subgr
 
 ```
 
-```{r dendhclust-exercise-hint}
+```{r dendhclust-exercise-hint-1}
 #Look back at the first line of code in the {r height complet} code chunk first to see what we did
+
+## DATA ##
 #Have you correctly assigned your dendrogram? See instructions above.
 #Make sure that you are using the right analysis object i.e. hclust_ave
 #Make sure you are setting the labels correctly i.e. set("labels", bull_dis$Country[hclust_ave$order])
+
+## FUNCTION ##
 #Make sure you have used the plot function to dictate what you want to plot and give informative labels i.e. plot(dend_ave, ylab = "Height", main = 'Average Linkage')
 #Have you used rect.hclust to create the coloured boders round the clusters i.e. rect.hclust(hclust_ave, k = 3, border = 2:5)
+```
+
+```{r dendhclust-exercise-hint-2}
+## FUNCTION ##
+#Make sure you have used the plot function to dictate what you want to plot and give informative labels i.e. plot(dend_ave, ylab = "Height", main = 'Average Linkage')
+#Have you used rect.hclust to create the coloured boders round the clusters i.e. rect.hclust(hclust_ave, k = 3, border = 2:5)
+
+# WARNING: next hint shows full solution
 ```
 
 ```{r dendhclust-exercise-solution, fig.width=12, fig.height=8}
@@ -755,7 +757,7 @@ tooltip = "group")
 ```
 <p>&nbsp;</p>
 
-#### **Comparing two dendrograms**
+### **Comparing two dendrograms**
 
 You can also compare two dendrograms to see how using different linkage methods affects the clustering of leafs using `tanglegram`. 
 
@@ -782,7 +784,7 @@ The height you choose to cut the tree and the linkage methods used are decisions
 
 <p>&nbsp;</p>
 
-#### **Interactive Hierarchical Clustering**
+### **Interactive Hierarchical Clustering**
 
 See how changing the height at which the cluster 'tree' is cut changes the clusters. The clustering solution at each height will be identical whenever it is cut at that height (unlike how k-means solutions can vary, given the same value of $k$). Notice how changing the distance calculation method changes the entire structure of the tree, including its maximum height.
 
@@ -863,7 +865,7 @@ observeEvent({input$h
 <p>&nbsp;</p>
 <p>&nbsp;</p>
 
-### DBSCAN
+## DBSCAN
 
 **Density Based Spatial Clustering of Applications with Noise** (DBSCAN) is another method that does not need you to pre-specify the number of clusters. It also allows the data to be clustered into whatever arbitrary shape best fits the cluster. This is more flexible than the k-means and hierarchical approaches. It is designed to help work with data where we are dealing with clusters of differing size, shape and density. This method groups together data points that are in close proximity based on distance (i.e. Euclidean or other) and a minimum number of points. It identifies outliers in the data set that sit in a low density space and does not include these within the resultant clusters. This is advantageous over `kmod` as you do not need to preset the number of outliers.  
 
@@ -877,7 +879,7 @@ For a more indepth look at the DBSCAN algorithm and r implementation see [Hahsle
 
 <p>&nbsp;</p>
 
-#### **Determining epsilon**
+### **Determining epsilon**
 
 So how do we determine these parameters? As we are working with quite a small data set we will set MinPts to 3. $\epsilon$ can be inferred using the average distances of each point to their K-Nearest Neighbors, where $k$ is specified by the researcher in relation to MinPts. This is ploted in ascending order as a function of $\epsilon$. You are looking for an elbow indicating a sharp change in the KNN distance curve.
 
@@ -891,7 +893,7 @@ abline(h = 0.80, lty = 2)
 
 You can see from the above plot that the elbow begins at around $\epsilon$ 0.80.
 
-#### **Running Analysis**
+### **Running Analysis**
 
 Now that we have our two parameters you can run the analysis. We will use the `dbscan` function in the `fpc` package rather than the one in the `dbscan` package. This is due to the output of the former being more detailed.
 
@@ -936,7 +938,7 @@ quiz(
 
 <p>&nbsp;</p>
 
-#### **Interactive DBSCAN**
+### **Interactive DBSCAN**
 
 Try using DBSCAN yourself. One thing you can notice here is that the optimal size of $\epsilon$-neighborhood changes in response to the number of minumum points per cluster.
 
@@ -1054,268 +1056,5 @@ observeEvent({input$d
 
 <p>&nbsp;</p>
 
-### Combining Clustering and PCA
 
-```{r  map country clusters function, echo=FALSE}
-country_cluster_map <- function(base_data, clus_vector){
-
-teach_visual <- base_data %>% 
-  mutate(cluster = as.factor(clus_vector)) %>%
-  select(Country, cluster)
-teach_visual$Country <- recode(teach_visual$Country,
-                            "United States" = "USA",
-                            "United Kingdom" = "UK",
-                            "Viet Nam" = "Vietnam",
-                            "Brunei Darussalam" = "Brunei",
-                            "Korea" = "South Korea",
-                            "Slovak Republic" = "Slovakia",
-                            "North Macedonia" = "Macedonia",
-                            "Hong Kong (China)" = "Hong Kong",
-                            "Macao (China)" = "Macao"
-                            )
-
-teachmap.world <- map_data("world") %>%
-  left_join(teach_visual, by = c("region" = "Country"))
-country.points <- data.frame(
-  Country = c("Brunei", "Hong Kong", "Luxembourg", "Macao", "Singapore", "Qatar", "United Arab Emirates"),
-  lat = c(4.5353, 22.3193, 49.6116, 22.1987, 1.3521, 25.3548, 23.4241),
-  long = c(114.7277, 114.1694, 6.1319, 113.5439, 103.8198, 51.1839, 53.8478),
-  stringsAsFactors = FALSE
-) %>%
-  left_join(teach_visual, by = "Country")
-
-ggplotly(
-ggplot() +
-  geom_polygon(data = teachmap.world, aes(x = long, y = lat, group = group, fill = cluster), colour = "#444444") +
-  scale_fill_manual(values = c("#8dd3c7", "#ffffb3", "#bebada", "#fb8072"),
-                    na.value = "#d9d9d9", name = "Cluster") +
-  geom_point(data = country.points, aes(x = long, y = lat, fill = cluster), size = 1.5, pch = 21) +
-  theme_void()) %>%
-  layout(xaxis = list(autorange = TRUE),
-         yaxis = list(autorange = TRUE))
-
-  
-}
-```
-
-Now that you have learned the basics of clustering lets try a more complex example! When working with large data sets like the PISA data it is likely that you will want to cluster based on more than two variables. We could, therefore, cluster based on all the variables in the original `countrySummary` data we loaded in. However, this would be a very high-dimensional analysis since there are 26 variables in total. In instances where you are working with high-dimensional data it is possible to combine both PCA and Clustering. 
-
-PCA is first used to reduce the dimension of the data set, like you learned to do in the PCA section. Then instead of clustering based on the original variables you cluster based on the principle components. Using this method can lead to more stable clustering when you are working with a large data set like PISA. For more information see [Husson, Josse & Pages, (2010)](https://www.semanticscholar.org/paper/Principal-component-methods-hierarchical-clustering-Josse/04335d99d840ac3370f5aeb262828cf127d3ff1c?fbclid=IwAR2LZqx2iaZFX_s_884N1SWmy0N41uihOn6ZI-FcGARQVIFRmY0YFkRnUP0)
-
-In the last section you ran a PCA analysis on 7 teacher-related variables and determined that keeping the first 4 principle components was sufficient. In this section you will use your new clustering knowledge to run clustering analyses (k-means, hierarchical and DBSCAN) based on these 4 principle components. To do this we first need to extract the PCA data: 
-
-```{r teacher data, message=FALSE, echo=FALSE}
-#load teach_dat from last section behind the scenes
-teach_dat <- countrySummary %>% select(Country, contains("Teacher")) %>%
-  na.omit() 
-```
-
-```{r teach_pca, echo=FALSE}
-#run teach_pca from last section behind the scenes
-teach_pca <- prcomp(teach_dat[2:8], center = TRUE, scale. = TRUE)
-```
-
-```{r teach_pca table}
-#extract pca data table 
-teach_pca_dat <- as_tibble(teach_pca[["x"]]) %>% 
-  #select relevent pcs
-  select(PC1, PC2, PC3, PC4) %>%
-  #add country information back in
-  mutate(Country = teach_dat$Country)
-```
-
-Now that we have the country data as it relates to the principle components we can run our clustering analysis. The first analysis will be  k-means. As there are more than 2 variables visualizing the data in a conventional 2-D scatter plot is not possible. 
-
-Using what you learned in the previous clustering sections use the `fviz_nbclust()` package to run the elbow and and then the average silhouette method to determine the optimal value of $k$
-
-```{r teachopk-exercise, exercise = TRUE, exercise.eval = TRUE}
-
-```
-
-```{r teachopk-exercise-hint}
-#Look back at the {r manual elbow method} code chunk if you need to refresh your knowledge 
-#make sure you are using the right data set i.e. teach_pca_dat
-#Make sure that you are only using the bullying and discipline columns of the data set i.e.  [,1:4]
-#Make sure you have the correct value analysis method i.e. kmeans
-#Make sure you have the correct method arguments i.e. "wss" silhouette"
-#Make sure you are running the the elbow method first then silhouette
-```
-
-```{r teachopk-exercise-solution}
-fviz_nbclust(teach_pca_dat[,1:4], kmeans, method = "wss")
-fviz_nbclust(teach_pca_dat[,1:4], kmeans, method = "silhouette")
-```
-
-```{r teachopk-exercise-check}
-grade_code("You can now determine the optimal value for k!", "Check the hints tab to make sure you are on the right track")
-```
-
-```{r teachoptimalk, echo = FALSE}
-quiz(
-  question("What is the optimal value of k?",
-           answer("4"),
-           answer("2"),
-           answer("3", correct = TRUE),
-           answer("5"),
-           allow_retry = TRUE, 
-           correct = "Correct! The elbow in the first graph is around k = 3 and the peak in average silhouette is at k =3"))
-```
-
-Now that you know the optimal $k$ use the `kmod()` function to run a $k$-means analysis. Set the outlier parameter $l$ to 5. 
-
-```{r teachkmod-exercise, exercise = TRUE, exercise.eval = TRUE}
-
-```
-
-```{r teachkmod-exercise-hint}
-#Look back at the {r kmod} code chunk if you need to refresh your knowledge
-#make sure you are using the right dataset i.e. teach_pca_dat
-#Make sure that you are only using the bullying and discipline columns of the data set i.e.  [,1:4]
-#Make sure you have the correct value for k (opitmal k from previously) and l specified
-```
-
-```{r teachkmod-exercise-solution}
-teach_kmod <- kmod(teach_pca_dat[,1:4], k=3, l=5)
-```
-
-```{r teachkmod-exercise-check}
-grade_code("You successfully ran the kmod analysis!", "Check the hints tab to make sure you are on the right track")
-```
-
-We can also extract the countries that `kmod` treated as outliers: 
-
-```{r teachkmod, echo=FALSE, results=FALSE}
-#run analysis in background
-teach_kmod <- kmod(teach_pca_dat[,1:4], k=3, l=5)
-```
-
-```{r teachkmod_outliers}
-#index country names of outliers from the l-index output
-teach_pca_dat$Country[teach_kmod$L_index]
-```
-
-Using `kmod` and principle components we have managed to explain 68.55% of the variance. Although we cannot use a scatter plot the we are clustering countries so we can use a map of world to visualise which countries are being grouped together. On the plot below you can see which countries have been grouped together. You can use the zoom and pan tools to see specific sections of the map in more detail:
-
-```{r teachcluster visual, echo = FALSE}
-country_cluster_map(teach_pca_dat, teach_kmod$XC_dist_sqr_assign[,2])
-```
-
-Now try and run hierarchical clustering on the PCA data. Use the `hlcust` function to run the the analysis with complete linkage. Assign your analysis to `teach_hclust <- `: 
-
-```{r teachhclust-exercise, exercise = TRUE, exercise.eval = TRUE}
-
-```
-
-```{r teachhclust-exercise-hint}
-#Look back at the first line of code in the {r hclust complete} code chunk if you need to refresh your knowledge
-#Make sure you are using the right dataset i.e. teach_pca_dat
-#Make sure that you are only using the bullying and discipline columns of the data set i.e.  [,1:4]
-#Have you remember to compute the distance matrix of the data i.e. dist(teach_pca_dat[,1:4])
-#Have you used the right linkage method i.e. method = "complete"
-#Have you assigned the analysis correctly i.e. teach_hclust <- 
-```
-
-```{r teachhclust-exercise-solution}
-teach_hclust <- hclust(dist(teach_pca_dat[,1:4]), method="complete")
-```
-
-```{r teachhclust-exercise-check}
-grade_code("You successfully ran a hierarchical clustering!", "Check the hints tab to make sure you are on the right track")
-```
-
-Now that you have ran the analysis we can visualise this on a dendrogram. You can see from the dendrogram that there seems to be 4 distint clusters: 
-```{r teachhclust, echo=FALSE}
-#run analysis in background
-teach_hclust <- hclust(dist(teach_pca_dat[,1:4]), method="complete")
-```
-
-```{r teachhclust complete, fig.width=12, fig.height=8}
-
-teach_comp <- as.dendrogram(teach_hclust) %>%
-  set("labels", teach_pca_dat$Country[teach_hclust$order])
-plot(teach_comp, ylab = "Height", main = 'Complete Linkage')
-rect.dendrogram(teach_comp, k = 4, border = 2:5)
-```
-
-We can also plot these using the world map to compare the results with the k-means analysis:
-```{r teach clust map,echo=FALSE, message = FALSE}
-#extract cluster vector 
-teach_comp_clus <- cutree(teach_comp, k = 4)
-
-country_cluster_map(teach_pca_dat, teach_comp_clus)
-```
-
-You can see this method produces slightly different results to the k-means analysis and Albania is treated as it's own cluster (zoom in on Europe).
-
-Finally lets run a DBSCAN analysis. You first need to determine $\epsilon$. Use the `kNNdistplot()` function in the `dbscan` package. Set k to 3, h = 1 and lty = 2. 
-
-```{r teachKNNelbow-exercise, exercise = TRUE, exercise.eval = TRUE}
-
-```
-
-```{r teachKNNelbow-exercise-hint}
-#Look back at the first line of code in the {r KNN elbow} code chunk if you need to refresh your knowledge
-#Make sure that you are calling the function properly i.e. dbscan::kNNdistplot()
-#Make sure you are using the right dataset i.e. teach_pca_dat
-#Make sure that you are only using the bullying and discipline columns of the data set i.e.  [,1:4]
-#Make sure you have set k = 3
-#To get the dashed line make sure you run abline(h = , lty = )
-```
-
-```{r teachKNNelbow-exercise-solution}
-dbscan::kNNdistplot(teach_pca_dat[,1:4], k = 3)
-abline(h = 1.8, lty = 2)
-```
-
-```{r teachKNNelbow-exercise-check}
-grade_code("You can now determine a value for epsilon!", "Check the hints tab to make sure you are on the right track")
-```
-
-Now that you have your plot change the value for `h =` and re-run in your code to move the dashed line around and find a logical value for $\epsilon$. The elbow this time is not as definitive but this is where researcher decision making comes into play. 
-
-```{r teachoptimalep, echo = FALSE}
-quiz(
-  question("What would be a logical value to set epsilon given the plot you created above?",
-           answer("4"),
-           answer("3.2"),
-           answer("1"),
-           answer("1.8", correct = TRUE),
-           allow_retry = TRUE, 
-           correct = "Correct! You are looking for a value of epsilon that relates to a sharp change in the KNN distance curve"))
-```
-
-Now that you have a value for $\epsilon$ you can run the DSCAN analysis. Use the `dbscan` function in the `fpc` package to run the analysis and assign it to `teach_db <-`. Set `MinPts` to 3. 
-
-```{r teachdbscan-exercise, exercise = TRUE, exercise.eval = TRUE}
-
-```
-
-```{r teachdbscan-exercise-hint}
-#Look back at the first line of code in the {r DBSCAN} code chunk if you need to refresh your knowledge
-#Make sure that you are calling the function properly i.e. fpc::dbscan()
-#Make sure you are using the right dataset i.e. teach_pca_dat
-#Make sure that you are only using the bullying and discipline columns of the data set i.e.  [,1:4]
-#Make sure you have set eps = and MinPts to the correct values specified earlier i.e. eps = 1.8 and MinPts = 3
-```
-
-```{r teachdbscan-exercise-solution}
-teach_db <- fpc::dbscan(teach_pca_dat[,1:4], eps = 1.8, MinPts = 3)
-```
-
-```{r teachdbscan-exercise-check}
-grade_code("You have sucessfully ran a DBSCAN cluster analysis!", "Check the hints tab to make sure you are on the right track")
-```
-
-```{r teach dbscan}
-#runs density cluster analysis in background 
-teach_db <- fpc::dbscan(teach_pca_dat[,1:4], eps = 1.8, MinPts = 3)
-```
-
-```{r teach dbscan map, echo = FALSE}
-country_cluster_map(teach_pca_dat, teach_db$cluster)
-```
-
-Once again this method has produced different country groupings than the k-means and hierarchical clustering methods. So how do you decide which solution to use? Unfortunately there is not a straight forwarded answer. We could compare the solutions using internal validity measures such as the Calinski-Harabasz index or silhouette values however the assumptions underlying these are more aligned with k-means and hierarchical clustering approaches. This means DBSCAN is likely to score lower than the other methods. There are other internal validation measures such as Density-Based Cluster Validation (DBCV) that align with DBSCAN, however k-means and hierarchical clustering are likely to score lower on these measures. For more information on why it is hard to fairly compare clustering approaches based on internal validation measures see [Van Craenendonck & Blockeel (2015)](https://lirias.kuleuven.be/1656512?limo=0). Therefore, internal validation measures are best used for ensuring we set the right parameters. We could also use external validation such as cross validation, which will be covered in a later section. 
-
-In this instance it may be more intuitive to use the clustering solution that provides the most interpretable solution based on domain knowledge and research aim (i.e. what solution is the most interpretable and interesting given what we know about the culture and education systems of the countries included in our analysis).
 
