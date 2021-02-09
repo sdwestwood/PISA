@@ -1,32 +1,42 @@
 ---
-title: "Tutorial"
-output: learnr::tutorial
+title: "Generalised Linear Models"
+output:
+  learnr::tutorial:
+    progressive: true
+    allow_skip: true
+    
 runtime: shiny_prerendered
 ---
 
 ```{r setup, include=FALSE}
-library(learnr)
-library(tidyverse)
-library(gradethis)
-gradethis_setup()
 knitr::opts_chunk$set(echo = FALSE)
+
+library(learnr)
+library(tidyverse) #data manipulation
+
+### INSTALLING LEARNR AND GRADETHIS FROM GITHUB ###
+#devtools::install_github("rstudio/learnr")
+#devtools::install_github("rstudio-education/gradethis")
+
+library(gradethis) #quiz/exercise questions
+gradethis_setup() #quiz/exercise questions
+
+load(file = "GLMM_mod.Rdata")
+
 ```
 
+## Modeling the PISA Data
 
-## GLMM {.tabset .tabet-fade .tabset-pills}
-
-### Modeling the PISA Data
-
-In this section we will go through the various stages that are required to create linear models that can be used to analyse data. For this tutorial we will walk through the various stages of both sorting the data for analysis and then running various model types on the data. During this tutorial we will briefly cover general linear models before progressing to generalised linear models. Once we have looked at general and generalised linear models, we will look at Linear Mixed Models before finally covering Generalised Linear Mixed Models. By the end of this section you should have a solid grasp of the key concepts required to create your own models to analyse your data. 
+In this section we will outline how to use linear models to analyse the PISA data. We will briefly cover general linear models before progressing to generalised linear models. Once we have looked at general and generalised linear models, we will look at Linear Mixed Models before finally covering Generalised Linear Mixed Models. By the end of this section you should have a solid grasp of the key concepts required to create your own models to analyse your data. 
 
 <p>&nbsp;</p>
 
-#### **Loading in and sorting the data**
+### **Loading in and sorting the data**
 
 
-Before we begin modelling the data we first need to sort the data. Sorting the data can make it much more manageable to analyse. This can help in fitting and understanding the models that we create. In our example below we will be loading in two different data sets relating to the PISA data. The first relates to the time spent in the classroom and the mount of spending on education by each country. The second data set contains all the scores of the countries of various factors. 
+Before we begin modelling the data we first need to sort the data. Sorting the data can make it much more manageable to analyse. This can help in fitting and understanding the models that we create. In our example below we will be loading in two different data sets relating to the PISA data. 
 
-We will firstly load in the data from the learning and spending data set and then sort it so it can be used in the analysis. To sort the data we will standardize the columns that we want to use as predictors. By standardizing the variables, we transform them so that they are measured on a scale of standard units. This is beneficial when our data is not measured on the same scale. When data data becomes standardized everything becomes internally consistent and this can make it much easier to directly compare our variables during the analysis. In order to standardize the data we can use the `scale()` function. As well as the scale function we will use the `transformTukey()` function on the spending variable. This is because the spending data is not normally distributed and by applying the transformTukey function we are able to normalize it a bit before it is standardized.
+We will firstly load in the data on time spent in the classroom and the amount of spending on education by each country. To sort the data we will standardize the columns that we want to use as predictors. By standardizing the variables, we transform them so that they are measured on a scale of standard units. This is beneficial when our data is not measured on the same scale. When data data becomes standardized everything becomes internally consistent and this can make it much easier to directly compare our variables during the analysis. In order to standardize the data we can use the `scale()` function. As well as the scale function we will use the `transformTukey()` function on the spending variable. This is because the spending data is not normally distributed and by applying the transformTukey function we are able to normalize it a bit before it is standardized.
 
 ```{r, message = FALSE, echo = TRUE}
 # load in the data
@@ -79,7 +89,7 @@ Now that we have joined the two tables, we can move on to the analysis. The main
 
 <p>&nbsp;</p>
 
-#### ** Sorting data exercise**
+#### **Sorting data exercise**
 
 ```{r sorting_exercise, echo = FALSE}
 quiz(
@@ -106,7 +116,7 @@ quiz(
 <p>&nbsp;</p>
 <p>&nbsp;</p>
 
-### Simple models
+## Simple models
 
 Now that we have sorted the data appropriately we can begin the analysis. A good point to start when beginning an analysis is to visualize the data. In this case we can begin by visualizing the distribution of the scores (the dependent variable in our data). In order to do this we can create a histogram. 
 
@@ -132,7 +142,7 @@ The output from the results appear to show that spending, and attitudes towards 
 
 <p>&nbsp;</p>
 
-#### **Generalized Linear Models**
+### **Generalized Linear Models**
 
 An alternative approach to analyzing the PISA data could be to use a generalized linear model. A generalized linear model is similar to a general linear model, except some of the constraints are relaxed. This typically makes it better when dealing with data that is not normally distributed, such as is the case with the PISA data.
 
@@ -157,7 +167,7 @@ From the output we can see that there are differences in the significance values
 
 <p>&nbsp;</p>
 
-#### **Model comparison**
+### **Model comparison**
 
 Now that we have fitted a generalized linear model to the data we can check to see if it really fits the data better than our original linear model. There are multiple ways to do this. One of the simplest ways to compare the models is to look at the Akaike Information Criterion (AIC). This is a goodness of fit statistic which takes into account how well a model explains the data and adds  a penalty for model complexity. AIC scores can be used to compare the goodness of fit of different models. The general rule when comparing models using AIC is that the model with the lowest AIC value fits the data better. The AIC is quite arbitrary however, as there are no set guidelines for using it. We can obtain the AIC value by using the `AIC()` function. 
 ```{r simple AICs, echo = TRUE}
@@ -176,7 +186,7 @@ From looking at our AIC values we find a rather interesting result. It appears t
 
 <p>&nbsp;</p>
 
-#### **Simple model exercises**
+### **Simple model exercises**
 
 ```{r LM_Questions, echo=FALSE}
 quiz(question("What does the family argument relate to?",
@@ -204,7 +214,7 @@ quiz(question("What does the family argument relate to?",
 <p>&nbsp;</p>
 <p>&nbsp;</p>
 
-### More complex Models
+## More complex Models
 
 Now that we have gone through simple model types we will look at more complex models. The next section will look at Linear Mixed Models (LMMs) and Generalised Linear Mixed Models (GLMMs). These two model types expand on the ideas from the simple models shown in the previous section but add additional options to help fit the data better. This tutorial will provide a brief overview of more complex models, however a more detailed explanation is given in a paper written by Barr et al., (2013). 
 
@@ -225,7 +235,7 @@ Now that we have discussed the key differences between the simple linear models 
 
 <p>&nbsp;</p>
 
-#### **Linear Mixed Effect Model**
+### **Linear Mixed Effect Model**
 
 Setting up and running a linear mixed model (LMMs) is very similar to setting up and running a standard linear model. There are some key differences though. Base R does not have a function that can effectively deal with LMMs and so we have to use a different package. The package that is most commonly used to run LMMs is known as the `lme4` package. Once that package has been loaded in we can begin to create LMMs. The function within the lme4 package that is required is known as the `lmer()` function. Once we have selected this function we then have to tell it what model we want it to run. This is done in a similar way to that of the `lm()` function. We start by specifying the dependent variable, then we add in our predictors and finish by specifying our data. The differences appear when we want to add in our random effects. In order to add random effects we have to use the following input `(1|random effect)`. If we want to specify in our model that the random effect is interacting with our predictors, i.e we have within subjects interactions between certain fixed and random effects, then we can do it like this: `(1 + predictor|random effect)`.
 
@@ -252,7 +262,7 @@ Within the output the main focus for the analysis is the fixed effects output. O
 
 <p>&nbsp;</p>
 
-#### **Generalized Linear Mixed Models**
+### **Generalized Linear Mixed Models**
 
 We could also fit a generalized linear mixed model to look at the data. These work in exactly the same way as a generalized linear model, in that they allow us to apply different family classes in an attempt to fit a model to data that is not normally distributed. With a generalized linear mixed model, we can take the same formula as was used in our linear mixed model, but add different family classes and link functions in an attempt to fit the data better. 
 
@@ -286,7 +296,7 @@ Here we can see that the output from the `glmer()` function is similar but not i
 
 <p>&nbsp;</p>
 
-#### **Model comparison**
+### **Model comparison**
 
 As was done with the general linear model and the generalized linear model, we can compare the generalized linear mixed model and the linear mixed model to see which of these two fit the data better. In order to do this we will again use the AIC values.
 
@@ -304,7 +314,7 @@ From the output of the AIC values we can see that the AIC value for the generali
 
 <p>&nbsp;</p>
 
-#### ** Complex model Exercise**
+### **Complex model Exercise**
 
 
 ```{r quiz, echo = FALSE}
@@ -384,18 +394,18 @@ grade_code(incorrect = "Make sure you are using the correct function and argumen
 ```
 <p>&nbsp;</p>
 
-#### **Conclusion**
+### **Conclusion**
 
 In this tutorial we have covered how to sort data for analysis and how to run different types of models. Now that you have completed this tutorial you should have a basic understanding of: how to sort data for analysis, how to run linear models and generalized linear models, the basic components behind linear mixed models and generalized linear mixed models, how to run linear mixed models and generalized linear mixed models, how to compare models.
 
 We hope this tutorial has helped you to understand how generalized linear mixed models work and how to use them in your data analysis. 
 <p>&nbsp;</p>
 
-### **Coding exercises**
+## Coding exercises
 
 In this section you can practice what you have learned in the tutorial. Here we would like you to firslty create a generalised linear model which fits the PISA data, using the same independent and dependent variables as were used in the tutorial. This time however we would like you to use a gamma family argumetn with a log link function. Once you have completed that we would like you to greate a Generalised linear Mixed model using the same independent and dependent variables as were used in the tutorial but use a gamma family argumetn with a log link function. 
 
-#### Glm exercise
+### **Glm exercise**
 Create a generalized linear model similar to the one used in the tutorial. This time however, use a log link function. Once you have created the model with the log link function, calculate the AIC value. 
 ```{r coding1-exercise, exercise = TRUE, exercise.eval = TRUE}
 
@@ -424,7 +434,7 @@ grade_code(incorrect = "Make sure you are using the correct function and argumen
 ```
 
 
-#### GLMM exercise
+### **GLMM exercise**
 
 Run a Generalized linear mixed model  similar to the one in the example given in this section but switch the identity link with a with a log link. Calculate the AIC of this new model and compare it to the AIC values of the previous models created throughout the tutorial. 
 
