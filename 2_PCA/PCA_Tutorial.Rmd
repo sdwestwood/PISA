@@ -18,16 +18,6 @@ library(ggplot2) #visualization features
 library(plotly) #interactive plots
 library(psych) #PCA functions
 library(chemometrics) #mahalanobis distance test
-
-######## INSTALLING LEARNR AND GRADETHIS FROM GITHUB ########
-
-# run the following lines of code in the console down below:
-
-#devtools::install_github("rstudio/learnr")
-#devtools::install_github("rstudio-education/gradethis")
-
-#############################################################
-
 library(learnr) #tutorial format (github version, not CRAN)
 library(gradethis) #custom feedback
 gradethis::gradethis_setup()
