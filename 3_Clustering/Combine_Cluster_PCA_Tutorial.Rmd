@@ -1,5 +1,6 @@
 ---
 title: "Combining Clustering and PCA"
+author: "Amy Roger"
 output:
   learnr::tutorial:
     progressive: true
@@ -16,6 +17,7 @@ library(tidyverse) #data manipulation
 library(plotly) #visualization features
 library(ggplot2) #visualization features
 library(shiny) #interactive plots
+library(ggalt) #additional plot features
 
 library(kmodR) #k-means simultaneous outlier detection 
 library(cluster) #clustering algorithms
@@ -33,7 +35,9 @@ library(gradethis) #quiz/exercise questions
 gradethis::gradethis_setup()
 
 # load pre-made datasets and functions
-load(file = "Cluster.Rdata")
+load(file = "Cluster.RData")
+load(file = "PCA.RData")
+load(file = "pcaApp.RData")
 ```
 
 ## Combining Clustering and PCA
@@ -57,6 +61,7 @@ teach_pca_dat <- as_tibble(teach_pca[["x"]]) %>%
   #add country information back in
   mutate(Country = teach_dat$Country)
 ```
+
 
 ### **K-means on PCA**
 
@@ -149,7 +154,168 @@ teach_kmod <- kmod(teach_pca_dat[,1:4], k=3, l=5)
 teach_pca_dat$Country[teach_kmod$L_index]
 ```
 
-Using `kmod` and principle components we have managed to explain 68.55% of the variance. Although we cannot use a scatter plot the we are clustering countries so we can use a map of world to visualise which countries are being grouped together. On the plot below you can see which countries have been grouped together. You can use the zoom and pan tools to see specific sections of the map in more detail:
+### Interactive K-Means by Principle Components
+
+It seems that the optimal parameters are k=3 for 4 components, however it is sometimes helpful to be able to visualise how these parameters interact with each other when making this decision. Here is an opportunity to play around with different values with and without outliers to see how this affects the clusters when plotted for PC1 and PC2. 
+
+```{r pcasetup, echo = FALSE, message = FALSE, context = 'setup'}
+k.values <- 1:15
+
+nPC.values <- 1:7
+
+scree.pca3 <- function(pc.top = 7, data = pca3) {
+  
+  scree <- vector()
+  
+  for (i in 1:pc.top) {
+    
+    scree[i] <- summary(data)$importance[3, i]
+    
+  }
+  
+  return(scree)
+  
+}
+
+scree.pca4 <- function(pc.top = 7, data = pca4) {
+  
+  scree <- vector()
+  
+  for (i in 1:pc.top) {
+    
+    scree[i] <- summary(data)$importance[3, i]
+    
+  }
+  
+  return(scree)
+  
+}
+
+scree.values <- scree.pca3()
+
+scree.values.4 <- scree.pca4()
+
+dat.pca1 <- as_tibble(pca3$x)
+
+dat.pca2 <- as_tibble(pca4$x)
+```
+
+```{r pcaui, echo = FALSE}
+
+fluidRow(
+  column(6,
+         sliderInput('jk',
+            'Number of clusters:',
+            min = 1,
+            max = 8,
+            value = 3)
+  ),
+  column(6,
+         selectInput('outlier',
+            'Include outliers?',
+            c("Yes",
+            "No"),
+            selected = "Yes")
+  )
+)
+
+fluidRow(
+  column(6,
+        sliderInput('nPC', 'Number of Components:',
+            min = 2,
+            max = 7,
+            value = 4)
+  )
+)
+
+fluidRow(
+  column(6,
+         plotOutput('biplot')
+  ),
+  column(6, 
+         plotOutput('screeplot'))
+)
+
+```
+
+```{r pcaserver, echo = FALSE, context = 'server'}
+
+observeEvent({input$outlier},
+             if (input$outlier == "Yes") {
+
+ observeEvent({input$nPC
+  input$jk}, {
+               set.seed(123)
+               
+               dat.pca1$cluster <- kmeans(dat.pca1[,1:input$nPC], centers = input$jk)$cluster
+               output$biplot <- renderPlot({
+                 ggplot(data = dat.pca1, aes(PC1, PC2, color = as.character(cluster))) +
+    geom_point(size = 2, alpha = 0.7) +
+    geom_encircle(expand = 0, size = 0, alpha = 0.1, aes(fill = as.character(cluster))) +
+    theme_minimal() +
+    theme(legend.position="none")             
+               })
+               
+               output$screeplot <- renderPlot({
+                 ggscreeplot(pca3, 'cev') +
+                   geom_segment(x = 0, xend = input$nPC,
+                                y = scree.values[input$nPC], 
+                                yend = scree.values[input$nPC],
+                                colour = 'blue') +
+                   geom_segment(x = input$nPC, xend = input$nPC,
+                                y = 0, yend = scree.values[input$nPC],
+                                colour = 'blue') +
+                   scale_x_continuous(breaks = nPC.values) +
+                   theme_minimal() + 
+                   theme(panel.grid.minor = element_blank()) +
+                   xlab('Number of Components') +
+                   ylab('Cumulative Explained Variance')
+               })
+             })
+
+}
+
+else {
+  
+  observeEvent({input$nPC
+  input$jk}, {
+               set.seed(123)
+               
+               dat.pca2$cluster <- kmeans(dat.pca2[,1:input$nPC], centers = input$jk)$cluster
+               output$biplot <- renderPlot({
+                 ggplot(data = dat.pca2, aes(PC1, PC2, color = as.character(cluster))) +
+    geom_point(size = 2, alpha = 0.7) +
+    geom_encircle(expand = 0, size = 0, alpha = 0.1, aes(fill = as.character(cluster))) +
+    theme_minimal() +
+    theme(legend.position="none")
+                   
+               })
+               
+               output$screeplot <- renderPlot({
+                 ggscreeplot(pca4, 'cev') +
+                   geom_segment(x = 0, xend = input$nPC,
+                                y = scree.values.4[input$nPC], 
+                                yend = scree.values.4[input$nPC],
+                                colour = 'blue') +
+                   geom_segment(x = input$nPC, xend = input$nPC,
+                                y = 0, yend = scree.values.4[input$nPC],
+                                colour = 'blue') +
+                   scale_x_continuous(breaks = nPC.values) +
+                   theme_minimal() + 
+                   theme(panel.grid.minor = element_blank()) +
+                   xlab('Number of Components') +
+                   ylab('Cumulative Explained Variance')
+               })
+             })
+
+})
+
+```
+<p>&nbsp;</p>
+
+### Visualise Clusters on World Map
+
+To better visualise what our clusters actually indicate, we can plot them on a map of the world. This will allow us to identify any trends that might be of interest, such as the grouping of countries that are geographically near each other or culturally similar. On the plot below you can see which countries have been grouped together. You can use the zoom and pan tools to see specific sections of the map in more detail:
 
 ```{r teachcluster visual, echo = FALSE}
 country_cluster_map(teach_pca_dat, teach_kmod$XC_dist_sqr_assign[,2])
