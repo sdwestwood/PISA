@@ -51,7 +51,7 @@ Continuing with the PISA data, we might want to understand what predictors best 
 
 <p>&nbsp;</p>
 
-#### **Visualising and Scaling Data**
+### **Visualising and Scaling Data**
 
 We will cluster countries based on the same random variables used in the PCA (i.e. levels of bullying and teacher discipline). Just like in PCA it is important to visualise the data first. Clusters are determined based on the distance between points so when your variables are in different units one variable may have more weight in the outcomes of clustering than the other. The variables we are using are already scaled. Let's recap what the data that we are using looks like. 
 
@@ -75,6 +75,8 @@ tooltip = "fill")
 
 ## K-means Analysis 
 
+### Overview
+
 K-means analysis is a method of partitioning your data set into $k$ clusters, where $k$ is pre-set by the researcher. Observations in the same cluster are as similar as possible and observations between different clusters are as dissimilar as possible. Clusters are defined by their center (i.e. mean of the observations assigned to each cluster).
 
 To determine the similarity between data points k-means calculates the distance between the two data points. The default is usually Euclidean distance. For other distance measures and how these affect k-means clustering see [Patel & Mehta (2012).](https://link.springer.com/chapter/10.1007/978-81-322-0491-6_63)
@@ -93,7 +95,11 @@ This iterative approach used in k-means and other clustering techniques is Expec
 
 ### **Deciding on a value for k**
 
-There are numerous methods to help choose the optimum number for $k$. The elbow method method allows you to assess the variance explained (i.e. total within-cluster sums of squares) as a function of the number of clusters used ($k$). The code below walks you through this method step-by-step:
+The key decision when running a k-means cluster analysis is choosing the optimal number of clusters. There are numerous methods to help choose the optimum number for $k$, and we will highlight a few here. 
+
+### **Elbow Method**
+
+The elbow method method allows you to assess the variance explained (i.e. total within-cluster sums of squares) as a function of the number of clusters used ($k$). The code below walks you through this method step-by-step:
 
 ```{r manual elbow method}
 
@@ -122,6 +128,8 @@ plot(k.values, wss_values,
 <p>&nbsp;</p>
 
 This method can be ambiguous surrounding what value of k to choose. Here $k$ = 3 to $k$ = 5 could be suitable values for the k-means analysis. So how do we decide? We can use a combination of methods.
+
+### **Average Silhouette Method**
 
 The Average Silhouette Method uses the silhouette coefficient, an internal cluster validation measure assessing how well data points have been clustered by estimating the average distance between clusters. High average silhouette widths (i.e. closer to 1 the better) indicate good clustering. This method looks at the average silhouette of observations across the values of k. The code below walks you through how this method works:
 
@@ -184,6 +192,8 @@ fviz_nbclust(bull_dis[,2:3], kmeans, method = "silhouette")
 grade_code("You successfully ran the the average silhouette method!", "Check the hints tab to make sure you are on the right track")
 ```
 
+### **Calinski-Harabasz Index**
+
 The Calinski-Harabasz Index is an internal cluster validation measure assessing the ratio of between cluster variance and within cluster variance. A good cluster analysis has high between cluster variance and low within cluster variance. Additionally, between cluster variance increases with $k$ whereas within cluster variance decreases with $k$, but the rate of change for both should slow at optimal $k$. Therefore, the Calinski-Harabasz Index ratio should, in theory be maximized (i.e. the largest value) at optimal $k$.
 
 ```{r Calinski-Harabasz Index}
@@ -210,6 +220,8 @@ plot(k.values, ch,
 For the data we are working with the Calinski-Harabasz Index output is not as definitive as the other methods. From the plot we can see there are local peaks at $k$ = 6 and then again at 10. 
 
 Using information from multiple methods is a better way to obtain $k$ than relying on one. From the three outputs $k$ = 4 seems a reasonable value of $k$ to use. These are just three of a variety of ways to determine the optimal $k$ value. The `fviz_NbClust` package has functions for running the different methods. See [Alboukadel Kassambara (n.d.)](https://www.rdocumentation.org/packages/factoextra/versions/1.0.7/topics/fviz_nbclust) for a review.
+
+### **Quick Quiz**
 
 ```{r optimakmethodsq, echo=FALSE}
 quiz(
@@ -246,6 +258,8 @@ km_4
 ```
 <p>&nbsp;</p>
 
+###
+
 The summary provides you with the cluster means for each component and indicates that 71% of the variance was explained by the 3 clusters. Now lets plot the data with country and cluster labels to see what it looks like.
 
 ```{r cluster plot, message=FALSE, warning=FALSE}
@@ -278,6 +292,8 @@ outlier_data <- bull_dis %>%
 ```
 <p>&nbsp;</p>
 
+###
+
 Now that we have our new data set `outlier data` we need to assess the optimal value for k and run a new k-means. As you have already seen us run a k-mean analysis we will be asking you some questions and to write some code as we go through this section.
 
 ```{r oulier decide k, message=FALSE, warning = FALSE}
@@ -285,6 +301,8 @@ Now that we have our new data set `outlier data` we need to assess the optimal v
 fviz_nbclust(outlier_data[, 2:3], kmeans, method = "wss")
 fviz_nbclust(outlier_data[, 2:3], kmeans, method = "silhouette")
 ```
+
+###
 
 ```{r optimalk, echo = FALSE}
 quiz(
@@ -328,6 +346,8 @@ grade_code("You successfully ran a kmeans analysis!", "Check the hints tab to ma
 ```
 <p>&nbsp;</p>
 
+###
+
 On your `kmeans` output (if you don't have an output press 'Run Code') find the value which indicates the variance explained.
 
 ```{r varexplainedq, echo = FALSE}
@@ -340,6 +360,8 @@ quiz(
            allow_retry = TRUE, 
            correct = "Correct! The between_SS / total_SS section of the kmeans output allows you assess the % varience explained"))
 ```
+
+###
 
 Now that we have our results we can visualise them. 
 
@@ -365,6 +387,8 @@ tooltip = "group")
 ```
 <p>&nbsp;</p>
 
+###
+
 So how do we assess local outliers (i.e. outliers with respect to their distance from their surrounding cluster)? We can manually identify local outliers by calculating the distance of data points from their cluster center and picking the top $l$ distances as outliers. There is no set method to choosing $l$, a limitation of this approach. The decision surrounding $l$ can be made using field expertise, however, an arbitrary guideline is 5. 
 
 ```{r top 5 outlier}
@@ -387,6 +411,8 @@ outlier_data %>%
 
 ```
 
+###
+
 ```{r distanceq, echo = FALSE}
 quiz(
   question("What does the distance value in the table above represent?",
@@ -397,6 +423,8 @@ quiz(
            allow_retry = TRUE, 
            correct = "Correct! The when assessing local outliers we are interested in the distance between datapoints and thier respective cluster centres"))
 ```
+
+###
 
 This method outlines 5 more countries that could been seen as local outliers. The `kmod` function allows you to do k-means analysis with simultaneous outlier detection. The k-means algorithm has been updated to form clusters while simultaneously identifying and accounting for outliers. The outliers are defined in a similar method as outlined above. For an detailed outline of the updated algorithm that the `kmod` package runs see [Chawla & Gionis (2013)](http://pmg.it.usyd.edu.au/outliers.pdf) In this new approach the researcher has to specify $k$ clusters and $l$ outliers. 
 
@@ -410,6 +438,8 @@ kmod_3 <- kmod(outlier_data[, 2:3], k=3, l=5)
 #index country names of outliers from the l-index output
 outlier_data$Country[kmod_3$L_index]
 ```
+
+###
 
 ```{r kmod_plot}
 #plot data coloured by cluster
@@ -429,6 +459,8 @@ ggplotly(
 tooltip = "group")
 ```
 <p>&nbsp;</p>
+
+###
 
 The clusters are identical to the prior k-means example except the `kmod` approach explains a higher proportion of variance (73.7%) as the cluster centers are computed while accounting for the local outliers. Try and run a `kmod` analysis for yourself with k = 3, l = 3. Assign this analysis to `kmod_k3l3 <-`.
 
@@ -465,6 +497,8 @@ kmod_k3l3 <- kmod(outlier_data[, 2:3], k=3, l=3)
 ```
 <p>&nbsp;</p>
 
+###
+
 Now that you have stored your analysis as `kmod_k3l3` you can use this to assess the three countries that were treated as local outliers. Use code to index the country names of outliers from the l-index output.
 
 ```{r lindex-exercise, exercise = TRUE, exercise.eval = TRUE}
@@ -488,8 +522,9 @@ outlier_data$Country[kmod_k3l3$L_index]
 ```{r lindex-exercise-check}
 grade_code("You successfully indexed country names of your outliers from your analysis output!", "Check the hints tab to make sure you are on the right track")
 ```
-
 <p>&nbsp;</p>
+
+###
 
 With `kmod` the lack of discussion around how to set the outlier parameter $l$ and the loss of information due to removing outliers are limitations of this approach. Therefore, if we are working with data that has numerous or large outliers then it may be best to assess a different method. 
 
@@ -574,6 +609,8 @@ Try running two k-means analyses with 4 clusters (by moving the slider away from
 
 ## Hierarchical Clustering
 
+### **Overview**
+
 The Hierarchical Clustering outlined in this section is a bottom-up approach which considers each object (i.e. each country) as a single-element cluster (leafs) initially and then the two most similar clusters are combined into a bigger cluster (nodes). This process continues until all leafs are a member of one cluster (the root). This method by default is calculated via Euclidean distance. The leafs of nodes lower down in the hierarchical tree are more similar than the leafs of nodes higher up. Hierarchical clustering is depicted through dendrograms and the height indicates the similarity of different leafs.
 
 Hierarchical clustering determines the dissimilarity between two groups of observations in the dendrogram through 'linkage.' Their are numerous linkage methods: complete, average, single and centroid. This section will focus on complete and average linkage as these produce more balanced clusters and are more robust to outliers than single linkage. In addition, they do not suffer from inversion of cluster nodes like centroid linkage. 
@@ -581,6 +618,8 @@ Hierarchical clustering determines the dissimilarity between two groups of obser
 * Complete Linkage: Dissimilarity is computed by calculating all pairwise dissimilarities of leafs in cluster A and cluster B and taking the largest value to be the distance between two clusters. 
 
 * Average Linkage: Dissimilarity is computed by calculating all pairwise dissimilarities of leafs in cluster A and cluster B and taking the average value to be the distance between two clusters. 
+
+###
 
 Below shows the outcome of hierarchical clustering using complete and average linkage methods.
 
@@ -597,7 +636,9 @@ dend_comp <- as.dendrogram(hclust_comp) %>%
 plot(dend_comp, ylab = "Height", main = 'Complete Linkage')
 ```
 
-Not that you have seen us run the hierarchical clustering with complete linkage try an run hierarchical clustering with average linkage using the `hclust()` function. Do not assign your analysis to an object. 
+###
+
+Note that you have seen us run the hierarchical clustering with complete linkage try and run hierarchical clustering with average linkage using the `hclust()` function. Do not assign your analysis to an object. 
 
 ```{r hclust-exercise, exercise = TRUE, exercise.eval = TRUE}
 
@@ -627,6 +668,8 @@ hclust(dist(bull_dis[,2:3]), method = "average")
 grade_code("You successfully ran a hierarchical clustering!", "Check the hints tab to make sure you are on the right track")
 ```
 
+###
+
 Below is a dendrogram using the hierarchical clustering you just ran:
 
 ```{r hclust average, fig.width=12, fig.height=8, echo=FALSE}
@@ -638,6 +681,8 @@ dend_ave = as.dendrogram(hclust_ave) %>%
 plot(dend_ave, ylab = "Height", main = 'Average Linkage')
 ```
 <p>&nbsp;</p>
+
+###
 
 As you can see from the dendrograms each country is its own leaf and as we move up the hierarchy countries that are similar to each other are combined into nodes. However, the way in which the countries are combined is different for each linkage method. 
 
@@ -674,6 +719,8 @@ plot(dend_ave, ylab = "Height", main = 'Complete Linkage')
 rect.hclust(hclust_comp, k = 4, border = 2:5)
 ```
 <p>&nbsp;</p>
+
+###
 
 To get 3 clusters the height of the dendrogram is cut around 3.8 and for 4 subgroups it is cut around 3. Using similar code as we have above create a dendrogram for `hclust_ave` (hierarchical clustering with average linkage) for $k$ = 3. Use the `as.dendrogram()` function and assign your `as.dendrogram()` to an object `dend_ave =` so that it can be used in the `plot()` function.
 
@@ -735,6 +782,8 @@ quiz(
 
 <p>&nbsp;</p>
 
+###
+
 You can also use the function `cutree` to get an index of which countries belong to each cluster to visualise these in the original scatter plot form and see how this method groups countries in comparison to k-means. 
 
 ```{r cutree}
@@ -777,6 +826,8 @@ tanglegram(dend_comp, dend_ave,
   )
 ```
 <p>&nbsp;</p>
+
+###
 
 The first plot highlights (via coloured lines) which countries have been fused in the same way across both dendrograms. The dashed lines show unique combinations of branches not seen in the other dendrogram. The second plot shows the branches that are common between the two dendrograms. It also assess the entanglement of the two dendrograms; a measure of how in line the two dendrograms are. Entanglement is a value from 0 (full entanglement) to 1 (no entanglement), with lower values indicating higher alignment. This illustrates how different linkage methods lead to dissimilarity being interpreted differently. 
 
@@ -867,6 +918,8 @@ observeEvent({input$h
 
 ## DBSCAN
 
+### **Overview**
+
 **Density Based Spatial Clustering of Applications with Noise** (DBSCAN) is another method that does not need you to pre-specify the number of clusters. It also allows the data to be clustered into whatever arbitrary shape best fits the cluster. This is more flexible than the k-means and hierarchical approaches. It is designed to help work with data where we are dealing with clusters of differing size, shape and density. This method groups together data points that are in close proximity based on distance (i.e. Euclidean or other) and a minimum number of points. It identifies outliers in the data set that sit in a low density space and does not include these within the resultant clusters. This is advantageous over `kmod` as you do not need to preset the number of outliers.  
 
 The two parameters the researcher needs to estimate when using this method are:
@@ -915,13 +968,17 @@ ggplotly(
   theme_minimal(), 
 
 tooltip = "group")
+```
 
+```
 #there is also an inbuilt plot function that can be used
-#fviz_cluster(db, data = bull_dis[, 2:3], stand = FALSE,
+fviz_cluster(db, data = bull_dis[, 2:3], stand = FALSE,
              #ellipse = FALSE, show.clust.cent = FALSE,
              #geom = "point", palette = "jco", ggtheme = theme_classic())
 ```
 <p>&nbsp;</p>
+
+###
 
 The outliers are identified by cluster = 0 in this plot. You can see here the resultant clusters are different to those in the previous methods but DBSCAN has managed to form clusters taking into account outliers that we had noticed could be problematic in the previous methods (i.e. Brunei Darussalam and Philippines).
 
