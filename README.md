@@ -7,7 +7,7 @@ To install these, you can run the following lines of code in the R console:
 The following is a list of additional CRAN packages that are currently used in each tutorial section:
 
 ## PCA
-library(tidyverse) #data manipulation \n
+library(tidyverse) #data manipulation <br/>
 library(ggplot2) #visualization features
 library(plotly) #interactive plots
 library(psych) #PCA functions
