@@ -5,9 +5,9 @@ cnt_pca <- principal(countrySummary[3:26],
                      rotate = 'varimax', #Method to decide the rotation of the components. Leads to different interpretations of the components (i.e. whether they can be correlated) but does not change the explained variance.
                      missing = TRUE) #Predict component values if some data is missing
 
-db <- fpc::dbscan(principal_dat[2:12], eps = 3.6, MinPts = 3)
-
 principal_dat <- cbind(countrySummary[,2], cnt_pca$scores)
+
+db <- fpc::dbscan(principal_dat[2:12], eps = 3.6, MinPts = 3)
 
 km_cluster <- kmeansCBI(principal_dat[,2:12],
                         krange = 1:(nrow(principal_dat)-1), #Automatically tests every value of K up from one to one less than the number of countries
