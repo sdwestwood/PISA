@@ -17,6 +17,7 @@ library(ggrepel) #geom labels
 library(kableExtra) #Table layout
 library(knitr) #Markdown
 library(lme4) #Mixed effects models
+library(learnr)
 library(maps) #Maps
 library(MuMIn) #Mixed effects variance
 library(psych) #PCA
@@ -328,3 +329,36 @@ The other consideration is that even with more variables in finer detail, the mo
 As much as we would wish it otherwise, ultimately all statistical methods consist of a series of judgment calls. Each decision branch has pros and cons and it is not immediately obvious what these will be. For example, using the linear mixed-effects model on subsections of the PISA dataset was effective, finding robust results despite the lower power. However, the processing power needed to construct these models is prohibitive and essentially rules out using the unique quantity of data available in PISA. At the same time, it may also be necessary to use the data compression in PCA and clustering to make the job of interpretation easier for the humans at the end of the process.
 
 Ultimately, our efforts in this learning app are a step forward in applying more sophisticated analyses to the PISA set, rather than relying on simple comparisons of country-level means. Potential future directions could either build on what we have achieved here or start from a completely different point. For example, K-means is not necessarily the best clustering method in this situation, how would the results change if density clustering was used? Another advancement would be more effectively using the breadth of data available, such as using mixed-effect models which vary by student, school, and teacher.
+
+### Final Review Questions
+
+Congratulations for making it all the way to the end of our tutorial! We hope that you have found it useful. As a final test of your understanding of the concepts that we have explored, we have included the following questions.
+
+```{r Model_Quiz, echo=FALSE}
+quiz(
+  question("Why was PCA used in this analysis?",
+           answer("Accounting for correlations between variables", correct = TRUE),
+           answer("Making it easier to keep track of predictors"),
+           answer("Finding meaningful factors in the data"),
+           answer("To make reviewers think we know what we're talking about"),
+           allow_retry = TRUE 
+  ),
+  question("What are potential drawbacks of modeling a large heterogenous dataset?",
+           answer("Difficult to validate"),
+           answer("Is computationally expensive", correct = TRUE),
+           answer("Lower power"),
+           allow_retry = TRUE 
+  ),
+  question("Using a mixed-effects model...",
+           answer("Improves interpretability"),
+           answer("Accounts for more unsystematic variance", correct = TRUE),
+           answer("Is less computationally taxing"),
+           allow_retry = TRUE 
+  ),
+  question("Where possible, why is it a good idea to use cross-validation?",
+           answer("Find the data which best fits the model"),
+           answer("Estimate the true population parameter"),
+           answer("Ensures that the model is stable and consistent", correct = TRUE),
+           allow_retry = TRUE)
+)
+```
