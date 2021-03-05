@@ -33,15 +33,15 @@ library(tidyverse) #data manipulation
 library(tidyverse) #data manipulation
 
 ## Analysis
-library(tidyverse) #data manipulation 
-library(dbscan) #computing density based clustering
-library(fpc) #computing density based clustering
-library(ggrepel) #geom labels
-library(kableExtra) #table layout
-library(knitr) #Markdown
-library(lme4) #Mixed effects models
-library(maps) #Maps
-library(MuMIn) #Mixed effects variance
-library(psych) #PCA functions
+library(tidyverse) #data manipulation<br/>
+library(dbscan) #computing density based clustering<br/>
+library(fpc) #computing density based clustering<br/>
+library(ggrepel) #geom labels<br/>
+library(kableExtra) #table layout<br/>
+library(knitr) #Markdown<br/>
+library(lme4) #Mixed effects models<br/>
+library(maps) #Maps<br/>
+library(MuMIn) #Mixed effects variance<br/>
+library(psych) #PCA functions<br/>
 library(shiny) #*everything*
 
