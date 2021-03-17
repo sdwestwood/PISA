@@ -1,25 +1,26 @@
 ---
 title: "Principle Component Analysis"
+author: "Sean Westwood"
 output:
   learnr::tutorial:
     progressive: true
-    allow_skip: true
+    allow_skip: false
 
 runtime: shiny_prerendered
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+set.seed(123) #reproducible simulation
 
 library(tidyverse) #data manipulation 
 library(ggplot2) #visualization features
 library(plotly) #interactive plots
 library(psych) #PCA functions
 library(chemometrics) #mahalanobis distance test
-library(learnr) #tutorial format 
+library(learnr) #tutorial format (github version, not CRAN)
 library(gradethis) #custom feedback
 gradethis::gradethis_setup()
-set.seed(123) #reproducible simulation
 
 # load pre-made datasets and functions
 load(file = "PCA.Rdata")
