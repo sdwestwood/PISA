@@ -68,9 +68,6 @@ For more information, click on one of the following links to the official OECD w
 <p>&nbsp;</p>
 
 
-This is my demonstration of committing and pushing.
-
-
 ## Our Project
 
 ### **Introduction**
