@@ -72,7 +72,7 @@ For more information, click on one of the following links to the official OECD w
 
 ### **Introduction**
 
-We live in a world today where data is bigger and more accessible than ever before. The PISA dataset is one such example, and it represents the most comprehensive collection of global pedagogical data. Over the last 20 years it has been used to try and improve our understanding of the factors that foster success in students. Some examples of this are shown in the previous section, and there are some clear cases of positive outcomes being obtained. However, analysisng such a large and heterogenous dataset comes with many challenges, and it may be possible to improve interpretation and value by approaching analysis from a different angle.
+We live in a world today where data is bigger and more accessible than ever before. The PISA dataset is one such example, and it represents the most comprehensive collection of global pedagogical data. Over the last 20 years it has been used to try and improve our understanding of the factors that foster success in students. Some examples of this are shown in the previous section, and there are some clear cases of positive outcomes being obtained. However, analysisng such a large and heterogeneous dataset comes with many challenges, and it may be possible to improve interpretation and value by approaching analysis from a different angle.
 
 ###
 
