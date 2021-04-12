@@ -98,7 +98,7 @@ This enabled us to overcome the issues with previous analyses highlighted by [Fe
 
 ### **Approach**
 
-The first step was compressing the data so that that thousands of variables recorded in the PISA data set could be more easily modelled and interpreted. This involved a principle component analysis with choices about rotations and how many components to include. While not essential to the analysis, looking at which variables were correlated and therefore placed onto the same components provides was also of interest. Explanations of these concepts can be found in the **Principle Component Analysis** section.
+The first step was compressing the data so that that thousands of variables recorded in the PISA data set could be more easily modeled and interpreted. This involved a principle component analysis with choices about rotations and how many components to include. While not essential to the analysis, looking at which variables were correlated and therefore placed onto the same components provides was also of interest. Explanations of these concepts can be found in the **Principle Component Analysis** section.
 
 The next step was to identify groups of countries based on these new principle components. Choosing whether to use clustering and which method in the family to use has a wide range of potential options. You can find examples of just a few possible clustering methods, how they work, and descriptions of how to choose optimal numbers of clusters in the comprehensive **Clustering** section.
 
