@@ -12,7 +12,10 @@ runtime: shiny_prerendered
 knitr::opts_chunk$set(echo = FALSE)
 
 library(learnr)
-library(tidyverse) #data manipulation
+library(tidyverse)
+library(gradethis)
+library(rcompanion)
+library(lme4)
 
 ### INSTALLING LEARNR AND GRADETHIS FROM GITHUB ###
 #devtools::install_github("rstudio/learnr")
@@ -21,8 +24,7 @@ library(tidyverse) #data manipulation
 library(gradethis) #quiz/exercise questions
 gradethis_setup() #quiz/exercise questions
 
-load(file = "GLMM_mod.Rdata")
-
+load("GLM.RData")
 ```
 
 ## Modeling the PISA Data
@@ -38,7 +40,7 @@ Before we begin modelling the data we first need to sort the data. Sorting the d
 
 We will firstly load in the data on time spent in the classroom and the amount of spending on education by each country. To sort the data we will standardize the columns that we want to use as predictors. By standardizing the variables, we transform them so that they are measured on a scale of standard units. This is beneficial when our data is not measured on the same scale. When data data becomes standardized everything becomes internally consistent and this can make it much easier to directly compare our variables during the analysis. In order to standardize the data we can use the `scale()` function. As well as the scale function we will use the `transformTukey()` function on the spending variable. This is because the spending data is not normally distributed and by applying the transformTukey function we are able to normalize it a bit before it is standardized.
 
-```{r, message = FALSE, echo = TRUE}
+```{r, message = FALSE, echo = TRUE, eval=FALSE}
 # load in the data
 dat_learn_spend <- read_csv("learn_spend_data.csv") %>%
 # use filter to select only the rows where there are no N/As
@@ -58,7 +60,7 @@ By running the above code, 3 graphs appear showing the transformed data. These t
 Now that we have sorted the learning and spending data we can now load in the second data set. Whilst loading in the data, we will again standardize it. We will also need to select the specific columns that we wish to use and also set one of those columns as a factor so it can later be used in the analysis. The columns that we want from this data set are all the columns relating to the reading scores of the countries, the ESCS column relating to the Economic social and cultural status of each country, the ATTLNACT column relating to the attitudes towards education within each country and finally, the ID column. For the analysis we need to scales the ESCS column and the ATTLNACT column. We also need to set the ID column as a factor for this analysis.
 
 
-```{r, echo=TRUE, message=FALSE}
+```{r, echo=TRUE, message=FALSE, eval=FALSE}
 # Load in the second data set
 dat_pisa <- read_csv("pisa18_data1.csv") %>%
 # select the columns we want for the analysis  
@@ -131,9 +133,12 @@ From the histogram it appears that the data is slightly negatively skewed. This 
 
 For our linear model we will use the `lm()` function. Form our data set, our Score column will be our dependent variable, whilst the Spending, learning, ESCS, ATTLNACT and Item columns will be used as our independent variables (predictors). 
 
-```{r linear model, message = FALSE, echo=TRUE}
+```{r linear model, message = FALSE, echo=TRUE, eval=FALSE}
 # Use the lm function to create a linear model
 LM_mod <- lm(Score ~ Spending * Learning * ESCS * ATTLNACT + Item, data = read_data)
+summary(LM_mod)
+```
+```{r secret linear model, echo=FALSE}
 summary(LM_mod)
 ```
 <p>&nbsp;</p>
@@ -150,7 +155,7 @@ There are different family arguments that can be made when using a generalized l
 
 Since we are dealing with data that is negatively skewed we will use the Gamma family in our example. The code for using the glm is very similar to the code needed when creating a linear model. The only difference is now at the end of the code we specify the family and link arguments. Link arguments allow us to apply transformations to the model parameters and also determines the way the model coefficients are interpreted. Changing the link function can, in some cases, result in a better fitting model. There are many different link arguments for each family but for now we will just use the standard identity link. 
 
-```{r generalised linear model, echo=TRUE}
+```{r generalised linear model, echo=TRUE, eval=FALSE}
 # Use the glm finction to create a genearlised linear model
 GLM_mod <- glm(Score ~ Spending * Learning * ESCS * ATTLNACT + Item,
                data = read_data, 
@@ -159,6 +164,10 @@ GLM_mod <- glm(Score ~ Spending * Learning * ESCS * ATTLNACT + Item,
 # Get the output from the generalised linear model
 summary(GLM_mod)
 ```
+```{r secret generalised linear model, echo = FALSE}
+summary(GLM_mod)
+```
+
 <p>&nbsp;</p>
 
 Here we can see that the output presented when we use the glm function is very similar to the output when we use the lm function. One of the main differences is to do with the goodness of fit statistic presented in the two outputs. when we use the lm function the goodness of fit statistic is given as the adjusted R-squared. with the glm function, the goodness of fit statistic given is the Akaike Information Criteria (AIC) score. 
@@ -172,8 +181,6 @@ From the output we can see that there are differences in the significance values
 Now that we have fitted a generalized linear model to the data we can check to see if it really fits the data better than our original linear model. There are multiple ways to do this. One of the simplest ways to compare the models is to look at the Akaike Information Criterion (AIC). This is a goodness of fit statistic which takes into account how well a model explains the data and adds  a penalty for model complexity. AIC scores can be used to compare the goodness of fit of different models. The general rule when comparing models using AIC is that the model with the lowest AIC value fits the data better. The AIC is quite arbitrary however, as there are no set guidelines for using it. We can obtain the AIC value by using the `AIC()` function. 
 ```{r simple AICs, echo = TRUE}
 # run the AIC for the linear model
-
-
 lm_AIC <- AIC(LM_mod)
 lm_AIC
 # Run the AIC for the generalised linear model
@@ -241,7 +248,7 @@ Setting up and running a linear mixed model (LMMs) is very similar to setting up
 
 In our example below, we have selected the same variables as before in the standard linear model for our dependent variable and our predictors. This time however, we have set the Country, Item and the ID as random effects. For the random effects we are taking into account the interaction between the random effect of Country and the fixed effect of Spending and Learning. We are also taking into account the interaction between the random effect of ID and the Economics Social and Cultural status; and the Attitudes towards education. 
 
-```{r Linear mixed effect model, echo=TRUE}
+```{r Linear mixed effect model, echo=TRUE, eval=FALSE}
 # Use lmer to run a linear mixed model
 LMM_mod <- lmer(Score ~ Spending * Learning * ESCS * ATTLNACT +
 # Use the (1 + X|random variable) strucutre to add in the random effects
@@ -250,6 +257,9 @@ LMM_mod <- lmer(Score ~ Spending * Learning * ESCS * ATTLNACT +
                    (1|Item),
                  data = read_data)
 # Get a summary of the output
+summary(LMM_mod)
+```
+```{r secret Linear mixed effect model, echo=FALSE}
 summary(LMM_mod)
 ```
 <p>&nbsp;</p>
@@ -285,9 +295,7 @@ GLMM_mod <- glmer(Score ~ Spending * Learning * ESCS * ATTLNACT +
 # Get the output of the analysis
 summary(GLMM_mod)
 ```
-
 ```{r secret GLMM, echo = FALSE}
-load("GLMM_mod.Rdata")
 summary(GLMM_mod)
 ```
 <p>&nbsp;</p>
