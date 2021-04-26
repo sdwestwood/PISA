@@ -1,0 +1,36 @@
+Analysis
+- Final
+	- Cross validate with 2015 data?
+	- Run some models on individual clusters?
+- 10/05
+	-
+	-
+- 03/05
+	-
+	-
+
+
+CV
+- Final
+	- Write 'LOOCV' section
+	- Write 'External CV' section
+	- Write 'K-Fold CV' section
+- 10/05
+	-
+	-
+- 03/05
+	-
+	-
+
+
+GLM
+- Final
+	- Divide into subsections with progressively more complex models
+	- Explain pros/cons for each (reference to bias/variance and prediction/interpretation trade-offs? see book)
+	- make format more concise/pretty/consistent with previous sections
+- 10/05
+	-
+	-
+- 03/05
+	-
+	-
