@@ -27,18 +27,28 @@ gradethis_setup() #quiz/exercise questions
 load("GLM.RData")
 ```
 
+## Let's start from the beginning
+
+None of us can know the future, but statisticians have the magic power to predict it!
+Their super power is called "regression analysis". Basically, what regression analysis does is to fit a model to data and use it to predict values of the dependent variable (DV) from one or more independent variables (IVs). 
+Regression analysis is a way of predicting an outcome variable from one predictor variable (simple regression) or several predictor variables (multiple regression).
+This tool is incredibly useful because it allows statisticians (and researchers in general!) to go a step beyond the data that they collected.
+
+<p>&nbsp;</p>
+
 ## Modeling the PISA Data
 
-In this section we will outline how to use linear models to analyse the PISA data. We will briefly cover general linear models before progressing to generalised linear models. Once we have looked at general and generalised linear models, we will look at Linear Mixed Models before finally covering Generalised Linear Mixed Models. By the end of this section you should have a solid grasp of the key concepts required to create your own models to analyse your data. 
+In this section, we will outline how to use linear models to analyse the PISA data and make prediction based on the data collected. We will briefly cover general linear models before progressing to generalised linear models. Once we have looked at general and generalised linear models, we will look at Linear Mixed Models before finally covering Generalised Linear Mixed Models. By the end of this section you should have a solid grasp of the key concepts required to create your own models to analyse your data. 
 
 <p>&nbsp;</p>
 
 ### **Loading in and sorting the data**
 
 
-Before we begin modelling the data we first need to sort the data. Sorting the data can make it much more manageable to analyse. This can help in fitting and understanding the models that we create. In our example below we will be loading in two different data sets relating to the PISA data. 
-
-We will firstly load in the data on time spent in the classroom and the amount of spending on education by each country. To sort the data we will standardize the columns that we want to use as predictors. By standardizing the variables, we transform them so that they are measured on a scale of standard units. This is beneficial when our data is not measured on the same scale. When data data becomes standardized everything becomes internally consistent and this can make it much easier to directly compare our variables during the analysis. In order to standardize the data we can use the `scale()` function. As well as the scale function we will use the `transformTukey()` function on the spending variable. This is because the spending data is not normally distributed and by applying the transformTukey function we are able to normalize it a bit before it is standardized.
+Before we begin modelling the data, we first need to sort the data. Sorting the data can make it much more manageable to analyse. This can help in fitting and understanding the models that we create. In our example below we will be loading in two different data sets relating to the PISA data. 
+###ask what they meant 
+We will firstly load in the data on time spent in the classroom and the amount of spending on education by each country. To sort the data we will standardize the columns that we want to use as predictors. By standardizing the variables, we transform them so that they are measured on a scale of standard units. This is beneficial when our data is not measured on the same scale. When data data becomes standardized everything becomes internally consistent and this can make it much easier to directly compare our variables. 
+In order to standardize the data we can use the `scale()` function. As well as the scale function, we will use the `transformTukey()` function on the spending variable. This is because the spending data is not normally distributed and by applying the transformTukey function we are able to normalize it a bit before it is standardized.
 
 ```{r, message = FALSE, echo = TRUE, eval=FALSE}
 # load in the data
@@ -55,9 +65,10 @@ dat_learn_spend <- read_csv("learn_spend_data.csv") %>%
 ```
 <p>&nbsp;</p>
 
-By running the above code, 3 graphs appear showing the transformed data. These three graphs show the distribution of the  spending data points. From the data it can be seen that there is a slight positive skew. this can be seen with the first plot which shows a much more gradual slope as the lambda approaches zero compared to when lambda passes zero and in the qq plot where most of the points appear to be below the red line. 
+By running the above code, 3 graphs appear showing the transformed data. These three graphs show the distribution of the spending data points. From the data it can be seen that there is a slight positive skew. 
+This can be seen with the first plot which shows a much more gradual slope as the lambda approaches zero compared to when lambda passes zero and in the qq plot where most of the points appear to be below the red line. 
 
-Now that we have sorted the learning and spending data we can now load in the second data set. Whilst loading in the data, we will again standardize it. We will also need to select the specific columns that we wish to use and also set one of those columns as a factor so it can later be used in the analysis. The columns that we want from this data set are all the columns relating to the reading scores of the countries, the ESCS column relating to the Economic social and cultural status of each country, the ATTLNACT column relating to the attitudes towards education within each country and finally, the ID column. For the analysis we need to scales the ESCS column and the ATTLNACT column. We also need to set the ID column as a factor for this analysis.
+Now that we have sorted the data we can now load in the second data set. Whilst loading in the data, we will again standardize it. We will also need to select the specific columns that we wish to use and also set one of those columns as a factor so it can later be used in the analysis. The columns that we want from this data set are all the columns relating to the reading scores of the countries, the ESCS column relating to the Economic social and cultural status of each country, the ATTLNACT column relating to the attitudes towards education within each country and finally, the ID column. For the analysis we need to scales the ESCS column and the ATTLNACT column. We also need to set the ID column as a factor for this analysis.
 
 
 ```{r, echo=TRUE, message=FALSE, eval=FALSE}
@@ -75,7 +86,7 @@ dat_pisa <- read_csv("pisa18_data1.csv") %>%
 ```
 <p>&nbsp;</p>
 
-Now that we have sorted the two data sets, we need to combine them in order to analyse the data. We can join the two columns using the `inner_join()` function. Once we have joined the two tables together we can change them from a wide format to a long format using the `gather()` function. By doing this we are able to create a score and item column. This allows us to see each of the countries score on each of the reading items. In our code we have used the function `sample_n(4e2)`. This function allows us to select a random sample from the data set. We are simply doing this to reduce the amount of data points in our examples as using all of the data would cause the fitted models in the following sections to take a very long time to run.
+Now that we have sorted the two data sets, we need to combine them in order to analyse the data. We can join the two columns using the `inner_join()` function. Once we have joined the two tables together we can change them from a wide format to a long one using the `gather()` function. By doing this we are able to create a score and item column. This allows us to see each of the countries score on each of the reading items. In our code we have used the function `sample_n(4e2)`. This function allows us to select a random sample from the data set. We are simply doing this to reduce the amount of data points in our examples as using all of the data would cause the fitted models in the following sections to take a very long time to run.
 
 
 ```{r joing_tables, echo = TRUE}
@@ -87,7 +98,7 @@ read_data <- inner_join(dat_pisa, dat_learn_spend, by = "CNT") %>%
 ```
 <p>&nbsp;</p>
 
-Now that we have joined the two tables, we can move on to the analysis. The main point that should be gained from this section is that it is important to standardize the data before performing a complex analysis. 
+Now that we have joined the two tables, we can move on to our analysis. The main point that should be gained from this section is that it is important to standardize the data before performing a complex analysis. 
 
 <p>&nbsp;</p>
 
@@ -118,36 +129,108 @@ quiz(
 <p>&nbsp;</p>
 <p>&nbsp;</p>
 
-## Simple models
+## **Simple models**
 
 Now that we have sorted the data appropriately we can begin the analysis. A good point to start when beginning an analysis is to visualize the data. In this case we can begin by visualizing the distribution of the scores (the dependent variable in our data). In order to do this we can create a histogram. 
 
 ```{r histogram of scores, echo=FALSE}
 ggplot(read_data, aes(Score)) + 
-  geom_histogram(binwidth = 50, color = 'white', fill = 'lightblue') +
+  geom_histogram(binwidth = 50, color = 'white', fill = 'dodgerblue') +
   theme_minimal()
 ```
+
+<p>&nbsp;</p>
 <p>&nbsp;</p>
 
 From the histogram it appears that the data is slightly negatively skewed. This would suggest that the use of a standard linear model may not be the best approach. Despite this we can still fit one and see how it deals with the data.
 
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+And now let's start with the analysis!
+
 For our linear model we will use the `lm()` function. Form our data set, our Score column will be our dependent variable, whilst the Spending, learning, ESCS, ATTLNACT and Item columns will be used as our independent variables (predictors). 
 
-```{r linear model, message = FALSE, echo=TRUE, eval=FALSE}
-# Use the lm function to create a linear model
-LM_mod <- lm(Score ~ Spending * Learning * ESCS * ATTLNACT + Item, data = read_data)
-summary(LM_mod)
-```
-```{r secret linear model, echo=FALSE}
-summary(LM_mod)
-```
+<p>&nbsp;</p>
 <p>&nbsp;</p>
 
-The output from the results appear to show that spending, and attitudes towards education are significant predictors and that there are significant two way interactions between spending and attitudes towards education, as well as between learning and attitudes towards education. There were also significant three way interactions between spending, learning, and economic social and cultural status and, spending, economic social and cultural status, and attitudes towards education. As mentioned above however, the data was negatively skewed and so this model may not be the best method for analysis. 
+Firstly, we will create a model with a single predictor. 
+For example, if we want to know how the Spending variable predicts the Score, we have to build our analisys in this way: 
+
+```{r linear model, with Spending as predictor}
+# Use the lm function to create a linear model with a Spending as predictor
+LM_mod1 <- lm(Score ~ Spending, data = read_data)
+summary(LM_mod1)
+```
+
+Interpretation: 
+Let’s look first at the R2 statistics. This value describes the overall model (so it tells us whether the model is successful in predicting “Score”). The value of R2 is a measure of how much of the variability in the outcome is accounted for by the predictors. For the first model its value is .105 which means that “Spending” accounts for 10.5% of the variation in “Scores”. That means that 89.5%  of the variation in “Score” can not be explained by advertising alone. Therfore, there must be other variables that have an influence also. The result of ANOVA for these data is significant, so the model results in a significantly good degree of prediction of the outcome variable. However, the ANOVA doesn’t tell us about the individual contribution of variables in the model (in this simple case, only one variable). 
+
+Coefficients contains the model parameters (the beta values) and the significance of these values.  In regression equation, b0  was the Y intercept and this values is the value in the Estimate  colum for the (intercept). It is in brackets because it’s not a real variable. We can say that b0  is 485.44, and this can be interpreted as meaning that wen no “Spending” is done (when X= 0), the model predicts that 485.44 Score would be achieve. We can also read off the value of b1 from the row labelled Spending and this value represent the gradient of the regression line. It is 37.64. Although this value is the slope of the regression line, it is more useful to think of this value as representing the change in the outcome associated with a unit change in the predictor. Therefore, if our predictor variable (“Spending”) is increased by one unit, our model predicts that “Score” will increase 37.63. We also see that the t-test tells us whether the b-value is different from 0. For this variable, we can conclude that the “Spending” makes a significant contribution (p<.001) to predicting “Score”.
+
+We can see in “Spending” raw.
+
+The adjusted R2 gives us some idea of how well our model generalizes, and ideally we would like its value to be the same, or very close to, the value of R2. In this example the difference for the model is small (0,0003)
+
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+```{r linear model, with ATTLNACT as predictor}
+# Use the lm function to create a linear model with a ATTLNACT as predictor
+LM_mod2 <- lm(Score ~ ATTLNACT, data = read_data)
+summary(LM_mod2)
+```
+
+
+What is have explained for the former linear regression could be applied to that.Do this model explain more or less of the variability in the outcome “Score”?
+
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+Well, you know, reality is a much more complex model. So we need to build models with more than a single predictor. It is certainly possible that taken together Spending and ATTLNACT explain more about Score than either predictor alone. 
+
+```{r linear model with 2 variable}
+# Use the lm function to create a linear model with 2 variables as predictors
+LM_mod3 <- lm(Score ~ Spending + ATTLNACT, data = read_data)
+summary(LM_mod3)
+```
+
+
+When the two predictors are included, the value of R2 (how much of the variability in the outcome is accounted for by the predictors) increase from 0.105 to 0.108. The b-values tell us that there is a significant positive relationship between both predictors and the outcome (both values are positive). 
+Moreover, the b-values tell us to what degree each predictor affects the outcome if the effects of all other predictors are held constant: 1) “Score” would increases by 485.05 when “Spending” increases by one unit; 2) “Score” would increases by 5.548 when “ATTLNACT” increases by one unit. 
+Both b-values are making a significant contribution to the model since corresponding t-test are significant. The larger value of t, the greater the contribution of that prediction. In this case, we can see that the “Spending” has greater impact than “ATTLNACT” in “Score”. 
+
+In the next step we will calculate interaction of both variables to know the contribution of it. 
 
 <p>&nbsp;</p>
 
-### **Generalized Linear Models**
+```{r linear model interaction}
+# Use the lm function to create a linear model interaction
+LM_mod4 <- lm(Score ~ Spending * ATTLNACT, data = read_data)
+summary(LM_mod4)
+```
+
+Including the interaction, the value of R2 has increased from 0.108 to 0.11. The b-values tell us that there is a significant positive relationship between both predictors and their interaction with the outcome. If we see the value of t-test, the “Spending” is the factor with the higher contribution to the model. 
+
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+Let's try to include all the collected variables.
+
+```{r linear model}
+# Use the lm function to create a linear model interaction
+LM_mod5 <- lm(Score ~ Spending * Learning * ESCS * ATTLNACT + Item,
+               data = read_data)
+summary(LM_mod5)
+```
+
+
+
+The output from the results appear to show that spending, and attitudes towards education are significant predictors and that there are significant two way interactions between spending and attitudes towards education, as well as between learning and attitudes towards education. There were also significant three way interactions between spending, learning, and economic social and cultural status and, spending, economic social and cultural status, and attitudes towards education. As mentioned above however, even if the linear regression is a magic way to predict the future, in this particular case, the data was negatively skewed and so this model may not be the best method for analysis. 
+
+<p>&nbsp;</p>
+
+### Generalized Linear Models
 
 An alternative approach to analyzing the PISA data could be to use a generalized linear model. A generalized linear model is similar to a general linear model, except some of the constraints are relaxed. This typically makes it better when dealing with data that is not normally distributed, such as is the case with the PISA data.
 
@@ -387,7 +470,7 @@ GLMM_dat <- glmer(Score ~ Spending * Learning * ESCS * ATTLNACT +
                      (1 + ESCS * ATTLNACT | ID) +
                      (1 | Item),
                    data = read_data,
-# sepcify the family you want to use and the link function
+# specify the family you want to use and the link function
                    family = Gamma(identity),
 # Change the optimizer used in the example
                    control = glmerControl(optimizer = c("bobyqa")))
@@ -437,10 +520,6 @@ summary(GLM_dat)
 AIC(GLM_dat)
 ```
 
-```{r coding1-exercise-error-check}
-grade_code(incorrect = "Make sure you are using the correct function and arguments.", glue_incorrect = "{ .message } { .incorrect }")
-```
-
 
 ### **GLMM exercise**
 
@@ -476,9 +555,6 @@ summary(GLMM_dat)
 AIC(GLMM_dat)
 ```
 
-```{r coding2-exercise-error-check}
-grade_code(incorrect = "Make sure you are using the correct function and arguments.", glue_incorrect = "{ .message } { .incorrect }")
-```
 
 <p>&nbsp;</p>
 <p>&nbsp;</p>
