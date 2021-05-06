@@ -30,8 +30,9 @@ set.seed(123) #reproducible simulation
 ```
 
 ```{r Exmaple data loading, include=FALSE}
-setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
-load("FinalExample.RData")
+dir <- rstudioapi::getActiveDocumentContext()$path
+setwd(dirname(dir))
+rm(dir)
 ```
 
 ## Introduction
@@ -50,15 +51,12 @@ The PISA data has thousands of potentially predictive variables. Not only would 
 
 The first step in any analysis is loading the data. For the purposes of this tutorial, this will be loading a pre-processed dataset which contains the country-level means for a selection of potentially meaningful variables in the student and school questionnaires.
 
-```{r, eval=FALSE}
-countrySummary <- read_csv("countrySummary.csv")
-```
 ```{r Heading the final data - ui, eval=TRUE, tidy=TRUE}
+countrySummary <- read_csv("countrySummary_incl_Spend.csv")
 names(countrySummary[,1:26]) # We will remove the first two variables, turning the Country column into the row names
 countrySummary = countrySummary %>%
   column_to_rownames(var = "Country") %>%
   select(-c("CNT"))
-
 ```
 
 Looking through the selected variables, it's obvious that many of the variables are measuring similar things and will probably be highly correlated. For example, it makes sense that higher spending on education will lead to fewer staff and material shortages, leading to a lower student-teacher ratio. This is a problem because one of the main weaknesses of clustering algorithms is that they default to equally weighting variables when calculating Euclidean distances. This is why in the previous example the predictive variables were scaled. In this case, leaving the variables as they are now would probably lead to levels of spending being more important than any other relevant factor. The solution to this problem is from the Principal Components Analysis, which will be implemented in the next section.
@@ -90,8 +88,6 @@ Variance_matrix_components = data.frame(variance = cnt_pca$sdev^2) %>%
   datatable(.) %>%
   formatStyle(columns = 'perc_explained',target = 'row', color = styleRow(rows = c(7,11),values = c('darkred','red')))
 Variance_matrix_components
-
-
 ```
 <p>&nbsp;</p>
 ### **Choosing number of PCA components**
@@ -109,7 +105,6 @@ principal_dat = as.data.frame(cnt_pca$x[,1:11]) # Creating a variable with the c
 Looking at the loadings in the correlation matrix, we can see a nice demonstration of what we were trying to avoid as groups of variables are clearly correlated with each other. The variables representing teacher engagement load most strongly onto the first factor. Similarly, the second factor represents teacher engagement and student cooperation, as well as the quality and size of the teacher recruitment pool. Meanwhile,  the third factor seems to be a combination of funding available and student attitude/behavior. 
 
 The interpretation of all the factors is similar, considering the greatest, in absolute value, variable loadings onto a component...
-
 
 
 <p>&nbsp;</p>
@@ -183,139 +178,57 @@ Our two utilized methods provided us with two different outcomes. Density cluste
 
 ## Running the Modified Mixed Effects Model
 ### **Defining the Model**
-Now that we have found that the countries form a single, large cluster, we can move onto modelling the effecting of spending and learning time on students' scores. To do this, we will be using the mixed-effects models. While it would be possible to include the question subject as a random effect in a single model, we will split them into three models. This is because it may be interesting to see how the effectiveness of spending and learning time changes.
-
-Once again, the first step is to load in the data. This analysis will use 2000 students from the original PISA data set. The data is structured in long format, so each row represents one question answered by a student.
+Now that we have found that the countries form a single, large cluster, we can move onto modeling the effect of spending and learning time on students' scores. To do this, we will be using a mixed-effects model. Once again, the first step is to load in the data. This analysis will require us to split our dataset into training and testing data, in order to carry out cross validation of our model. We also note that the data is structured in long format, so each row represents one question answered by a student.
 
 ```{r,echo = FALSE}
-countrySummary <- read_csv("countrySummary.csv")
+countrySummary <- read_csv("countrySummary_incl_Spend.csv")
 
-dat <- read_csv("Sample_Students.csv") %>% 
-  inner_join(select(countrySummary, CNT), by = "CNT")
+dat <- countrySummary %>%
+  inner_join(select(read_csv("studentsdata_2018.csv"),c('CNT',"CNTSTUID","PV_Item","Score")), by = "CNT") %>%
+  select(c("CNT","GNI","Learning" = "LearningTime","Spending","ID" = "CNTSTUID","PV_Item","Score"))
+
+# We need to split this into training vs testing data
+
+## Defining the proportion of the data to be used for training (the rest will be used for testing)
+training_proportion <- 0.2
+
+## Randomly selecting rows from the full dataset (must be in wide format)
+training_rows <- sample(1:nrow(dat), floor(nrow(dat)*training_proportion))
+
+training_data <- dat[training_rows, ]
+
+## Selecting the remaining (non-training) rows to be used for testing
+testing_data <- dat[-training_rows, ]
+rm(training_proportion)
+
 ```
 
+<!-- Fix writing here -->
 We can now run a model for each type of question answered by the students. In this most basic model, when setting up the random effects, we have the spending and learning time variables which vary by country, each question answered, and the individual taking the test.
 
-```{r, error=TRUE}
-#Builds mixed effect model using all countries
-GLMM_read <- lmer(Score ~ Spending * Learning +
-                   (1 + Spending * Learning | CNT) +
-                   (1 | ID) +
-                   (1 | Item),
-                 data = filter(dat, str_detect(Item, "READ")))
-GLMM_read_summary <- summary(GLMM_read)
-
-GLMM_math <- lmer(Score ~ Spending * Learning +
-                   (1 + Spending * Learning | CNT) +
-                   (1 | ID) +
-                   (1 | Item),
-                 data = filter(dat, str_detect(Item, "MATH")))
-GLMM_math_summary <- summary(GLMM_math)
-
-GLMM_scie <- lmer(Score ~ Spending * Learning +
-                   (1 + Spending * Learning | CNT) +
-                   (1 | ID) +
-                   (1 | Item),
-                 data = filter(dat, str_detect(Item, "SCIE")))
-GLMM_scie_summary <- summary(GLMM_scie)
-```
-
-<!-- Ignore from here -->
-Here we see that there is a problem with singularity, which may indicate overfitting. Let us look at the summaries of the models for math and science and see if anything seems out of place.
-
-
-```{r}
-GLMM_math_summary
-GLMM_scie_summary
-```
-We see one of our random effects (Intercept for the group item) has an estimated variance of 0.0 for both models. Given this information, we will recreate the models dropping this random effect, and see if this solves the issue.
-
-```{r}
-GLMM_math <- lmer(Score ~ Spending * Learning +
-                   (1 + Spending * Learning | CNT) +
-                   (1 | ID) +,
-                 data = filter(dat, str_detect(Item, "MATH")))
-GLMM_math_summary <- summary(GLMM_math)
-
-GLMM_scie <- lmer(Score ~ Spending * Learning +
-                   (1 + Spending * Learning | CNT) +
-                   (1 | ID),
-                 data = filter(dat, str_detect(Item, "SCIE")))
-GLMM_scie_summary <- summary(GLMM_scie)
-
-```
-The singularity problem has been resolved for the math model, but is still present with the science model, indicating that an additional problem exists. Once again, lets look at the output from the summary of the model.
-```{r}
-GLMM_scie_summary
-
-```
-
-
-
-```{r}
-GLMM_scie <- lmer(Score ~ Spending * Learning +
-                   (1 + Spending * Learning | CNT) +
-                   (1 | ID),
-                 data = filter(dat, str_detect(Item, "SCIE")))
-GLMM_scie_summary <- summary(GLMM_scie)
-
-
-```
- Again here there is a problem, and it seems to be the correlation between spending and the intercept for the random effect group of country is equals to -1... 
-
-<!-- Ignore till here -->
 
 ```{r}
 GLMM_general <- lmer(Score ~ Spending * Learning +
-                       (1 + Spending * Learning | CNT) +
-                       (1 + Spending * Learning | Subject),
-                     data = dat)
-summary(GLMM_general)
-```
+                       (1 | CNT) +
+                       (1 | PV_Item),
+                     data = training_data)
 
-When trying to run this model, we see a problem with singularity... This typically means that we are overfitting, and a primary cause of this would be too large a number of predictor variables w.r.t the number of observations in the training dataset. Furthermore, if we investigate the summary output, we see that many random effects have correlations close to absolute value of 1. Therefore, to try and get a model that is not overfitting, the best approach would be to reduce the complexity of our model, in our case, getting rid of the interaction terms between spending and learning.
+train_R_squared <- r.squaredGLMM(GLMM_general)[2]
+train_margR_squared <- r.squaredGLMM(GLMM_general)[1]
+# R^2 = 0.217
+# R^2 marginal (variance explained only by fixed effects) = 0.0504
 
-```{r}
-GLMM_general <- lmer(Score ~ Spending + Learning +
-                       (1 + Spending + Learning | CNT) +
-                       (1 + Spending + Learning | Subject),
-                     data = dat)
-summary(GLMM_general)
-```
-
-Once again, we see a problem with singularity. Upon looking at the summary, we notice that the correlations of Spending & Learning with the intercept as well as each other in the "subject" group are equal to 1. To combat this we will remove subject as a random effect.
-
-```{r}
-GLMM_general <- lmer(Score ~ Spending + Learning +
-                       (1 + Spending + Learning | CNT),
-                     data = dat)
-summary(GLMM_general)
-```
-
-Once again a singulary problem... The next step would be to continue to simplify the model, up until we can add layers. Given that we have iterated several times, we will not show the remainder of the iterations, but simply the final product that we arrived at. 
-
-Below we see a predictive model that should not be overfitted, utilizing countries and subjects (science, math, reading) as random effects towards the score obtained by a student.
-```{r, eval = FALSE}
-GLMM_general <- lmer(Score ~ Spending + Learning +
-                       (1 | CNT),
-                     data = dat)
-summary(GLMM_general)
-```
-
-```{r, eval = FALSE}
-GLMM_general <- lmer(Score ~ Spending * Learning +
-                       (1 | CNT),
-                     data = dat)
-summary(GLMM_general)
+GLMM_general_summary <- summary(GLMM_general)
 ```
 
 ```{r}
-GLMM_general <- lmer(Score ~ Spending * Learning +
-                       (1 | CNT) + 
-                       (1 | Subject),
-                     data = dat)
-summary(GLMM_general)
+
+# Danai, feel free to try higher complexity models here, but running time might be insane
+
 ```
+<!-- Need to add comments -->
+
+
 
 <!-- NEEDS editing from here-->
 
@@ -401,6 +314,7 @@ observeEvent(
 
 <!-- NEEDS editing till here -->
 
+<!-- I wont be working on editting PCA/Clustering cross validation, will be for mixed effects model, using the testing dataset -->
 ## Cross-validation
 ### **PCA**
 
@@ -442,68 +356,53 @@ The results from this clustering also find that a single cluster is the most eff
 Earlier, we fit three mixed effects models: GLMM_read, GLMM_math, GLMM_scie. Now we will use the data from 2015 to validate the fit of the models.
 
 ```{r}
-# I will assume that the data studentSchoolData is from 2015, and will use it for cross validation
-# We know we have GLMM_read, GLMM_math, GLMM_scie
-dat_2015 <- read.csv("studentSchoolData.csv") %>%
-  inner_join(select(countrySummary2015, CNT), by = "CNT")
 
-colnames(dat_2015)[5] = "Learning"
-# Calculate "training" data R^2
-train_R_Squared_read <- r.squaredGLMM(GLMM_read)
-train_R_Squared_scie <- r.squaredGLMM(GLMM_scie)
-train_R_squared_math <- r.squaredGLMM(GLMM_math)
+# Need to remove any rows with missing Learning/Spending values
+sum(is.na(testing_data$Learning)) # 133,345 telling us there are NA values
+unique(testing_data[is.na(testing_data$Learning),'CNT']) # Only one country, MKD has missing Learning
+sum(is.na(testing_data$Spending)) # 0 no NA values...
 
-# Create subsets for read,scie,math...
-dat_2015_read <- filter(dat_2015, str_detect(Item, "READ"))
-dat_2015_scie <- filter(dat_2015, str_detect(Item, "SCIE"))
-dat_2015_math <- filter(dat_2015, str_detect(Item, "MATH"))
-#### To see what could be going wrong lets first try and predict the same dataset that I used earlier, and consider doing LOOCV if this isnt working...
+testing_data_updated <- testing_data[as.logical(1 - is.na(testing_data$Learning)),] %>%
+  select(-c('GNI'))
 
-# Crease subsets for original dataset
-dat_read <- filter(dat, str_detect(Item, "READ"))
-dat_scie <- filter(dat, str_detect(Item, "SCIE"))
-dat_math <- filter(dat, str_detect(Item, "MATH"))
+library(lme4)
+# Using the model, we predict using testing data and see how it performs
+prediction <- predict(GLMM_general, testing_data_updated)
 
-# Lets predict using our models
-prediction_read <- predict(GLMM_read, data = data.frame(x = dat_2015_read)) 
-prediction_scie <- predict(GLMM_scie, data =  data.frame(x = dat_2015_scie))
-prediction_math <- predict(GLMM_math, data = data.frame(x = dat_2015_math))
-
-# Calculating residuals (This is wrong due to score scaling, our prediction has unscaled things??? IT seems in dat, score is not scaled. I need to decide if the problem is in dat_2015 being scaled or in dat not being scaled)
-residuals_read <- dat_2015_read$Score - prediction_read
-residuals_scie <- dat_2015_scie$Score - prediction_scie
-residuals_math <- dat_2015_math$Score - prediction_math
+# Subtracting predicted values of y from actual values of y
+residuals <- testing_data_updated$Score - prediction 
 
 # Calculating R-Squared
-residuals_ss_read <- sum((residuals_read)^2)
-residuals_ss_scie <- sum((residuals_scie)^2)
-residuals_ss_math <- sum((residuals_math)^2)
+residuals_ss <- sum((residuals)^2)
+total_ss <- sum((testing_data_updated$Score - mean(testing_data_updated$Score))^2)
 
-total_ss_read <- sum((dat_2015_read$Score - mean(dat_2015_read$Score))^2)
-total_ss_scie <- sum((dat_2015_scie$Score - mean(dat_2015_scie$Score))^2)
-total_ss_math <- sum((dat_2015_math$Score - mean(dat_2015_math$Score))^2)
+test_R_Squared <- 1 - residuals_ss/total_ss
+# R^2 = 0.1952855, very close to the training R^2
 
-
-test_R_Squared_read <- 1 - (residuals_ss_read/total_ss_read)
-test_R_Squared_scie <- 1 - (residuals_ss_scie/total_ss_scie)
-test_R_Squared_math <- 1 - (residuals_ss_math/total_ss_math)
-
-
+rm(residuals)
+rm(residuals_ss)
+rm(total_ss)
 ```
 
-
+<!-- how the data has become set up, we can't do it here, maybe some adjustments will need to be made to accommodate this complex model thing... -->
 ## Complex Model
 
 A unique quality of the PISA data set is that there is data available at the individual, school, and country level. This is a perfect fit for the advantages of Mixed Effects Models, all-be-it with much-increased computation times. For this reason, as a final complex example, below is an example of a model using this more precise data.
 
 ```{r, echo=TRUE, eval=FALSE}
-mixed_model <- lmer(Score ~ Spending * LearningTime + PhysicalInfrastructure + InternetComputers + PropTeachersQual + ClassSize +
-                      ParentEducation + Wealth + TeacherInterest + WellBeing + Resilience + Bullied +
+
+# Create dataset with all variables to be able to run this
+dat_2 <- countrySummary %>%
+  inner_join(select(read_csv("studentsdata_2018.csv"),c('CNT',"CNTSTUID","PV_Item","Score")), by = "CNT")
+
+# Do whatever you see is fit here, I wouldn't even be opposed to removing this seciton. I think it could be good though, to show that spending and l earning time are the most significant varialbes when it comes to predictive ability.
+mixed_model <- lmer(Score ~ Spending * LearningTime + PhysicalInfrastructure + InternetComputers + PropTeachersQual + ClassSize + ParentEducation + Wealth + TeacherInterest + WellBeing + Resilience + Bullied +
                       (1 + Spending | CNT) +
                       (1 + PhysicalInfrastructure + InternetComputers + PropTeachersQual + ClassSize | SchID) +
                       (1 + ParentEducation + LearningTime + Wealth + TeacherInterest + WellBeing + Resilience + Bullied | ID) +
                       (1 | Item),
-                    data = test_dat)
+                    data = #put some sort of a subset of this big dat_2 dataset
+                      )
 ```
 
 ```{r, eval=TRUE}
