@@ -14,6 +14,7 @@ knitr::opts_chunk$set(echo = FALSE)
 library(learnr)
 library(tidyverse)
 library(gradethis)
+library(plotly) #interactive plots
 library(rcompanion)
 library(lme4)
 
@@ -26,19 +27,53 @@ gradethis_setup() #quiz/exercise questions
 
 load("GLM.RData")
 ```
+## The Basics
 
-## Modeling the PISA Data
+### **Introduction**
 
-In this section we will outline how to use linear models to analyse the PISA data. We will briefly cover general linear models before progressing to generalised linear models. Once we have looked at general and generalised linear models, we will look at Linear Mixed Models before finally covering Generalised Linear Mixed Models. By the end of this section you should have a solid grasp of the key concepts required to create your own models to analyse your data. 
+In this section we will outline how to use linear models to analyse the PISA data. 
+In statistics, linear regression is a linear approach to modelling the relationship between a variable and one or more explanatory variables (also called dependent and independent variables). The case of one explanatory variable is called simple linear regression; for more than one, the process is called multiple linear regression.
+
+In linear regression, the relationships are modeled using linear predictor functions whose unknown model parameters are estimated from the data that have been collected. 
+
+In this section, we will briefly cover general linear models before progressing to generalised linear models. Once we have looked at general and generalised linear models, we will look at Linear Mixed Models before finally covering Generalised Linear Mixed Models. By the end of this section you should have a solid grasp of the key concepts required to create your own models to analyse your data. 
+
+
+### **Sample PISA Data**
+
+To illustrate the concept, we will choose a couple of plausibly related variables from the PISA dataset: `Spending` and `Learning` scores. These are standardised scores that indicate time spent in the classroom and the amount of spending on education by each of 70 different countries across the world. To give you an idea of what this looks like, the first few countries in the data are shown below:
+
+```{r secret-"learn_spend_data.csv", echo=FALSE}
+knitr::kable(head(dat_learn_spend))
+```
+
+<p>&nbsp;</p> 
+
+### **Visualising the Data**
+
+Again, we will start by visualising our data with a scatterplot so that we become familiar with the datapoints. The plots in this section are interactive thanks to the `ggplotly` function, and you can hover over the points to view the country name.
+
+```{r visualise PCA, echo=TRUE, message=FALSE, warning=FALSE}
+#Raw spending and reading data
+ggplotly(
+  ggplot(dat_learn_spend, aes(Learning, Spending, group = Country)) +
+  geom_point(colour = "black") +
+  xlab('Average of time spent in the classroom') +
+  ylab('Amount of spending on education') +
+  theme_minimal() +
+  theme(legend.position='none'),
+tooltip = "group")
+```
+
 
 <p>&nbsp;</p>
 
-### **Loading in and sorting the data**
+### **Sorting the data**
 
 
-Before we begin modelling the data we first need to sort the data. Sorting the data can make it much more manageable to analyse. This can help in fitting and understanding the models that we create. In our example below we will be loading in two different data sets relating to the PISA data. 
+Before we begin modelling the data, we first need to sort the data. Sorting the data can make it much more manageable to analyse. This can help in fitting and understanding the models that we create. In our example below we will be loading in two different data sets relating to the PISA data. 
+In order to standardize the data we can use the `scale()` function. As well as the scale function, we will use the `transformTukey()` function on the spending variable. This is because the spending data is not normally distributed and by applying the transformTukey function we are able to normalize it a bit before it is standardized.
 
-We will firstly load in the data on time spent in the classroom and the amount of spending on education by each country. To sort the data we will standardize the columns that we want to use as predictors. By standardizing the variables, we transform them so that they are measured on a scale of standard units. This is beneficial when our data is not measured on the same scale. When data data becomes standardized everything becomes internally consistent and this can make it much easier to directly compare our variables during the analysis. In order to standardize the data we can use the `scale()` function. As well as the scale function we will use the `transformTukey()` function on the spending variable. This is because the spending data is not normally distributed and by applying the transformTukey function we are able to normalize it a bit before it is standardized.
 
 ```{r, message = FALSE, echo = TRUE, eval=FALSE}
 # load in the data
@@ -55,12 +90,16 @@ dat_learn_spend <- read_csv("learn_spend_data.csv") %>%
 ```
 <p>&nbsp;</p>
 
-By running the above code, 3 graphs appear showing the transformed data. These three graphs show the distribution of the  spending data points. From the data it can be seen that there is a slight positive skew. this can be seen with the first plot which shows a much more gradual slope as the lambda approaches zero compared to when lambda passes zero and in the qq plot where most of the points appear to be below the red line. 
+By running the above code, 3 graphs appear showing the transformed data. These three graphs show the distribution of the  spending data points. From the data it can be seen that there is a slight positive skew. 
+This can be seen with the first plot which shows a much more gradual slope as the lambda approaches zero compared to when lambda passes zero and in the qq plot where most of the points appear to be below the red line. 
 
-Now that we have sorted the learning and spending data we can now load in the second data set. Whilst loading in the data, we will again standardize it. We will also need to select the specific columns that we wish to use and also set one of those columns as a factor so it can later be used in the analysis. The columns that we want from this data set are all the columns relating to the reading scores of the countries, the ESCS column relating to the Economic social and cultural status of each country, the ATTLNACT column relating to the attitudes towards education within each country and finally, the ID column. For the analysis we need to scales the ESCS column and the ATTLNACT column. We also need to set the ID column as a factor for this analysis.
+<p>&nbsp;</p>
+
+Now that we have sorted the the `Spending` and `Learning` data, we can load the second data set.
+Whilst loading in the data, we will again standardize it. We will also need to select the specific columns that we wish to use and also set one of those columns as a factor so it can later be used in the analysis. The columns that we want from this data set are all the columns relating to the reading scores of the countries, the `ESCS` column relating to the Economic social and cultural status of each country, the `ATTLNACT` column relating to the attitudes towards education within each country and finally, the `ID` column. For the analysis we need to scales the `ESCS` column and the `ATTLNACT` column. We also need to set the `ID` column as a factor for this analysis.
 
 
-```{r, echo=TRUE, message=FALSE, eval=FALSE}
+```{r, echo=FALSE, message=FALSE, eval=FALSE}
 # Load in the second data set
 dat_pisa <- read_csv("pisa18_data1.csv") %>%
 # select the columns we want for the analysis  
@@ -77,7 +116,6 @@ dat_pisa <- read_csv("pisa18_data1.csv") %>%
 
 Now that we have sorted the two data sets, we need to combine them in order to analyse the data. We can join the two columns using the `inner_join()` function. Once we have joined the two tables together we can change them from a wide format to a long format using the `gather()` function. By doing this we are able to create a score and item column. This allows us to see each of the countries score on each of the reading items. In our code we have used the function `sample_n(4e2)`. This function allows us to select a random sample from the data set. We are simply doing this to reduce the amount of data points in our examples as using all of the data would cause the fitted models in the following sections to take a very long time to run.
 
-
 ```{r joing_tables, echo = TRUE}
 # Join the tables togehther
 read_data <- inner_join(dat_pisa, dat_learn_spend, by = "CNT") %>%
@@ -87,6 +125,11 @@ read_data <- inner_join(dat_pisa, dat_learn_spend, by = "CNT") %>%
 ```
 <p>&nbsp;</p>
 
+This is our final dataset:
+
+```{r secret-"read_data.csv", echo=FALSE}
+knitr::kable(head(read_data))
+```
 Now that we have joined the two tables, we can move on to the analysis. The main point that should be gained from this section is that it is important to standardize the data before performing a complex analysis. 
 
 <p>&nbsp;</p>
@@ -437,9 +480,6 @@ summary(GLM_dat)
 AIC(GLM_dat)
 ```
 
-```{r coding1-exercise-error-check}
-grade_code(incorrect = "Make sure you are using the correct function and arguments.", glue_incorrect = "{ .message } { .incorrect }")
-```
 
 
 ### **GLMM exercise**
@@ -476,9 +516,6 @@ summary(GLMM_dat)
 AIC(GLMM_dat)
 ```
 
-```{r coding2-exercise-error-check}
-grade_code(incorrect = "Make sure you are using the correct function and arguments.", glue_incorrect = "{ .message } { .incorrect }")
-```
 
 <p>&nbsp;</p>
 <p>&nbsp;</p>
