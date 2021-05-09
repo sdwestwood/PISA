@@ -386,27 +386,44 @@ In some cases, you would be able to collect new data to perform cross-validation
 
 ### Holdout Cross-Validation
 
-Cross-validation methods that do not require new data collection are based on the idea of a *holdout* sample. You split your data into two parts: a training set and a testing (or *holdout*) set. A model is fitted on the training set and 'tested' on the holdout set, and the performance of your model, estimated with the training set, on the testing set is your estimation of your model's generalizability on unseen data. The idea of 'testing' here refers to checking how well the model fits to the holdout sample. If the model fits well on both samples, this offers evidence for the generalizability of your model to a hypothetical larger sample of data (REF). 
+Cross-validation methods that do not require new data collection are based on the idea of a *holdout* sample. You split your data into two parts: a training set and a testing (or *holdout*) set. A model is fitted on the training set and 'tested' on the holdout set, and the performance of your model, estimated with the training set, on the testing set is your estimation of your model's generalizability on unseen data. The idea of 'testing' here refers to checking how well the model fits to the holdout sample. If the model fits well on both samples, this offers evidence for the generalizability of your model to a hypothetical larger sample of data (REF). The estimation error of the model in the testing set (usually MSE) is termed testing error. We can also use other indices (e.g., R^2^, AIC, BIC) to measure test error. 
 
 *DISCUSSION ABOUT PROPORTIONS* To estimate model performance accurately, both the training set & the testing set need to be representative of the original dataset. If the training or testing data are unrepresentative of the complete data then the results from the test sets can be biased. As we all know, the goodness of a model is also determined by the sample size of the dataset used to estimate it. The smaller the sample size, the worse the model. Therefore, we tend to make the training set as large as possible. Typically, a training set is over half of the original sample (say, 80%). 
+
+However, as the training set is always smaller than the original dataset, the  performance of the model estimated with the training set tends to be worse than the model estimated with the original dataset. That is, the holdout CV tend to overestimate test errors and underestimate model fit.  
 
 <div id = "holdoutDiv" style = "position: relative;"></div>
 
 ### Leave one out cross-validation (LOOCV)
-LOOCV is a extension of the hold-out method. Like the hold-out method, LOOCV involves splitting the set of observations into two parts. However, instead of creating two subsets of comparable size, a single data point $(x_1, y_1)$ is the hold-out set, and the remaining observations $\{(x_2, y_2 ), ... , (x_n, y_n)\}$ compose the training set. The model is ﬁt on the $n − 1$ training observations, and a prediction $\hat{y}_1$ is made for the excluded observation, using its value $x_1$. 
+LOOCV is a extension of the holdout method. Like the holdout method, LOOCV involves splitting the set of observations into two parts. However, instead of creating two subsets of comparable size, a single data point $(x_1, y_1)$ is the holdout set, and the remaining observations $\{(x_2, y_2 ), ... , (x_n, y_n)\}$ compose the training set. The model is ﬁt on the $n − 1$ training observations, and a prediction $\hat{y}_1$ is made for the excluded observation, using its value $x_1$. The estimation of test error with $(x_1, y_1)$ would be MSE~1~ = $(y_1 - \hat{y}_1)^2$. As we only have used a single observation, this estimation of test error is biased. To obtain an unbiased estimation of test error, we can repeat the procedure until we loop through all observations in the original dataset, and then average all the estimated test errors. The equation for the estimation of test errors with LOOCV would be:
+
+$$\mathrm{CV_{(n)}} = \frac{1}{n}\sum_{i = 1}^n \mathrm{MSE_i}$$
+LOOCV is better than the holdout method in many ways: 
+
+- First, it is far less biased. The results of holdout CV is highly subjective to the division of training and testing set. In contrast, LOOCV always yields the same result. LOOCV loops through all observations in the dataset and uses the mean MSE, which is an unbised estimation of test error, as the result. 
+
+- Second, as LOOCV uses a much larger training set than holdout CV, it tends not to overestimate test error as much as holdout CV does. 
+
+However, LOOCV is computational heavy, especially when sample size is large. Therefore, we often use k-fold cross-validation method, which also generates unbiased estimation for test errors but requires far less computation.  
+
 
 ### k-fold cross-validation
 
-The simple holdout algorithm can be expanded to include iterations, i.e., you can separate your dataset into testing and training data more than once, in different ways. Metrics of interest can be averaged across iterations, the result of which can be used to draw conclusions about the generalisability of the model (REF). By iterating over cross-validation algorithms, the bias of model-fit indicators (e.g., RMSEA, BIC) is reduced compared to simple, singular holdout cross-validation (REF).
+Like LOOCV, k-fold CV is also an iterated version of the simple holdout algorithm, You randomly partition your dataset into $k$ subsamples. One after another, each sub-sample is used as the testing set for a model fit to the data in all other sub-samples. Metrics of interest are averaged across iterations, the result of which can be used to draw conclusions about the generalisability of the model (REF). By iterating over cross-validation algorithms, the bias of model-fit indicators (e.g., RMSEA, BIC) is also reduced compared to simple, singular holdout cross-validation (REF).
 
 <!-- The **Leave-p-Out** algorithm randomly selects $p$ observations to exclude from the training set. These $p$ observations constitute the testing set. A model is fitted to the training data and tested on the testing data. The selection, training and testing process is repeated until all possible combinations of $p$ observations are used as a testing set. The number $p$ could theoretically be any number smaller than the number of observations in the full dataset ($N$). For some values of $p$ there will be many, *many* possible configurations of training and testing data. If $N = 1000$ and $p = 50$, then the total number of ways to split the data into testing and training is around $10\times e^{84}$. (*Note: you can calculate this for other combinations of $N$ and $p$ using the R code* `choose(N, p)`.) -->
 
-A popular method of repeated cross-validation is the **$k$-folds** algorithm by which data-points are randomly partitioned into $k$ sub-samples. One after another, each sub-sample is used as the testing set for a model fit to the data in all other sub-samples. See below for a demonstration of the k-folds algorithm. *DISCUSS VALUE OF K* 
+ See below for a demonstration of the k-folds algorithm. 
 
 *THIS DOESN'T WORK WITH SHINY_PRERENDERED - MIGHT WORK WHEN HOSTED ON A SERVER* 
-
 *USE THIS LINK TO SEE WHAT IT'S SUPPOSED TO LOOK LIKE https://editor.p5js.org/daikman/present/U2GomNWcK*
 <div id = "kFoldsDiv" style = "position: relative; border-style: solid; width: 406px"></div>
+
+k-fold CV has multiple advantages over LOOCV
+
+- 
+
+*DISCUSS VALUE OF K* 
 
 ### External Cross-Validation
 
