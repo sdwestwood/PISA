@@ -440,11 +440,11 @@ The above arguments also indicate the impact of value of k on the results of k-f
 
 ### External Cross-Validation
 
-# Cross-validation in R
+## Cross-validation in R
 
-## Holdout Cross-Validation
+### Holdout Cross-Validation
 
-### Simulating a Dataset
+#### Simulating a Dataset
 
 The plot below shows a clear positive relationship between variables $x$ and $y$. To demonstrate the application of cross-validation, we will train and test the model $y_{i} = \beta_0 + \beta_1x_{i}$ using this dataset. This is a simple linear regression model.
 
@@ -460,7 +460,7 @@ ggplot(dataset,
   theme_minimal()
 ```
 
-### Splitting the Dataset
+#### Splitting the Dataset
 
 This first step for simple holdout cross-validation is splitting the dataset into testing and training data.
 
@@ -477,7 +477,7 @@ training_data <- dataset[training_rows, ]
 testing_data <- dataset[-training_rows, ]
 ```
 
-### Training the Model
+#### Training the Model
 
 Next, we can fit a model to the training data and find the desired fit index ($R^2$ in this case).
 
@@ -489,7 +489,7 @@ train.fit <- lm(y ~ x, training_data)
 train_R_Squared <- summary(train.fit)$r.squared # (it's around 0.8)
 ```
 
-### Predicting Values in the Test Data
+#### Predicting Values in the Test Data
 
 Using the model fitted to the training data, we need to calculate predictions for the values of $y$ in the testing data based on the observed values of $x$ in the testing data and the parameters $\beta_0$ and $\beta_1$ from the model fitted above. The `predict()` function from the `stats` package can plug in the $x$ values from the testing data into the model in order to estimate the $y$ values.
 
@@ -498,7 +498,7 @@ Using the model fitted to the training data, we need to calculate predictions fo
 prediction <- predict(train.fit, data.frame(x = testing_data$x))
 ```
 
-### Calculating Test $R^2$
+#### Calculating Test $R^2$
 
 $R^2$ for this prediction can be calculated from the differences between each predicted value of $y$ and the corresponding observed value of $y$. These differences are known as residuals. The $R^2$ statistic, in this case, will tell us how well the model parameters derived from the training sample fit the data in the testing sample.
 
@@ -517,9 +517,9 @@ The model fitted to the training data fits that data with an $R^2$ of around `r 
 
 This means that the model fit both sub-samples of data well. The fact that the testing data was 'unseen' during the model fitting process suggests the model would fit well to other unseen data (e.g., data collected in the future), providing evidence of predictive validity. 
 
-## K-folds Cross-Validation
+### K-folds Cross-Validation
 
-### Introduction
+#### Introduction
 
 Implementing $k$-folds cross validation works much the same as above, only we repeat the process using different divisions of the data (into training and testing sub-samples) each time. We can essentially wrap all the R code above in [a loop, or use an iterative function](https://r4ds.had.co.nz/iteration.html#the-map-functions).
 
@@ -531,7 +531,7 @@ First, we need to decide on the value of $k$. For this demonstration, we will se
 k <- 5
 ```
 
-### Splitting the Data
+#### Splitting the Data
 
 Next, we need to split the data into $k$ (5) training and testing sets, where the testing sets are 1/5th the size of the whole dataset.
 
@@ -559,7 +559,7 @@ for (i in 1:k) {
 
 ```
 
-### Iterating Through the Samples
+#### Iterating Through the Samples
 
 Now we need to iterate through all the testing sub-samples (as defined by `testing_indexes`) using the rest of the data to train the model. (This will be the same model as above: $y_{i} = \beta_0 + \beta_1x_{i}$).
 
@@ -634,7 +634,7 @@ The mean $R^2$ for the training sub-samples is `r round(mean(train_R_Squared_Rep
 
 The conclusion we could draw from this analysis is the same as the conclusion we drew above, from the simple holdout cross-validation. The model performs well on unseen data, providing evidence of its predictive validity.
 
-## LOOCV
+### LOOCV
 
 ```{r}
 # 'Looping through' all data points 
