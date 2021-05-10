@@ -181,7 +181,7 @@ For our linear model we will use the `lm()` function. Form our data set, our Sco
 LM_mod <- lm(Score ~ Spending * Learning * ESCS * ATTLNACT + Item, data = read_data)
 summary(LM_mod)
 ```
-```{r secret linear model, echo=FALSE}
+```{r secret linear model, echo=FALSE, message=FALSE}
 summary(LM_mod)
 ```
 <p>&nbsp;</p>
