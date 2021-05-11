@@ -1,0 +1,564 @@
+---
+  title: "Generalised Linear Models"
+output:
+  learnr::tutorial:
+  progressive: true
+allow_skip: true
+
+runtime: shiny_prerendered
+---
+  
+  ```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(learnr)
+library(tidyverse)
+library(gradethis)
+library(plotly) #interactive plots
+library(rcompanion)
+library(lme4)
+
+### INSTALLING LEARNR AND GRADETHIS FROM GITHUB ###
+#devtools::install_github("rstudio/learnr")
+#devtools::install_github("rstudio-education/gradethis")
+
+library(gradethis) #quiz/exercise questions
+gradethis_setup() #quiz/exercise questions
+
+load("GLM.RData")
+load("learnSpendSES.RData")
+```
+## The Basics
+
+### **Introduction**
+
+In this section we will outline how to use linear models to analyse the PISA data. 
+In statistics, linear regression is a linear approach to modelling the relationship between a variable and one or more explanatory variables (also called dependent and independent variables). The case of one explanatory variable is called simple linear regression; for more than one, the process is called multiple linear regression.
+
+In linear regression, the relationships are modeled using linear predictor functions whose unknown model parameters are estimated from the data that have been collected. 
+
+In this section, we will briefly cover general linear models before progressing to generalised linear models. Once we have looked at general and generalised linear models, we will look at Linear Mixed Models before finally covering Generalised Linear Mixed Models. By the end of this section you should have a solid grasp of the key concepts required to create your own models to analyse your data. 
+
+
+### **Sample PISA Data**
+
+To illustrate the concept, we will choose a couple of plausibly related variables from the PISA dataset: `Spending` and `Learning` scores. These are standardised scores that indicate time spent in the classroom and the amount of spending on education by each of 70 different countries across the world. To give you an idea of what this looks like, the first few countries in the data are shown below:
+  
+  ```{r secret-"learn_spend_data.csv", echo=FALSE}
+knitr::kable(head(learnSpendSES_data))
+```
+
+<p>&nbsp;</p> 
+  
+  
+  
+  ### **Visualising the Data**
+  
+  Again, we will start by visualising our data with a scatterplot so that we become familiar with the datapoints. The plots in this section are interactive thanks to the `ggplotly` function, and you can hover over the points to view the country name.
+
+```{r visualise PCA, echo=TRUE, message=FALSE, warning=FALSE}
+#Raw spending and learning data
+ggplotly(
+  ggplot(dat_learn_spend, aes(Learning, Spending, group = Country)) +
+    geom_point(colour = "black") +
+    xlab('Average of time spent in the classroom') +
+    ylab('Amount of spending on education') +
+    theme_minimal() +
+    theme(legend.position='none'),
+  tooltip = "group")
+```
+
+
+<p>&nbsp;</p>
+  
+  ### **Sorting the data**
+  
+  
+  Before we begin modelling the data set, we first need to sort the data. Sorting the data can make it much more manageable to analyse. In our example below we will be loading in two different data sets relating to the PISA data. 
+In order to standardize the data we can use the `scale()` function. As well as the scale function, we will use the `transformTukey()` function on the spending variable. This is because the spending data is not normally distributed and by applying the transformTukey function we are able to normalize it a bit before it is standardized.
+
+
+```{r, message = FALSE, echo = TRUE, eval=FALSE}
+# load in the data
+dat_learn_spend <- read_csv("learn_spend_data.csv") %>%
+  # use filter to select only the rows where there are no N/As
+  filter(!is.na(.$Spending) & !is.na(.$Learning)) %>%
+  # Scale the data
+  mutate(Spending = scale(transformTukey(Spending)),
+         Learning = scale(Learning), 
+         # Change the name of the Code column to CNT in order to allow it to be joined to the other data later
+         CNT = Code) %>%
+  # Select the relevant columns needed for the analysis
+  select(c(Country, CNT, Spending, Learning))
+```
+<p>&nbsp;</p>
+  
+  By running the above code, 3 graphs appear showing the transformed data. These three graphs show the distribution of the  spending data points. From the data it can be seen that there is a slight positive skew. 
+This can be seen with the first plot which shows a much more gradual slope as the lambda approaches zero compared to when lambda passes zero and in the qq plot where most of the points appear to be below the red line. 
+
+<p>&nbsp;</p>
+  
+  Now that we have sorted the the `Spending` and `Learning` data, we can load the second data set.
+Whilst loading in the data, we will again standardize it. We will also need to select the specific columns that we wish to use and also set one of those columns as a factor so it can later be used in the analysis. The columns that we want from this data set are all the columns relating to the reading scores of the countries, the `ESCS` column relating to the Economic social and cultural status of each country, the `ATTLNACT` column relating to the attitudes towards education within each country and finally, the `ID` column. For the analysis we need to scales the `ESCS` column and the `ATTLNACT` column. We also need to set the `ID` column as a factor for this analysis.
+
+
+```{r, echo=FALSE, message=FALSE, eval=FALSE}
+# Load in the second data set
+dat_pisa <- read_csv("pisa18_data1.csv") %>%
+  # select the columns we want for the analysis  
+  select(contains("READ"), ESCS, ATTLNACT, ID=X1, CNT) %>%
+  # remove any rows containing N/As
+  na.omit() %>%
+  # standardize the data
+  mutate(ESCS = scale(ESCS), 
+         ATTLNACT = scale(ATTLNACT), 
+         # Set ID as a factor
+         ID = as.factor(ID))
+```
+<p>&nbsp;</p>
+  
+  Now that we have sorted the two data sets, we need to combine them in order to analyse the data. We can join the two columns using the `inner_join()` function. Once we have joined the two tables together we can change them from a wide format to a long format using the `gather()` function. By doing this we are able to create a score and item column. This allows us to see each of the countries score on each of the reading items. In our code we have used the function `sample_n(4e2)`. This function allows us to select a random sample from the data set. We are simply doing this to reduce the amount of data points in our examples as using all of the data would cause the fitted models in the following sections to take a very long time to run.
+
+```{r joing_tables, echo = TRUE}
+# Join the tables togehther
+read_data <- inner_join(dat_pisa, dat_learn_spend, by = "CNT") %>%
+  sample_n(4e2) %>%
+  # Change the data from wide to long format
+  gather("Item", "Score", 1:10)
+```
+<p>&nbsp;</p>
+  
+  This is our final dataset:
+  
+  ```{r secret-"read_data.csv", echo=FALSE}
+knitr::kable(head(read_data))
+```
+Now that we have joined the two tables, we can move on to the analysis. The main point that should be gained from this section is that it is important to standardize the data before performing a complex analysis. 
+
+<p>&nbsp;</p>
+  
+  #### **Sorting data exercise**
+  
+  ```{r sorting_exercise, echo = FALSE}
+quiz(
+  question("What happens when we standardize the data? (Select 2)", 
+           answer("It transforms our data into standard units", correct = TRUE),
+           answer("It keeps our data tidy"), 
+           answer("It makes our data harder to compare throughout the analysis"),
+           answer("It makes our data easier to compare throughout the analysis", correct = TRUE),
+           allow_retry = TRUE, 
+           correct = "Correct! When we standardize data we transform the data points into standard units. This allows us to create internal consistency between variable that are initial measured on different scales, making them easier to compare throughout the experiment"),
+  
+  question("What function can be used to standardize the data?", 
+           answer("standardize()"), 
+           answer("std()"), 
+           answer("scale()", correct = TRUE), 
+           answer("transform()"), 
+           allow_retry = TRUE, 
+           correct = "Correct! The scale() function is used to standardize the data"
+  )
+)
+
+```
+
+<p>&nbsp;</p>
+  <p>&nbsp;</p>
+  
+  ## Simple models
+  
+  Now that we have sorted the data appropriately we can begin the analysis. A good point to start when beginning an analysis is to visualize the data. In this case we can begin by visualizing the distribution of the scores (the dependent variable in our data). In order to do this we can create a histogram. 
+
+
+```{r histogram of scores, echo=FALSE}
+ggplot(read_data, aes(Score)) + 
+  geom_histogram(binwidth = 50, color = 'white', fill = 'lightblue') +
+  theme_minimal()
+```
+<p>&nbsp;</p>
+  
+  From the histogram it appears that the data is slightly negatively skewed. This would suggest that the use of a standard linear model may not be the best approach. Despite this we can still fit one and see how it deals with the data.
+
+<p>&nbsp;</p>
+  When we see the histograms of some countries, we can observe differences among countries. Some of them as Dominican Republic, Colombia and Brazil are positively skewed. However, Germany, Canada and Chile are negatively skewed. This differences could be due to the differential influence of our variables. 
+
+```{r histogram of scores by country, echo=FALSE}
+ggplot(read_data, aes(Score)) + 
+  geom_histogram(binwidth = 50, color = 'white', fill = 'lightblue') +
+  facet_wrap(~ Country)
+theme_minimal()
+```
+
+
+For our linear model we will use the `lm()` function. Form our data set, our Score column will be our dependent variable, whilst the Spending, learning, ESCS, ATTLNACT and Item columns will be used as our independent variables (predictors). 
+
+```{r simple linear model, message = FALSE, echo=TRUE, eval=TRUE}
+# Use the lm function to create a linear model
+LM_mod_one <- lm(Score ~ Spending, data = read_data)
+summary(LM_mod_one)
+```
+
+```{r linear regression, echo= FALSE}
+
+p <- ggplot(read_data, aes(x=ESCS, y=Score)) +
+  geom_point(shape=1) +    # Use hollow circles
+  geom_smooth(method=lm)   # Add linear regression line
+
+
+fig <- ggplotly(p)
+
+fig
+```
+
+```{r simple linear model step 2, message = FALSE, echo=TRUE, eval=TRUE}
+# Use the lm function to create a linear model
+LM_mod_two <- lm(Score ~ Learning, data = read_data)
+summary(LM_mod_two)
+```
+
+```{r multiple linear model step 1, message = FALSE, echo=TRUE, eval=TRUE}
+# Use the lm function to create a linear model
+LM_mod_three <- lm(Score ~ Learning + Spending, data = read_data)
+summary(LM_mod_three)
+```
+
+```{r multiple linear model step 2, message = FALSE, echo=TRUE, eval=TRUE}
+# Use the lm function to create a linear model
+LM_mod_four <- lm(Score ~ Spending * Learning * ESCS * ATTLNACT, data = read_data)
+summary(LM_mod_four)
+```
+
+<p>&nbsp;</p>
+  
+  The output from the results appear to show that spending, and attitudes towards education are significant predictors and that there are significant two way interactions between spending and attitudes towards education, as well as between learning and attitudes towards education. There were also significant three way interactions between spending, learning, and economic social and cultural status and, spending, economic social and cultural status, and attitudes towards education. As mentioned above however, the data was negatively skewed and so this model may not be the best method for analysis. 
+
+<p>&nbsp;</p>
+  
+  ### **Generalized Linear Models**
+  
+  An alternative approach to analyzing the PISA data could be to use a generalized linear model. A generalized linear model is similar to a general linear model, except some of the constraints are relaxed. This typically makes it better when dealing with data that is not normally distributed, such as is the case with the PISA data.
+
+There are different family arguments that can be made when using a generalized linear model. These different families allow us to deal with data with different types of distributions. Family distributions include Gaussian (which is the bases of the linear model and ideal for normally distributed data), Binomial (which is useful when dealing with a binomial distribution), and Gamma (which is useful when there is skewed data). These are just a few of the families that can be applied when using a generalized linear model.
+
+Since we are dealing with data that is negatively skewed we will use the Gamma family in our example. The code for using the glm is very similar to the code needed when creating a linear model. The only difference is now at the end of the code we specify the family and link arguments. Link arguments allow us to apply transformations to the model parameters and also determines the way the model coefficients are interpreted. Changing the link function can, in some cases, result in a better fitting model. There are many different link arguments for each family but for now we will just use the standard identity link. 
+
+```{r generalised linear model, echo=TRUE, eval=FALSE}
+# Use the glm finction to create a genearlised linear model
+GLM_mod <- glm(Score ~ Spending * Learning * ESCS * ATTLNACT + Item,
+               data = read_data, 
+               # specify the family as gamma with an identity link
+               family= Gamma(link = "identity"))
+# Get the output from the generalised linear model
+summary(GLM_mod)
+```
+```{r secret generalised linear model, echo = FALSE}
+summary(GLM_mod)
+```
+
+<p>&nbsp;</p>
+  
+  Here we can see that the output presented when we use the glm function is very similar to the output when we use the lm function. One of the main differences is to do with the goodness of fit statistic presented in the two outputs. when we use the lm function the goodness of fit statistic is given as the adjusted R-squared. with the glm function, the goodness of fit statistic given is the Akaike Information Criteria (AIC) score. 
+
+From the output we can see that there are differences in the significance values in the glm output compared to the lm output. In the glm output we now find that the there are significant main effects of spending, economic social and cultural status, and attitudes towards education. There is now significant two way interactions between learning and economic social and cultural status; spending and attitudes towards education and; economic social and cultural status and attitudes towards education. Significant three way interactions were also found between spending, learning and Economic social and cultural status, as well as between spending, economic social and cultural status, and attitudes towards education. 
+
+<p>&nbsp;</p>
+  
+  ### **Model comparison**
+  
+  Now that we have fitted a generalized linear model to the data we can check to see if it really fits the data better than our original linear model. There are multiple ways to do this. One of the simplest ways to compare the models is to look at the Akaike Information Criterion (AIC). This is a goodness of fit statistic which takes into account how well a model explains the data and adds  a penalty for model complexity. AIC scores can be used to compare the goodness of fit of different models. The general rule when comparing models using AIC is that the model with the lowest AIC value fits the data better. The AIC is quite arbitrary however, as there are no set guidelines for using it. We can obtain the AIC value by using the `AIC()` function. 
+```{r simple AICs, echo = TRUE}
+# run the AIC for the linear model
+lm_AIC <- AIC(LM_mod)
+lm_AIC
+# Run the AIC for the generalised linear model
+glm_AIC <- AIC(GLM_mod)
+glm_AIC
+```
+<p>&nbsp;</p>
+  
+  From looking at our AIC values we find a rather interesting result. It appears that the Linear model has a lower AIC value than the Generalized linear model. In this case it would suggest that using a standard linear model would have a better fit than using using the gamma family with an identity link function. 
+
+<p>&nbsp;</p>
+  
+  ### **Simple model exercises**
+  
+  ```{r LM_Questions, echo=FALSE}
+quiz(question("What does the family argument relate to?",
+              answer("The type of optimizer used"),
+              answer("The distribution of the independent variable"),
+              answer("The distribution of the dependent variable", correct = TRUE),
+              answer("The type of optimizer we want to use"), 
+              allow_retry = TRUE, 
+              correct = "Correct! The family argument lets us add different family classes relating to the distribution of our dependent variable, i.e. The family argument relates to the distribution of the thing we are trying to predict"),
+     question("What does the link function do?", 
+              answer("Applies a transformation to the model parameters", correct = TRUE),
+              answer("Transforms the data"),
+              answer("Makes the model fit better"),
+              answer("Allows us to deal with different distributions of data"), 
+              allow_retry = TRUE, 
+              correct = "Correct! Using link functions allows us to transform the model parameters."),
+     question("True or False: When comparing two models using AIC values, the model with the highest AIC fits the data better", 
+              answer("True"), 
+              answer("False", correct = TRUE), 
+              allow_retry = TRUE, 
+              correct = "Correct! The lower the AIC value, the better a model fits the data")
+)
+```
+
+<p>&nbsp;</p>
+  <p>&nbsp;</p>
+  
+  ## More complex Models
+  
+  Now that we have gone through simple model types we will look at more complex models. The next section will look at Linear Mixed Models (LMMs) and Generalised Linear Mixed Models (GLMMs). These two model types expand on the ideas from the simple models shown in the previous section but add additional options to help fit the data better. This tutorial will provide a brief overview of more complex models, however a more detailed explanation is given in a paper written by Barr et al., (2013). 
+
+One of the ways in which LMMs and GLMMs expand on the previous models covered in this tutorial is through the introduction of fixed and random effects. These can be introduced by classifying our independent variables as fixed or random effects. When we refer to a variable as a fixed effect, we assume that this variable remains constant across replications. In most cases the fixed effects that we select for our model are the main predictors that we wish to use to predict our independent variable. In the models that we are fitting to the PISA data, we assume that the Spending and the Learning variables are fixed effects as we assume that these would remain relatively constant among replications. 
+
+Random effects refer to the sources of random variation that may occur in our model. Random variation is the variation that occurs in our model even when we have controlled for everything. One major source of random variation within psychological experiments can be found with the participants as some participants may be better suited to some tasks than others. Another key source of variance in psychological experiments is the items used as some may be more effective for an experiment than others. This random variance means that scores of participants and on items may fluctuate in a random pattern. By using LMMs and GLMMs we can assign specific variables that may be sources of random variance as random effects. By doing this we are bale to account for the random variance that occurs within our models which in turn can help to make our model fit the data better than using more simple modelling techniques. 
+
+By assigning random effects in our models we can add random slopes and intercepts which help us to model the data better. By adding in random slopes we are allowing our fixed effects to vary based on each of the items within our random effects. Random intercepts allow for a variation in the scores obtained for each of the items within the random effects.
+
+Suppose we ran a study in which 10 participants were asked to complete a stroop task. We could assign the students in the study as a random effect as some would naturally perform better than others. We could therefore add a random slope for each of the 10 participants. By doing this, in theory, we should create a better fitting model of the data as we are accounting for the performance of each individual participant on the task. We could also add in random intercepts for each of the 10 participants which would in turn allow us to account for the variance in the individual scores of each of the participants. By doing this we should therefore create a better fitting model as we are now accounting for the random variance that occurs due to the differences in abilities of the participants.
+
+With the PISA data we could assume that the variable `country` is a random variable. We could assume that the different countries would create a random variance due to factors that are not controlled for within our models. We could also assume that `Item` is a random variable as we could assume that some items may be more effective than others in measuring the scores in each of the predictor variables. 
+
+<p>&nbsp;</p>
+  
+  Now that we have discussed the key differences between the simple linear models and the more complex models, let's work through an example. The next section will go through the steps involved in running a Linear Mixed Model on the PISA data. 
+
+
+<p>&nbsp;</p>
+
+### **Linear Mixed Effect Model**
+
+Setting up and running a linear mixed model (LMMs) is very similar to setting up and running a standard linear model. There are some key differences though. Base R does not have a function that can effectively deal with LMMs and so we have to use a different package. The package that is most commonly used to run LMMs is known as the `lme4` package. Once that package has been loaded in we can begin to create LMMs. The function within the lme4 package that is required is known as the `lmer()` function. Once we have selected this function we then have to tell it what model we want it to run. This is done in a similar way to that of the `lm()` function. We start by specifying the dependent variable, then we add in our predictors and finish by specifying our data. The differences appear when we want to add in our random effects. In order to add random effects we have to use the following input `(1|random effect)`. If we want to specify in our model that the random effect is interacting with our predictors, i.e we have within subjects interactions between certain fixed and random effects, then we can do it like this: `(1 + predictor|random effect)`.
+
+In our example below, we have selected the same variables as before in the standard linear model for our dependent variable and our predictors. This time however, we have set the Country, Item and the ID as random effects. For the random effects we are taking into account the interaction between the random effect of Country and the fixed effect of Spending and Learning. We are also taking into account the interaction between the random effect of ID and the Economics Social and Cultural status; and the Attitudes towards education. 
+
+```{r Linear mixed effect model, echo=TRUE, eval=FALSE}
+# Use lmer to run a linear mixed model
+LMM_mod <- lmer(Score ~ Spending * Learning * ESCS * ATTLNACT +
+# Use the (1 + X|random variable) strucutre to add in the random effects
+                   (1 + Spending * Learning | Country) +
+                   (1 + ESCS * ATTLNACT | ID) + 
+                   (1|Item),
+                 data = read_data)
+# Get a summary of the output
+summary(LMM_mod)
+```
+```{r secret Linear mixed effect model, echo=FALSE}
+summary(LMM_mod)
+```
+<p>&nbsp;</p>
+
+Here we can see the output from the LMM. At the top of this output we can see that there is an error telling us: `boundary(singular) fit: see ?isSingular`. Although at first this may be alarming, it is quite alright. All this is telling us is that one or more of the correlations for the random effects is very close to being 0. If we look at the correlations we can see that this is true. For the random effect of country, the interaction of Spending and Learning shows a correlation of 0.01. This error is okay so we can continue with analyzing the data.
+
+If an error appeared stating that our model failed to converge however, this would be a problem. Although we would receive an output, we could not use it. There are many reasons that can cause a model to not converge properly. These include model mispessification, strong imbalances in the design, and having too few data to estimate the parameters. Although there are no generally accepted methods to dealing with this error, there are some methods that can be used. The optimizer settings for the model could be altered, the model could be simplified slightly or more data could be collected. 
+
+Within the output the main focus for the analysis is the fixed effects output. One major thing that you may notice here is that there are not any p-values. This is okay. The creator of the lmer function decided not to include any p-values in the output of the lmer function. The author argued that p-values could be misleading and that the use of p-values can sometimes create problems in research, so they decided that the best option would be not to include them in the output of the lmer function. Instead we just get the Estimate, Std. Error and the t-value. There are other functions however, that can give us the p-value for our results. 
+
+<p>&nbsp;</p>
+
+### **Generalized Linear Mixed Models**
+
+We could also fit a generalized linear mixed model to look at the data. These work in exactly the same way as a generalized linear model, in that they allow us to apply different family classes in an attempt to fit a model to data that is not normally distributed. With a generalized linear mixed model, we can take the same formula as was used in our linear mixed model, but add different family classes and link functions in an attempt to fit the data better. 
+
+Creating a generalized linear mixed model in R is very similar to that of creating a linear mixed model. This time however, instead of using the `lmer()` function form the `lme4` package we will use the `glmer()` function. The way fixed and random effects are added are identical between the two functions. With the `glmer()` function however, we can now specify families and link functions, just as was done with the `glm()` function. 
+
+In our example we will use the same model structure as in the linear mixed model by keeping the fixed and random effects the same. We will include the Gamma family with an identity link function, making it similar to what was done in the generalized linear model example in the previous section. In our code we have changed the default optimizer to the 'bobyqa' optimizer. Typically the default optimizer works well, however, in this case it was found that the 'bobyqa' optimizer helped in making the model converge.
+
+```{r generalised linear mixed effect model, eval = FALSE, echo=TRUE}
+# Use glmer to create a generalised linear mixed model
+GLMM_mod <- glmer(Score ~ Spending * Learning * ESCS * ATTLNACT +
+# Specify the random effetcs and thier interactions
+                     (1 + Spending * Learning | Country) +
+                     (1 + ESCS * ATTLNACT | ID) +
+                     (1 | Item),
+                   data = read_data,
+# sepcify the family you want to use and the link function
+                   family = Gamma(identity),
+# Change the optimizer used in the example
+                   control = glmerControl(optimizer = c("bobyqa")))
+# Get the output of the analysis
+summary(GLMM_mod)
+```
+```{r secret GLMM, echo = FALSE}
+summary(GLMM_mod)
+```
+<p>&nbsp;</p>
+
+Here we can see that the output from the `glmer()` function is similar but not identical to that of the lmer output. One of the major differences that you will notice this time is the presence of p-values in the fixed effect output. With the p-values we are able to identify which main effects and interactions were significant. From this output we can see that there was a significant main effect of spending and a significant main effect of economic, social and cultural status on the scores. 
+
+<p>&nbsp;</p>
+
+### **Model comparison**
+
+As was done with the general linear model and the generalized linear model, we can compare the generalized linear mixed model and the linear mixed model to see which of these two fit the data better. In order to do this we will again use the AIC values.
+
+```{r LMM and GLMM model comparision, echo=TRUE}
+# Get the AIC for the LMM_read
+LMM_AIC <- AIC(LMM_mod)
+LMM_AIC
+#Get the AIC for GLMM_read 
+GLMM_AIC <- AIC(GLMM_mod)
+GLMM_AIC
+```
+<p>&nbsp;</p>
+
+From the output of the AIC values we can see that the AIC value for the generalized linear mixed model with the gamma family and link identity has a lower AIC value (AIC = 38739) compared to the AIC value of the linear mixed model (AIC = 39523). Since the generalized linear mixed model has a lower AIC value we can conclude that this model fits the data better. we can also compare this to the AIC values from the linear mixed model (AIC = 47481) and the generalized linear model (AIC = 47636). Again we can see that the AIC value for the generalized linear mixed model is lower than the AIC values for all the model we have created in this tutorial. We can therefore conclude that in this case, the generalized linear mixed model using the gamma family with an identity link has the best fit of the data. 
+
+<p>&nbsp;</p>
+
+### **Complex model Exercise**
+
+
+```{r quiz, echo = FALSE}
+quiz(question("What is a fixed effect?",
+              answer("A dependent variable that is assumed to change when the experiment is replicated"),
+              answer("A predictor variable that is assumed to remain constant when the experiment is replicated", correct = TRUE),
+              answer(" A predictor variable that is assumed to change when the experiment is replicated"),
+              answer("A dependent variable that is assumed to remain constant when the experiment is replicated"),
+              allow_retry = TRUE, 
+              correct = "Correct! A fixed effect is a predictor variable that is assumed to remain constant when the experiment is replicated. These are typically the predictor variables of interest in our model"),
+     question("What is the purpose of adding a random slope?",
+              answer("It allows us to fit slopes to account for the variance of random effects", correct = TRUE), 
+              answer("It allows us to fit slopes to account for the variance of fixed effects"), 
+              answer("It allows us to see the interaction between random effects"),
+              answer("It allows us to see the interaction between the fixed factors and random effects"), 
+              allow_retry = TRUE, 
+              correct = "Correct! BY adding random slopes we can account for the variance of the random factors"),
+  question("Which package contains functions for running a linear mixed model?",
+    answer("base"),
+    answer("stats"),
+    answer("lme4", correct = TRUE),
+    answer("car"), 
+    allow_retry = TRUE, 
+    correct = "Correct! The lme4 package can be used to run both linear mixed models and generalized linear mixed models"
+  ), 
+  question("Which function is used to run a generalized linear mixed model?", 
+           answer("lm"),
+           answer("lmer"), 
+           answer("glm"), 
+           answer("glmer", correct = TRUE), 
+           allow_retry = TRUE,
+           correct = "Correct! the glmer function is used to create a generalized linear mixed model"),
+  question("Which of these is NOT a reason that a model may fail to converge?",
+           answer("The model parameters were misspecified"),
+           answer("The data set is too large for R to fit the model", correct = TRUE),
+           answer("There are strong imbalances in the design"),
+           answer("There are too few data points"),
+           allow_retry = TRUE, 
+           correct = "Correct! there are many reasons that a model fails to converge however, having too many data points is not one of them!")
+)
+```
+
+Run a Generalized linear mixed model  similar to the one in the example given in this section but switch the identity link with a with a log link. Calculate the AIC of this new model and compare it to the AIC values of the previous models created throughout the tutorial. 
+
+```{r GLMM-exercise, exercise = TRUE, exercise.eval = TRUE}
+
+```
+
+```{r GLMM-exercise-hint1}
+# Have a look at the code in the tutorial above
+```
+
+```{r GLMM-exercise-hint2}
+# Make sure you are suing the correct function 'lmer()' and are specifying the correct family argument
+```
+
+```{r GLMM-exercise-solution}
+# Run the glm() function and use a log link function 
+GLMM_dat <- glmer(Score ~ Spending * Learning * ESCS * ATTLNACT +
+# Specify the random effetcs and thier interactions
+                     (1 + Spending * Learning | Country) +
+                     (1 + ESCS * ATTLNACT | ID) +
+                     (1 | Item),
+                   data = read_data,
+# sepcify the family you want to use and the link function
+                   family = Gamma(identity),
+# Change the optimizer used in the example
+                   control = glmerControl(optimizer = c("bobyqa")))
+# Get the summary of the new model
+summary(GLMM_dat)
+# Find the AIC value of the model 
+AIC(GLMM_dat)
+```
+
+```{r glm-exercise-error-check}
+grade_code(incorrect = "Make sure you are using the correct function and arguments.", glue_incorrect = "{ .message } { .incorrect }")
+```
+<p>&nbsp;</p>
+
+### **Conclusion**
+
+In this tutorial we have covered how to sort data for analysis and how to run different types of models. Now that you have completed this tutorial you should have a basic understanding of: how to sort data for analysis, how to run linear models and generalized linear models, the basic components behind linear mixed models and generalized linear mixed models, how to run linear mixed models and generalized linear mixed models, how to compare models.
+
+We hope this tutorial has helped you to understand how generalized linear mixed models work and how to use them in your data analysis. 
+<p>&nbsp;</p>
+
+## Coding exercises
+
+In this section you can practice what you have learned in the tutorial. Here we would like you to firslty create a generalised linear model which fits the PISA data, using the same independent and dependent variables as were used in the tutorial. This time however we would like you to use a gamma family argumetn with a log link function. Once you have completed that we would like you to greate a Generalised linear Mixed model using the same independent and dependent variables as were used in the tutorial but use a gamma family argumetn with a log link function. 
+
+### **Glm exercise**
+Create a generalized linear model similar to the one used in the tutorial. This time however, use a log link function. Once you have created the model with the log link function, calculate the AIC value. 
+```{r coding1-exercise, exercise = TRUE, exercise.eval = TRUE}
+
+```
+
+```{r coding1-exercise-hint1}
+# Take a look at the code above to make sure you are using the correct function
+```
+
+```{r coding1-exercise-hint2}
+# Are you sing the correct family and link arguments
+# make sure you are using 'family = Gamma(link = "log")'
+```
+
+```{r coding1-exercise-solution}
+# Run the glm() function and use a log link function 
+GLM_dat <- glm(Score ~ Spending * Learning * ESCS * ATTLNACT + Item, data = read_data, family= Gamma(link = "log"))
+# Get the summary of the new model
+summary(GLM_dat)
+# Find the AIC value of the model 
+AIC(GLM_dat)
+```
+
+
+
+### **GLMM exercise**
+
+Run a Generalized linear mixed model  similar to the one in the example given in this section but switch the identity link with a with a log link. Calculate the AIC of this new model and compare it to the AIC values of the previous models created throughout the tutorial. 
+
+```{r coding2-exercise, exercise = TRUE, exercise.eval = TRUE}
+
+```
+
+```{r coding2-exercise-hint1}
+# Have a look at the code in the tutorial above
+```
+
+```{r coding2-exercise-hint2}
+# Make sure you are suing the correct function 'lmer()' and are specifying the correct family argument
+```
+
+```{r coding2-exercise-solution}
+# Run the glm() function and use a log link function 
+GLMM_dat <- glmer(Score ~ Spending * Learning * ESCS * ATTLNACT +
+# Specify the random effetcs and thier interactions
+                     (1 + Spending * Learning | Country) +
+                     (1 + ESCS * ATTLNACT | ID) +
+                     (1 | Item),
+                   data = read_data,
+# sepcify the family you want to use and the link function
+                   family = Gamma(identity),
+# Change the optimizer used in the example
+                   control = glmerControl(optimizer = c("bobyqa")))
+# Get the summary of the new model
+summary(GLMM_dat)
+# Find the AIC value of the model 
+AIC(GLMM_dat)
+```
+
+
+<p>&nbsp;</p>
+<p>&nbsp;</p>
