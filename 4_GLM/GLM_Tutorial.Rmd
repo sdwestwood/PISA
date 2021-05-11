@@ -14,6 +14,7 @@ knitr::opts_chunk$set(echo = FALSE)
 library(learnr)
 library(tidyverse)
 library(gradethis)
+library(plotly) #interactive plots
 library(rcompanion)
 library(lme4)
 
@@ -25,102 +26,55 @@ library(gradethis) #quiz/exercise questions
 gradethis_setup() #quiz/exercise questions
 
 load("GLM.RData")
+load("learnSpendSES.RData")
+```
+## The Basics
+
+### **Introduction**
+
+In this section we will outline how to use linear models to analyse the PISA data. 
+In statistics, linear regression is a linear approach to modelling the relationship between a variable and one or more explanatory variables (also called dependent and independent variables). The case of one explanatory variable is called simple linear regression; for more than one, the process is called multiple linear regression.
+
+In linear regression, the relationships are modeled using linear predictor functions whose unknown model parameters are estimated from the data that have been collected. 
+
+In this section, we will briefly cover general linear models before progressing to generalised linear models. Once we have looked at general and generalised linear models, we will look at Linear Mixed Models before finally covering Generalised Linear Mixed Models. By the end of this section you should have a solid grasp of the key concepts required to create your own models to analyse your data. 
+
+
+### **Sample PISA Data**
+
+To illustrate the concept, we will choose a couple of plausibly related variables from the PISA dataset: `Spending` and `Learning` scores. These are standardised scores that indicate time spent in the classroom and the amount of spending on education by each of 70 different countries across the world. To give you an idea of what this looks like, the first few countries in the data are shown below:
+
+```{r secret-"learn_spend_data.csv", echo=FALSE}
+knitr::kable(head(learnSpendSES_data))
 ```
 
-## Modeling the PISA Data
-
-In this section we will outline how to use linear models to analyse the PISA data. We will briefly cover general linear models before progressing to generalised linear models. Once we have looked at general and generalised linear models, we will look at Linear Mixed Models before finally covering Generalised Linear Mixed Models. By the end of this section you should have a solid grasp of the key concepts required to create your own models to analyse your data. 
-
-<p>&nbsp;</p>
-
-### **Loading in and sorting the data**
+<p>&nbsp;</p> 
 
 
-Before we begin modelling the data we first need to sort the data. Sorting the data can make it much more manageable to analyse. This can help in fitting and understanding the models that we create. In our example below we will be loading in two different data sets relating to the PISA data. 
 
-We will firstly load in the data on time spent in the classroom and the amount of spending on education by each country. To sort the data we will standardize the columns that we want to use as predictors. By standardizing the variables, we transform them so that they are measured on a scale of standard units. This is beneficial when our data is not measured on the same scale. When data data becomes standardized everything becomes internally consistent and this can make it much easier to directly compare our variables during the analysis. In order to standardize the data we can use the `scale()` function. As well as the scale function we will use the `transformTukey()` function on the spending variable. This is because the spending data is not normally distributed and by applying the transformTukey function we are able to normalize it a bit before it is standardized.
+### **Visualising the Data**
 
-```{r, message = FALSE, echo = TRUE, eval=FALSE}
-# load in the data
-dat_learn_spend <- read_csv("learn_spend_data.csv") %>%
-# use filter to select only the rows where there are no N/As
-  filter(!is.na(.$Spending) & !is.na(.$Learning)) %>%
-# Scale the data
-  mutate(Spending = scale(transformTukey(Spending)),
-         Learning = scale(Learning), 
-# Change the name of the Code column to CNT in order to allow it to be joined to the other data later
-         CNT = Code) %>%
-# Select the relevant columns needed for the analysis
-  select(c(Country, CNT, Spending, Learning))
-```
-<p>&nbsp;</p>
+Again, we will start by visualising our data with a scatterplot so that we become familiar with the datapoints. The plots in this section are interactive thanks to the `ggplotly` function, and you can hover over the points to view the country name.
 
-By running the above code, 3 graphs appear showing the transformed data. These three graphs show the distribution of the  spending data points. From the data it can be seen that there is a slight positive skew. this can be seen with the first plot which shows a much more gradual slope as the lambda approaches zero compared to when lambda passes zero and in the qq plot where most of the points appear to be below the red line. 
-
-Now that we have sorted the learning and spending data we can now load in the second data set. Whilst loading in the data, we will again standardize it. We will also need to select the specific columns that we wish to use and also set one of those columns as a factor so it can later be used in the analysis. The columns that we want from this data set are all the columns relating to the reading scores of the countries, the ESCS column relating to the Economic social and cultural status of each country, the ATTLNACT column relating to the attitudes towards education within each country and finally, the ID column. For the analysis we need to scales the ESCS column and the ATTLNACT column. We also need to set the ID column as a factor for this analysis.
-
-
-```{r, echo=TRUE, message=FALSE, eval=FALSE}
-# Load in the second data set
-dat_pisa <- read_csv("pisa18_data1.csv") %>%
-# select the columns we want for the analysis  
-  select(contains("READ"), ESCS, ATTLNACT, ID=X1, CNT) %>%
-# remove any rows containing N/As
-    na.omit() %>%
-# standardize the data
-      mutate(ESCS = scale(ESCS), 
-             ATTLNACT = scale(ATTLNACT), 
-# Set ID as a factor
-             ID = as.factor(ID))
-```
-<p>&nbsp;</p>
-
-Now that we have sorted the two data sets, we need to combine them in order to analyse the data. We can join the two columns using the `inner_join()` function. Once we have joined the two tables together we can change them from a wide format to a long format using the `gather()` function. By doing this we are able to create a score and item column. This allows us to see each of the countries score on each of the reading items. In our code we have used the function `sample_n(4e2)`. This function allows us to select a random sample from the data set. We are simply doing this to reduce the amount of data points in our examples as using all of the data would cause the fitted models in the following sections to take a very long time to run.
-
-
-```{r joing_tables, echo = TRUE}
-# Join the tables togehther
-read_data <- inner_join(dat_pisa, dat_learn_spend, by = "CNT") %>%
-  sample_n(4e2) %>%
-# Change the data from wide to long format
-    gather("Item", "Score", 1:10)
-```
-<p>&nbsp;</p>
-
-Now that we have joined the two tables, we can move on to the analysis. The main point that should be gained from this section is that it is important to standardize the data before performing a complex analysis. 
-
-<p>&nbsp;</p>
-
-#### **Sorting data exercise**
-
-```{r sorting_exercise, echo = FALSE}
-quiz(
-  question("What happens when we standardize the data? (Select 2)", 
-  answer("It transforms our data into standard units", correct = TRUE),
-  answer("It keeps our data tidy"), 
-  answer("It makes our data harder to compare throughout the analysis"),
-  answer("It makes our data easier to compare throughout the analysis", correct = TRUE),
-  allow_retry = TRUE, 
-  correct = "Correct! When we standardize data we transform the data points into standard units. This allows us to create internal consistency between variable that are initial measured on different scales, making them easier to compare throughout the experiment"),
-  
-  question("What function can be used to standardize the data?", 
-  answer("standardize()"), 
-  answer("std()"), 
-  answer("scale()", correct = TRUE), 
-  answer("transform()"), 
-  allow_retry = TRUE, 
-  correct = "Correct! The scale() function is used to standardize the data"
-)
-)
-
+```{r visualise PCA, echo=TRUE, message=FALSE, warning=FALSE}
+#Raw spending and learning data
+ggplotly(
+  ggplot(learnSpendSES_data, aes(Learning, Spending, group = Country)) +
+  geom_point(colour = "black") +
+  xlab('Average of time spent in the classroom') +
+  ylab('Amount of spending on education') +
+  theme_minimal() +
+  theme(legend.position='none'),
+tooltip = "group")
 ```
 
-<p>&nbsp;</p>
+
 <p>&nbsp;</p>
 
 ## Simple models
 
 Now that we have sorted the data appropriately we can begin the analysis. A good point to start when beginning an analysis is to visualize the data. In this case we can begin by visualizing the distribution of the scores (the dependent variable in our data). In order to do this we can create a histogram. 
+
 
 ```{r histogram of scores, echo=FALSE}
 ggplot(read_data, aes(Score)) + 
@@ -131,16 +85,55 @@ ggplot(read_data, aes(Score)) +
 
 From the histogram it appears that the data is slightly negatively skewed. This would suggest that the use of a standard linear model may not be the best approach. Despite this we can still fit one and see how it deals with the data.
 
+<p>&nbsp;</p>
+When we see the histograms of some countries, we can observe differences among countries. Some of them as Dominican Republic, Colombia and Brazil are positively skewed. However, Germany, Canada and Chile are negatively skewed. This differences could be due to the differential influence of our variables. 
+
+```{r histogram of scores by country, echo=FALSE}
+ggplot(read_data, aes(Score)) + 
+  geom_histogram(binwidth = 50, color = 'white', fill = 'lightblue') +
+  facet_wrap(~ Country)
+  theme_minimal()
+```
+
+
 For our linear model we will use the `lm()` function. Form our data set, our Score column will be our dependent variable, whilst the Spending, learning, ESCS, ATTLNACT and Item columns will be used as our independent variables (predictors). 
 
-```{r linear model, message = FALSE, echo=TRUE, eval=FALSE}
+```{r simple linear model, message = FALSE, echo=TRUE, eval=TRUE}
 # Use the lm function to create a linear model
-LM_mod <- lm(Score ~ Spending * Learning * ESCS * ATTLNACT + Item, data = read_data)
-summary(LM_mod)
+LM_mod_one <- lm(Score ~ Spending, data = read_data)
+summary(LM_mod_one)
 ```
-```{r secret linear model, echo=FALSE}
-summary(LM_mod)
+
+```{r linear regression, echo= FALSE}
+
+p <- ggplot(read_data, aes(x=ESCS, y=Score)) +
+    geom_point(shape=1) +    # Use hollow circles
+    geom_smooth(method=lm)   # Add linear regression line
+
+
+fig <- ggplotly(p)
+
+fig
 ```
+
+```{r simple linear model step 2, message = FALSE, echo=TRUE, eval=TRUE}
+# Use the lm function to create a linear model
+LM_mod_two <- lm(Score ~ Learning, data = read_data)
+summary(LM_mod_two)
+```
+
+```{r multiple linear model step 1, message = FALSE, echo=TRUE, eval=TRUE}
+# Use the lm function to create a linear model
+LM_mod_three <- lm(Score ~ Learning + Spending, data = read_data)
+summary(LM_mod_three)
+```
+
+```{r multiple linear model step 2, message = FALSE, echo=TRUE, eval=TRUE}
+# Use the lm function to create a linear model
+LM_mod_four <- lm(Score ~ Spending * Learning * ESCS * ATTLNACT, data = read_data)
+summary(LM_mod_four)
+```
+
 <p>&nbsp;</p>
 
 The output from the results appear to show that spending, and attitudes towards education are significant predictors and that there are significant two way interactions between spending and attitudes towards education, as well as between learning and attitudes towards education. There were also significant three way interactions between spending, learning, and economic social and cultural status and, spending, economic social and cultural status, and attitudes towards education. As mentioned above however, the data was negatively skewed and so this model may not be the best method for analysis. 
@@ -437,9 +430,6 @@ summary(GLM_dat)
 AIC(GLM_dat)
 ```
 
-```{r coding1-exercise-error-check}
-grade_code(incorrect = "Make sure you are using the correct function and arguments.", glue_incorrect = "{ .message } { .incorrect }")
-```
 
 
 ### **GLMM exercise**
@@ -476,9 +466,6 @@ summary(GLMM_dat)
 AIC(GLMM_dat)
 ```
 
-```{r coding2-exercise-error-check}
-grade_code(incorrect = "Make sure you are using the correct function and arguments.", glue_incorrect = "{ .message } { .incorrect }")
-```
 
 <p>&nbsp;</p>
 <p>&nbsp;</p>
