@@ -42,7 +42,13 @@ In this section, we will briefly cover general linear models before progressing 
 
 ### **Sample PISA Data**
 
-To illustrate the concept, we will choose three plausibly related variables from the PISA dataset: `Spending`, `Learning` and `SES`scores. These are standardised scores that indicate time spent in the classroom and the amount of spending on education by each of 70 different countries across the world and the socio economical status by country. To give you an idea of what this looks like, the first few countries in the data are shown below:
+To illustrate the concept, we will choose three plausibly related variables with standardised socres from the PISA dataset: 
+
+  * `Spending`: time spent in the classroom.
+  * `Learning`: the amount of spending on education by each of 70 different countries across    the world.  
+  * `SES`: the socio economical status by country.
+
+To give you an idea of what this looks like, the first few countries in the data are shown below:
 
 ```{r secret-"learn_spend_data.csv", echo=FALSE}
 knitr::kable(head(learnSpendSES_data))
@@ -54,11 +60,11 @@ knitr::kable(head(learnSpendSES_data))
 
 ### **Visualising the Data**
 
-Again, we will start by visualising our data with a scatterplot so that we become familiar with the datapoints. The plots in this section are interactive thanks to the `ggplotly` function, and you can hover over the points to view the country name.
+Again, we will start by visualising our data with a scatterplot so that we become familiar with the datapoints. The plots in this section are interactive thanks to the `ggplotly` function, and you can hover over the points to view the country name. The larger the point size, the greater the SES.
 
 
 ```{r visualise PCA, echo=TRUE, message=FALSE, warning=FALSE}
-#Raw spending and learning data
+#Raw spending,learning and SES data
 ggplotly(
   ggplot(learnSpendSES_data, aes(Learning, Spending, group = Country)) +
   geom_point(aes(color = SES, size =SES)) +
@@ -84,7 +90,68 @@ ggplot(learnSpendSES_data, aes(ReadingScore)) +
 
 From the histogram it appears that the data is slightly negatively skewed. This would suggest that the use of a standard linear model may not be the best approach. Despite this we can still fit one and see how it deals with the data.
 
+## An introduction to regression
+
+Regression analysis is a way of predicting an outcome variable *Y*  from one predictor variable *X<sub>1</sub>* (simple regression) or several predictor variables *X<sub>1</sub>*, *X<sub>2</sub>*... (multiple regression)  using the folowing general equation: 
+
+    outcome = (model) + error
+
+This means that we predict the outcome by whatever model we fit to the data plus some kind of error. In regression, the model we fit is linear, which means that we summarize a data set with a straight line. In the ecuation, we will replace the word model by things that define the line that we fit to the data. The mathematical equation to estimate the value of the response *Y* when only the *X* is known can be generalized as follows: 
+
+  *Y* = (*b*<sub>0</sub> + *b*<sub>1</sub> *X*<sub>i</sub>) + E
+
+In this equation:
+
+  * *Y* is the outcome that we want to predict
+  * *X*<sub>i</sub> is the participants score on the predictor variable. 
+  * Parameter *b*<sub>0</sub> is the intercept and *b*<sub>1</sub> is the slope. Both are known as the **regression coefficients** and we will refer at them in the next sections. 
+  * E is a residual term, which represents the difference between the score predicted by the line for participant *i* and the score that participant *i* actually obtained. From this term is important to understand that it represents the fact that our model will not fit the data collected perfectly. 
+
+###**Previous Graphical Analysis**
+
+The graphical representation of our variables can help visualize any linear relationships between the dependent and the independent variables. As we have multiple predictor variables, a scatter plot is drawn for each one of them against the outcome variable. 
+
+We can visualize the linear relationship between the predictor variables (`Spending`,`Learning`, `SES`) and the response variable (`ReadingScore`) through a scatter plot using `ggplot` function:
+
+```{r linear-regression-plot1, echo= TRUE}
+
+ggplot(learnSpendSES_data, aes(x=Spending, y=ReadingScore)) +
+    geom_point()+ #scatterplot for Spending
+    geom_smooth(method=lm)   # Add linear regression line
+ggplot(learnSpendSES_data, aes(x=Learning, y=ReadingScore)) +
+    geom_point()+ #scatterplot for Learning
+    geom_smooth(method=lm)   # Add linear regression line
+
+```
+
+The scatter plots along with the smoothing line above suggest a linearly increasing relationship between `Spending`and `ReadingScore`variables, and a linearly decreasing relationship between `Learning`and `ReadingScore` variables. 
+
+Could you do it for our variable `SES`? Use the function ggplot and follow the same structure of the previous scatterplot. 
+
+```{r linear-regression-plot3, exercise = TRUE, message = FALSE}
+ggplot( , aes(x=  , y=  ))+ 
+  geom_point()+ 
+  geom_smooth(method= )
+```
+
+```{r linear-regression-plot3-hint-1}
+## variables ##
+#Use the dataset learnSpendSES_data with Learning as predictor and ReadingScore as outcome variable
+# Then, add linear regression line
+```
+
+```{r linear-regression-plot3-solution}
+#create the plot
+ggplot(learnSpendSES_data, aes(x=SES, y=ReadingScore)) +
+    geom_point()+    
+    geom_smooth(method=lm)
+```
+
+We can se that the variable SES does not appear to have a linear distribution since we can see a point cloud where it look as if there are two subsets. 
+
+
 ## Simple models
+
 
 ### Simple linear regression model
 
@@ -95,17 +162,6 @@ For our linear model we will use the `lm()` function. Form our data set `learnSp
 # Use the lm function to create a linear model
 LM_model_one <- lm(ReadingScore ~ Spending, data = learnSpendSES_data)
 summary(LM_model_one)
-```
-<p>&nbsp;</p>
-
-We can visualize the regression with ggplot:
-
-```{r linear-regression-plot1, echo= FALSE}
-
-ggplot(learnSpendSES_data, aes(x=Spending, y=ReadingScore)) +
-    geom_point()+    
-    geom_smooth(method=lm)   # Add linear regression line
-
 ```
 <p>&nbsp;</p>
 
@@ -138,28 +194,11 @@ summary()
 LM_model_two <- lm(ReadingScore ~ Learning, data = learnSpendSES_data)
 summary(LM_model_two)
 ```
+
+As we can see, the coefficient for `Learning`is negative, indicating that it has a negative association with our outcome variable `ReadingScore`.
+
 <p>&nbsp;</p>
 
-As we can see, the coefficient for `Learning`is negative, indicating that it has a negative association with our outcome variable `ReadingScore`. We would illustrate better with a scatterplot, could you do it? Use the function ggplot and follow the same structure of the previous scatterplot. 
-
-```{r linear-regression-plot2, exercise = TRUE, message = FALSE}
-ggplot( , aes(x=  , y=  ))+ 
-  geom_point()+ 
-  geom_smooth(method= )
-```
-
-```{r linear-regression-plot2-hint-1}
-## variables ##
-#Use the dataset learnSpendSES_data with Learning as predictor and ReadingScore as outcome variable
-# Then, add linear regression line
-```
-
-```{r linear-regression-plot2-solution}
-#create the plot
-ggplot(learnSpendSES_data, aes(x=Learning, y=ReadingScore)) +
-    geom_point()+    
-    geom_smooth(method=lm)
-```
 
 
 ```{r quiz_simple_linear_model, echo = FALSE}
@@ -177,30 +216,11 @@ quiz(question ("We can now compare the predictor value of our two regression mod
 
 ### Multiple linear regression model
 
-When the two predictors, `Spending` and `Learning` are included in our regression model, the value of R-square (how much of the variability in the outcome is accounted for by the predictors) will increase? Use`lm()` with `learnSpendSES_data` function for check it!
+When the two predictors, `Spending` and `Learning` are included in our regression model, the value of R-square (how much of the variability in the outcome is accounted for by the predictors) will increase? We will use`lm()` with `learnSpendSES_data` function for check it.
 
-#### Exercise
 
-```{r multiple_linear_model, exercise = TRUE, message = FALSE}
-#Create the linear model from dataset learnSpendSES_data
-LM_model_three <- lm(   ~  +  ,data = ) 
-#Ask for the summary result of your model
-summary()
-```
-
-```{r multiple-linear-model-hint-1}
-## variables ##
-# The first variable you have to write is our dependent variable and after that, our two independent variables separated by +
-```
-
-```{r multiple-linear-model-hint-2}
-## variables ##
-# For visualize the result write the name of our model: LM_model_three 
-# Warning! next hint shows full solution. Try something before it!
-```
-
-```{r multiple-linear-model-solution}
-#create biplot
+```{r multiple linear model, message = FALSE, echo=TRUE, eval=TRUE}
+# Use the lm function to create a linear model
 LM_model_three <- lm(ReadingScore ~ Spending + Learning, data = learnSpendSES_data)
 summary(LM_model_three)
 ```
@@ -211,7 +231,7 @@ The adjusted R-square in multiple regression model has increase from 0.25 to 0.2
 
 ```{r multiple linear model step 2, message = FALSE, echo=TRUE, eval=TRUE}
 # Use the lm function to create a linear model
-LM_mod_four <- lm(ReadingScore ~ Spending + Learning + Spending * Learning, data = learnSpendSES_data)
+LM_mod_four <- lm(ReadingScore ~ Spending * Learning, data = learnSpendSES_data)
 summary(LM_mod_four)
 ```
 
@@ -221,14 +241,14 @@ The output from the results show that `Spending`and `Learning`interaction is not
 
 ```{r multiple_linear_model_interaction, exercise = TRUE, message = FALSE}
 #Create the linear model from dataset learnSpendSES_data
-LM_model_five <- lm(   ~  +  +  +  + Spending *  + Spending *  + Learning  * ,data = ) 
+LM_model_five <- lm(   ~  *  *  * ,data = ) 
 #Ask for the summary result of your model
 summary()
 ```
 
 ```{r multiple-linear-model-interaction-hint-1}
 ## variables ##
-# The first variable you have to write is our dependent variable and after that, our three independent variables separated by +
+# The first variable you have to write is our dependent variable and after that, our three independent variables separated by *
 # Add the three possible interactions between our independent variables separated by *
 ```
 
@@ -240,32 +260,14 @@ summary()
 
 ```{r multiple-linear-model-interaction-solution}
 #create biplot
-LM_model_five <- lm(ReadingScore ~ Spending + Learning + SES + Spending * Learning + Spending * SES + Learning * SES, data = learnSpendSES_data)
+LM_model_five <- lm(ReadingScore ~ Spending * Learning * SES, data = learnSpendSES_data)
 summary(LM_model_five)
 ```
 
-For the models with Spending and Learning as predictor variables, the value of adjusted R-square was 0.25. However, when we included SES, this value increases to 0.51. That means that the last model, where Spending and the interaction of Spending and SES were significant, accounts for 51% of the variation in Reading Scores.
 
-<p>&nbsp;</p>
+For the models with Spending and Learning as predictor variables, the value of adjusted R-square was 0.25. When we included SES, this value increases to 0.51. That means that the last model, where Spending and the interaction of Spending and SES were significant, accounts for 51% of the variation in Reading Scores. If we look at the coefficients, we can see that `Spending` has a positive association with `ReadingLearning`, and that the interaction between `spending` and `SES` has a negative relationship. This negative interaction is not easy to interpret. 
 
-LM_model_five <- lm(ReadingScore ~ Spending + SES + Spending * SES, data = learnSpendSES_data)
-summary(LM_model_five)
-
-For the models with Spending and Learning as predictor variables, the value of adjusted R-square was 0.25. When we included SES, this value increases to 0.51. That means that the last model, where Spending and the interaction of Spending and SES were significant, accounts for 51% of the variation in Reading Scores. We could be happy with this result. However, if we look at the coefficients, we can see that spending has a positive association with ReadingLearning, and that the interaction between spending and SES has a negative relationship. This negative interaction is not easy to interpret and if we visualize the data for SES maybe we can understand better what is happening.  
-
-```{r scatterplot of scores, echo=FALSE}
-ggplot(learnSpendSES_data, aes(x=SES, y=ReadingScore)) +
-    geom_point()+    
-    geom_smooth(method=lm)
-```
-
-```{r histogram of SES scores, echo=FALSE}
-ggplot(learnSpendSES_data, aes(x = SES)) + 
-  geom_histogram(binwidth = 0.5, color = 'white', fill = 'lightblue') +
-  theme_minimal()
-```
-
-We can se that the variable `SES`does not have a linear distribution since we can see a point cloud where it look as if there is two subsets. So in the next section, we will learn other statistics analysis to deal with data with different types of distributions. 
+The variable `SES` did not appear to have a linear distribution, based on the scatter plot visualization in the previous section. In the next section, we will learn other statistics analysis to deal with data with different types of distributions. 
 
 ### **Generalized Linear Models**
 
