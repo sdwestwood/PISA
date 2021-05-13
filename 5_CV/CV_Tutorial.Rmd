@@ -304,10 +304,10 @@ for (i in 1:nrow(dataset)) {
 
   
 # Calculating R-Squared
-residuals_ss <- sum((residuals)^2)/nrow(dataset)
-total_ss <- var(dataset$y)
+residual_var <- sum((residuals)^2)/(nrow(dataset)-2)
+total_var <- var(dataset$y)
 
-test_R_Squared <- 1 - residuals_ss/total_ss
+test_R_Squared <- 1 - residual_var/total_var
 train_R_Squared <- mean(train_R_Squared_Repeated)
 
 # make a result table
