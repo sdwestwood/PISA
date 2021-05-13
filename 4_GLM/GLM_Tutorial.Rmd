@@ -28,9 +28,9 @@ gradethis_setup() #quiz/exercise questions
 load("GLM.RData")
 load("learnSpendSES.RData")
 ```
-## The Basics
+## Introduction
 
-### **Introduction**
+### **What will this tutorial tell me?**
 
 In this section we will outline how to use linear models to analyse the PISA data. 
 In statistics, linear regression is a linear approach to modelling the relationship between a variable and one or more explanatory variables (also called dependent and independent variables). The case of one explanatory variable is called simple linear regression; for more than one, the process is called multiple linear regression.
@@ -57,7 +57,6 @@ knitr::kable(head(learnSpendSES_data))
 <p>&nbsp;</p> 
 
 
-
 ### **Visualising the Data**
 
 Again, we will start by visualising our data with a scatterplot so that we become familiar with the datapoints. The plots in this section are interactive thanks to the `ggplotly` function, and you can hover over the points to view the country name. The larger the point size, the greater the SES.
@@ -75,7 +74,6 @@ ggplotly(
   
 ```
 
-0
 <p>&nbsp;</p>
 
 
@@ -90,7 +88,13 @@ ggplot(learnSpendSES_data, aes(ReadingScore)) +
 
 From the histogram it appears that the data is slightly negatively skewed. This would suggest that the use of a standard linear model may not be the best approach. Despite this we can still fit one and see how it deals with the data.
 
-## An introduction to regression
+<p>&nbsp;</p>
+
+
+## The Basics
+
+### **An introduction to regression**
+
 
 Regression analysis is a way of predicting an outcome variable *Y*  from one predictor variable *X<sub>1</sub>* (simple regression) or several predictor variables *X<sub>1</sub>*, *X<sub>2</sub>*... (multiple regression)  using the folowing general equation: 
 
@@ -100,14 +104,24 @@ This means that we predict the outcome by whatever model we fit to the data plus
 
   *Y* = (*b*<sub>0</sub> + *b*<sub>1</sub> *X*<sub>i</sub>) + E
 
+
+
+  
 In this equation:
 
   * *Y* is the outcome that we want to predict
   * *X*<sub>i</sub> is the participants score on the predictor variable. 
-  * Parameter *b*<sub>0</sub> is the intercept and *b*<sub>1</sub> is the slope. Both are known as the **regression coefficients** and we will refer at them in the next sections. 
+  * Parameter *b*<sub>0</sub> is the intercept and *b*<sub>1</sub> is the slope. Both are known as the **regression coefficients** and we will refer at them in the next sections. The common approach to find the line which is as close as possible to our data points, is the least squares criterion. 
   * E is a residual term, which represents the difference between the score predicted by the line for participant *i* and the score that participant *i* actually obtained. From this term is important to understand that it represents the fact that our model will not fit the data collected perfectly. 
 
-###**Previous Graphical Analysis**
+Multiple regression it is basically the same as for simple regression except that for every extra predictor you include, you have to add a coefficient. Each predictor variable has its own coefficient, and the outcome variable is predicted from a combination of all the variables multiplied by their respective coefficients plus a residual term. 
+
+  *Y* = (*b*<sub>0</sub> + *b*<sub>1</sub> *X*<sub>1</sub><sub>i</sub> + *b*<sub>2</sub> *X*<sub>2</sub><sub>i</sub> +*b*<sub>n</sub> *X*<sub>n</sub><sub>i</sub>) + E
+
+With this equation, we seek to find the linear combination of predictors that correlate maximally with the outcome variable. Therefore, when we refer to the regression model in multiple regression, we are talking about a model in the form of this last equation. 
+
+
+### **Previous Graphical Analysis**
 
 The graphical representation of our variables can help visualize any linear relationships between the dependent and the independent variables. As we have multiple predictor variables, a scatter plot is drawn for each one of them against the outcome variable. 
 
@@ -147,15 +161,12 @@ ggplot(learnSpendSES_data, aes(x=SES, y=ReadingScore)) +
     geom_smooth(method=lm)
 ```
 
-We can se that the variable SES does not appear to have a linear distribution since we can see a point cloud where it look as if there are two subsets. 
+We can see that the variable SES does not appear to have a linear distribution since we can see a point cloud where it look as if there are two subsets. 
 
 
-## Simple models
+## Simple linear regression model
 
-
-### Simple linear regression model
-
-For our linear model we will use the `lm()` function. Form our data set `learnSpendSES`, our `ReadingScore` column will be our dependent variable, whilst the `Spending` will be used as our independent variables (predictors). 
+Now that we have visualized the linear relationship in the scatter plot, lets see the syntax for building the linear model. For our linear model we will use the `lm()` function. Form our data set `learnSpendSES`, our `ReadingScore` column will be our dependent variable, whilst the `Spending` will be used as our independent variables (predictors). 
 
 
 ```{r simple linear model, message = FALSE, echo=TRUE, eval=TRUE}
@@ -163,12 +174,32 @@ For our linear model we will use the `lm()` function. Form our data set `learnSp
 LM_model_one <- lm(ReadingScore ~ Spending, data = learnSpendSES_data)
 summary(LM_model_one)
 ```
-<p>&nbsp;</p>
+
+
+### **What a simple regression summary tell us?**
+
+Beginning from the bottom we find: 
+
+    F-statistic: 16.46 on 1 and 45 DF,  p-value: 0.0001951
+
+This part of the output tells us the F-ratio and the associated significance value of that F-ratio. For these data is significant at *p* < .001, therefore, we can conclude that our regression model is significantly predicting ReadingScores. 
+
+    Multiple R-squared:  0.2678,	Adjusted R-squared:  0.2516 
+R-square value describes the overall model (so it tells us whether the model is successful in predicting `ReadingScore`). The value of R-square is a measure of how much of the variability in the outcome is accounted for by the predictors. For our first model this value is .267 which means that `Spending` accounts for 26.7% of the variation in `ReadingScore`. The adjusted r-square gives us some idea of how well our model generalizes, and ideally, we would like its value to be the same, or very close to, the value of r-square.
+
+    Coefficients:
+                Estimate Std. Error t value Pr(>|t|)    
+    (Intercept)  473.047      5.902  80.144  < 2e-16 ***
+    Spending      24.018      5.920   4.057 0.000195 ***
+    ---
+    Signif. codes:  0 *** 0.001 ** 0.01 * 0.05 . 0.1  1
+
+Coefficients contains the model parameters (the beta values) and the significance of these values. In regression equation, B<sub>0</sub> is the Y intercept and this value is the value in the Estimate column for (intercept), in brackets because it is not a real variable. We can say that B<sub>0</sub> is 473.05, and this can be interpreted as meaning that wen no `Spending` is done (when X= 0), the model predicts that 473.05 `Score` would be achieve. We can also read off the value of b1 from the row labelled `Spending` and this value represent the gradient of the regression line. It is 24.01. Although this value is the slope of the regression line, it is more useful to think of this value as representing the change in the outcome associated with a unit change in the predictor. Therefore, if our predictor variable `Spending` is increased by one unit, our model predicts that `Score` will increase 24.01. We also see that the t-test tells us whether the b-value is different from 0. For this variable, we can conclude that the `Spending` makes a significant contribution (p<.001) to predicting `ReadingScore`.
 
 
 #### Exercise
 
-Now it is your turn to use`lm()`function for modeling the relationship between `Learning` and `ReadingScore` from `learnSpendSES_data`. 
+Now it is your turn to use`lm()`function for modelling the relationship between `Learning` and `ReadingScore` from `learnSpendSES_data`. 
 
 ```{r simple-linear-regression, exercise = TRUE, message = FALSE}
 #Create the linear model from dataset learnSpendSES_data
@@ -197,9 +228,6 @@ summary(LM_model_two)
 
 As we can see, the coefficient for `Learning`is negative, indicating that it has a negative association with our outcome variable `ReadingScore`.
 
-<p>&nbsp;</p>
-
-
 
 ```{r quiz_simple_linear_model, echo = FALSE}
 quiz(question ("We can now compare the predictor value of our two regression models. If we look at the R-square statistics from each model, what statement is correct?",
@@ -214,7 +242,7 @@ quiz(question ("We can now compare the predictor value of our two regression mod
 ```
 
 
-### Multiple linear regression model
+## Multiple linear regression model
 
 When the two predictors, `Spending` and `Learning` are included in our regression model, the value of R-square (how much of the variability in the outcome is accounted for by the predictors) will increase? We will use`lm()` with `learnSpendSES_data` function for check it.
 
@@ -267,43 +295,65 @@ summary(LM_model_five)
 
 For the models with Spending and Learning as predictor variables, the value of adjusted R-square was 0.25. When we included SES, this value increases to 0.51. That means that the last model, where Spending and the interaction of Spending and SES were significant, accounts for 51% of the variation in Reading Scores. If we look at the coefficients, we can see that `Spending` has a positive association with `ReadingLearning`, and that the interaction between `spending` and `SES` has a negative relationship. This negative interaction is not easy to interpret. 
 
-The variable `SES` did not appear to have a linear distribution, based on the scatter plot visualization in the previous section. In the next section, we will learn other statistics analysis to deal with data with different types of distributions. 
+The variable `SES` did not appear to have a linear association with `ReadingScore`, based on the scatter plot visualization in the previous section. And our outcome variable `ReadingScore` was lightly negatively skeewed. In the next section, we will learn other statistics analysis to deal with data with different types of distributions. 
 
-### **Generalized Linear Models**
+## Generalized Linear Models
 
 An alternative approach to analyzing the PISA data could be to use a generalized linear model. A generalized linear model is similar to a general linear model, except some of the constraints are relaxed. This typically makes it better when dealing with data that is not normally distributed, such as is the case with the PISA data.
 
-There are different family arguments that can be made when using a generalized linear model. These different families allow us to deal with data with different types of distributions. Family distributions include Gaussian (which is the bases of the linear model and ideal for normally distributed data), Binomial (which is useful when dealing with a binomial distribution), and Gamma (which is useful when there is skewed data). These are just a few of the families that can be applied when using a generalized linear model.
+There are different family arguments that can be made when using a generalized linear model. These different families allow us to deal with data with different types of distributions. Family distributions include Gaussian (which is the bases of the linear model and ideal for normally distributed data), Binomial (which is useful when dealing with a binomial distribution), and Gamma (which is useful when there is skewed data). These are just a few of the families that can be applied when using a generalized linear model. Since we are dealing with data that is negatively skewed we will use the Gamma family in our example. If you are not very familiar with this distribution, it looks like this: 
 
-Since we are dealing with data that is negatively skewed we will use the Gamma family in our example. The code for using the glm is very similar to the code needed when creating a linear model. The only difference is now at the end of the code we specify the family and link arguments. Link arguments allow us to apply transformations to the model parameters and also determines the way the model coefficients are interpreted. Changing the link function can, in some cases, result in a better fitting model. There are many different link arguments for each family but for now we will just use the standard identity link. 
+```{r gamma distribution, echo=TRUE, eval=TRUE}
 
-```{r generalised linear model, echo=TRUE, eval=FALSE}
-# Use the glm finction to create a genearlised linear model
-GLM_mod <- glm(Score ~ Spending * Learning * ESCS * ATTLNACT + Item,
-               data = read_data, 
+# R program to plot gamma distribution
+  
+# Specify x-values for gamma function
+x_pgamma <- seq(0, 2, by = 0.04)   
+  
+# Apply pgamma function
+y_pgamma <- pgamma(x_pgamma, shape = 6) 
+  
+# Plot pgamma values
+plot(y_pgamma)
+```
+
+The code for using the glm is very similar to the code needed when creating a linear model. The only difference is now at the end of the code we specify the family and link arguments. Link arguments allow us to apply transformations to the model parameters and also determines the way the model coefficients are interpreted. Changing the link function can, in some cases, result in a better fitting model. There are many different link arguments for each family but for now we will just use the standard identity link. 
+
+```{r generalised linear model, echo=TRUE, eval=TRUE}
+# Use the glm function to create a generalised linear model
+GLM_model <- glm(ReadingScore ~ Spending * Learning * SES,
+               data = learnSpendSES_data, 
 # specify the family as gamma with an identity link
                family= Gamma(link = "identity"))
 # Get the output from the generalised linear model
-summary(GLM_mod)
+summary(GLM_model)
 ```
-```{r secret generalised linear model, echo = FALSE}
-summary(GLM_mod)
-```
+
 
 <p>&nbsp;</p>
 
-Here we can see that the output presented when we use the glm function is very similar to the output when we use the lm function. One of the main differences is to do with the goodness of fit statistic presented in the two outputs. when we use the lm function the goodness of fit statistic is given as the adjusted R-squared. with the glm function, the goodness of fit statistic given is the Akaike Information Criteria (AIC) score. 
+Here we can see that the output presented when we use the glm function is very similar to the output when we use the lm function. One of the main differences is to do with the goodness of fit statistic presented in the two outputs. when we use the lm function the goodness of fit statistic is given as the adjusted R-squared. with the glm function, the goodness of fit statistic given is the *Akaike Information Criteria* (AIC) score.  
 
-From the output we can see that there are differences in the significance values in the glm output compared to the lm output. In the glm output we now find that the there are significant main effects of spending, economic social and cultural status, and attitudes towards education. There is now significant two way interactions between learning and economic social and cultural status; spending and attitudes towards education and; economic social and cultural status and attitudes towards education. Significant three way interactions were also found between spending, learning and Economic social and cultural status, as well as between spending, economic social and cultural status, and attitudes towards education. 
+From the output we can see that there are differences in the significance values in the glm output compared to the lm output. In the glm output we now find that two are significant main effects of `Spending` and `Learning`. There is now significant two way interactions between `Spending` and `Learning` and between `Spending`and `SES`. Significant three way interactions were also found among `Spending`, `Learning` and `SES`. 
 
 <p>&nbsp;</p>
 
 ### **Model comparison**
 
-Now that we have fitted a generalized linear model to the data we can check to see if it really fits the data better than our original linear model. There are multiple ways to do this. One of the simplest ways to compare the models is to look at the Akaike Information Criterion (AIC). This is a goodness of fit statistic which takes into account how well a model explains the data and adds  a penalty for model complexity. AIC scores can be used to compare the goodness of fit of different models. The general rule when comparing models using AIC is that the model with the lowest AIC value fits the data better. The AIC is quite arbitrary however, as there are no set guidelines for using it. We can obtain the AIC value by using the `AIC()` function. 
+Now that we have fitted a generalized linear model to the data we can check to see if it really fits the data better than our original linear model. One of the simplest ways, is to compare the models is to look at the Akaike Information Criterion (AIC). This is a goodness of fit statistic which takes into account how well a model explains the data and adds a penalty for model complexity. AIC scores can be used to compare the goodness of fit of different models. The general rule when comparing models using AIC is that the model with the lowest AIC value fits the data better. The AIC is quite arbitrary however, as there are no set guidelines for using it. We can obtain the AIC value by using the `AIC()` function. 
 ```{r simple AICs, echo = TRUE}
-# run the AIC for the linear model
-lm_AIC <- AIC(LM_mod)
+# run the AIC for the linear model with Spending
+lm_AIC <- AIC(LM_model_one)
+lm_AIC
+
+# run the AIC for the linear model with Spending and Learning 
+lm_AIC <- AIC(LM_model_three)
+lm_AIC
+# run the AIC for the linear model with Spending, Learning and its interaction
+lm_AIC <- AIC(LM_mod_four)
+lm_AIC
+# run the AIC for the linear model with Spending, Learning and SES and their interaction
+lm_AIC <- AIC(LM_model_five)
 lm_AIC
 # Run the AIC for the generalised linear model
 glm_AIC <- AIC(GLM_mod)

@@ -104,10 +104,10 @@ if (window.hljs) {
 
 <div class="topics">
 
-<div id="section-the-basics" class="section level2">
-<h2>The Basics</h2>
-<div id="section-introduction" class="section level3">
-<h3><strong>Introduction</strong></h3>
+<div id="section-introduction" class="section level2">
+<h2>Introduction</h2>
+<div id="section-what-will-this-tutorial-tell-me" class="section level3">
+<h3><strong>What will this tutorial tell me?</strong></h3>
 <p>In this section we will outline how to use linear models to analyse the PISA data. In statistics, linear regression is a linear approach to modelling the relationship between a variable and one or more explanatory variables (also called dependent and independent variables). The case of one explanatory variable is called simple linear regression; for more than one, the process is called multiple linear regression.</p>
 <p>In linear regression, the relationships are modeled using linear predictor functions whose unknown model parameters are estimated from the data that have been collected.</p>
 <p>In this section, we will briefly cover general linear models before progressing to generalised linear models. Once we have looked at general and generalised linear models, we will look at Linear Mixed Models before finally covering Generalised Linear Mixed Models. By the end of this section you should have a solid grasp of the key concepts required to create your own models to analyse your data.</p>
@@ -193,18 +193,22 @@ ggplotly(
   theme(legend.position=&quot;none&quot;),
   tooltip = &quot;group&quot;)</code></pre>
 <div id="htmlwidget-d20aee242805acbef4b8" style="width:624px;height:384px;" class="plotly html-widget"></div>
-<script type="application/json" data-for="htmlwidget-d20aee242805acbef4b8">{"x":{"data":[{"x":[-0.655106549293344,-0.118965734049108,-0.538004195259751,0.338484685195715,-0.399155620449664,-0.0108558782018524,1.16916333232703,0.246691556219796,0.157360803389584,-0.975704632719374,1.17320093083142,-0.594248415973332,-2.22471820744293,-0.647611017712143,-2.11881241154244,0.743480292705913,0.279783676302234,-0.339296964845089,-0.959078980513876,-0.259259309320933,0.0544696350740301,1.09040437348959,-1.00484679763966,1.26262759021437,-0.473207735853001,-0.510571012509269,-0.750295882013505,-0.181175757684254,0.642620306342148,1.18914403215741,-1.04891000652378,-0.809145696546239,-0.564828437554514,1.16620211270667,0.264909117138071,0.0254111006289571,2.21219619278696,0.771688814193061,1.33037566356218,-0.57094639259442,-0.201805470906403,-1.36554948628377,2.42510348872232,1.24921417506276,-0.450495313140093,0.684553615776234,-1.40287555668377],"y":[0.636415248889866,1.12538115791005,0.734040821873303,-1.12860131324646,-1.44548725906426,0.44137094063749,-0.676991346556557,-1.49197139153269,-0.601485382700846,-0.136465971389343,-1.68926049725111,-0.26019998996974,0.693049437558565,0.359836743982521,0.485778706287166,-0.304878332866522,0.350446460084884,-0.585400128420411,0.7988451569658,0.322403273930956,0.111326944464179,0.280653882888671,0.476159191151219,0.726966711764101,-0.228711996062163,-0.581301484225278,1.89582161807528,1.24999598710866,-1.54933055103291,-1.96614095464728,0.540114362058234,0.217031520784628,1.08074793910186,-1.64059822677049,-0.172140675095107,0.169123571182019,2.8013037212237,-0.90103271570612,0.668659021833751,-0.215807606379138,0.288994779711813,0.746385320025741,-1.64439682209569,-1.14528164321731,0.692388477606424,0.872628519856014,-0.925850790550604],"text":["Country: Australia","Country: Austria","Country: Belgium","Country: Brazil","Country: Bulgaria","Country: Canada","Country: Chile","Country: Colombia","Country: Croatia","Country: Czech Republic","Country: Dominican Republic","Country: Estonia","Country: Finland","Country: France","Country: Germany","Country: Greece","Country: Hong Kong (China)","Country: Hungary","Country: Iceland","Country: Ireland","Country: Israel","Country: Italy","Country: Japan","Country: Korea","Country: Latvia","Country: Lithuania","Country: Luxembourg","Country: Macao (China)","Country: Mexico","Country: Montenegro","Country: Netherlands","Country: New Zealand","Country: Norway","Country: Peru","Country: Poland","Country: Portugal","Country: Qatar","Country: Russia","Country: Singapore","Country: Slovak Republic","Country: Slovenia","Country: Sweden","Country: Thailand","Country: Turkey","Country: United Kingdom","Country: United States","Country: Uruguay"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":["rgba(77,158,222,1)","rgba(65,134,190,1)","rgba(67,139,197,1)","rgba(21,46,71,1)","rgba(55,114,162,1)","rgba(79,163,228,1)","rgba(51,106,152,1)","rgba(23,51,78,1)","rgba(54,112,160,1)","rgba(60,124,176,1)","rgba(23,51,78,1)","rgba(67,140,197,1)","rgba(76,156,219,1)","rgba(59,123,174,1)","rgba(60,124,176,1)","rgba(60,124,176,1)","rgba(43,90,130,1)","rgba(61,126,179,1)","rgba(86,177,247,1)","rgba(69,142,200,1)","rgba(78,160,225,1)","rgba(55,114,162,1)","rgba(59,123,174,1)","rgba(67,138,195,1)","rgba(63,131,185,1)","rgba(65,134,190,1)","rgba(64,133,187,1)","rgba(43,90,131,1)","rgba(23,50,76,1)","rgba(56,117,167,1)","rgba(74,153,215,1)","rgba(71,146,206,1)","rgba(86,176,246,1)","rgba(22,48,74,1)","rgba(58,120,171,1)","rgba(49,102,147,1)","rgba(75,155,217,1)","rgba(70,145,204,1)","rgba(69,144,202,1)","rgba(56,117,167,1)","rgba(63,130,185,1)","rgba(78,162,226,1)","rgba(23,51,78,1)","rgba(19,43,67,1)","rgba(73,152,213,1)","rgba(66,137,193,1)","rgba(26,56,85,1)"],"opacity":1,"size":[21.4090843995885,19.6542571841452,20.0441309270185,6.8383606536408,17.8771158075723,21.7615948411669,17.1759278364424,8.65805040767082,17.7273126280369,18.8220521460371,8.78289759881132,20.0617682220442,21.2796781267827,18.6585977960027,18.8205473851631,18.8017916100953,15.3967121613041,18.972302672425,22.6771653543307,20.2254482736528,21.5717789513697,17.892363023919,18.6756181813709,19.9705621584581,19.3324045592014,19.6294010289781,19.5021544388267,15.4563295879961,8.36662893319846,18.1963144938591,21.047776580739,20.5540948576287,22.6206301626808,7.66999695100282,18.4377723623404,16.7414131273381,21.1893389680145,20.4775885738132,20.3666518293054,18.1699601177885,19.3268007015797,21.6615889185014,8.72485953289775,3.77952755905512,20.9524023047448,19.819851345343,10.1091451665545],"symbol":"circle","line":{"width":1.88976377952756,"color":["rgba(77,158,222,1)","rgba(65,134,190,1)","rgba(67,139,197,1)","rgba(21,46,71,1)","rgba(55,114,162,1)","rgba(79,163,228,1)","rgba(51,106,152,1)","rgba(23,51,78,1)","rgba(54,112,160,1)","rgba(60,124,176,1)","rgba(23,51,78,1)","rgba(67,140,197,1)","rgba(76,156,219,1)","rgba(59,123,174,1)","rgba(60,124,176,1)","rgba(60,124,176,1)","rgba(43,90,130,1)","rgba(61,126,179,1)","rgba(86,177,247,1)","rgba(69,142,200,1)","rgba(78,160,225,1)","rgba(55,114,162,1)","rgba(59,123,174,1)","rgba(67,138,195,1)","rgba(63,131,185,1)","rgba(65,134,190,1)","rgba(64,133,187,1)","rgba(43,90,131,1)","rgba(23,50,76,1)","rgba(56,117,167,1)","rgba(74,153,215,1)","rgba(71,146,206,1)","rgba(86,176,246,1)","rgba(22,48,74,1)","rgba(58,120,171,1)","rgba(49,102,147,1)","rgba(75,155,217,1)","rgba(70,145,204,1)","rgba(69,144,202,1)","rgba(56,117,167,1)","rgba(63,130,185,1)","rgba(78,162,226,1)","rgba(23,51,78,1)","rgba(19,43,67,1)","rgba(73,152,213,1)","rgba(66,137,193,1)","rgba(26,56,85,1)"]}},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":27.8721461187215,"r":7.30593607305936,"b":41.8264840182648,"l":37.2602739726027},"plot_bgcolor":"rgba(235,235,235,1)","paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-2.45720929225119,2.65759457353058],"tickmode":"array","ticktext":["-2","-1","0","1","2"],"tickvals":[-2,-1,0,1,2],"categoryorder":"array","categoryarray":["-2","-1","0","1","2"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.65296803652968,"tickwidth":0.66417600664176,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(255,255,255,1)","gridwidth":0.66417600664176,"zeroline":false,"anchor":"y","title":{"text":"Average of time spent in the classroom","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-2.20451318844083,3.03967595501725],"tickmode":"array","ticktext":["-2","-1","0","1","2","3"],"tickvals":[-2,-1,0,1,2,3],"categoryorder":"array","categoryarray":["-2","-1","0","1","2","3"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.65296803652968,"tickwidth":0.66417600664176,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(255,255,255,1)","gridwidth":0.66417600664176,"zeroline":false,"anchor":"x","title":{"text":"Amount of spending on education","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":false,"legend":{"bgcolor":"rgba(255,255,255,1)","bordercolor":"transparent","borderwidth":1.88976377952756,"font":{"color":"rgba(0,0,0,1)","family":"","size":11.689497716895}},"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","showSendToCloud":false},"source":"A","attrs":{"458049db1310":{"colour":{},"size":{},"x":{},"y":{},"type":"scatter"}},"cur_data":"458049db1310","visdat":{"458049db1310":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
-0
+<script type="application/json" data-for="htmlwidget-d20aee242805acbef4b8">{"x":{"data":[{"x":[-0.655106549293344,-0.118965734049108,-0.538004195259751,0.338484685195715,-0.399155620449664,-0.0108558782018524,1.16916333232703,0.246691556219796,0.157360803389584,-0.975704632719374,1.17320093083142,-0.594248415973332,-2.22471820744293,-0.647611017712143,-2.11881241154244,0.743480292705913,0.279783676302234,-0.339296964845089,-0.959078980513876,-0.259259309320933,0.0544696350740301,1.09040437348959,-1.00484679763966,1.26262759021437,-0.473207735853001,-0.510571012509269,-0.750295882013505,-0.181175757684254,0.642620306342148,1.18914403215741,-1.04891000652378,-0.809145696546239,-0.564828437554514,1.16620211270667,0.264909117138071,0.0254111006289571,2.21219619278696,0.771688814193061,1.33037566356218,-0.57094639259442,-0.201805470906403,-1.36554948628377,2.42510348872232,1.24921417506276,-0.450495313140093,0.684553615776234,-1.40287555668377],"y":[0.636415248889866,1.12538115791005,0.734040821873303,-1.12860131324646,-1.44548725906426,0.44137094063749,-0.676991346556557,-1.49197139153269,-0.601485382700846,-0.136465971389343,-1.68926049725111,-0.26019998996974,0.693049437558565,0.359836743982521,0.485778706287166,-0.304878332866522,0.350446460084884,-0.585400128420411,0.7988451569658,0.322403273930956,0.111326944464179,0.280653882888671,0.476159191151219,0.726966711764101,-0.228711996062163,-0.581301484225278,1.89582161807528,1.24999598710866,-1.54933055103291,-1.96614095464728,0.540114362058234,0.217031520784628,1.08074793910186,-1.64059822677049,-0.172140675095107,0.169123571182019,2.8013037212237,-0.90103271570612,0.668659021833751,-0.215807606379138,0.288994779711813,0.746385320025741,-1.64439682209569,-1.14528164321731,0.692388477606424,0.872628519856014,-0.925850790550604],"text":["Country: Australia","Country: Austria","Country: Belgium","Country: Brazil","Country: Bulgaria","Country: Canada","Country: Chile","Country: Colombia","Country: Croatia","Country: Czech Republic","Country: Dominican Republic","Country: Estonia","Country: Finland","Country: France","Country: Germany","Country: Greece","Country: Hong Kong (China)","Country: Hungary","Country: Iceland","Country: Ireland","Country: Israel","Country: Italy","Country: Japan","Country: Korea","Country: Latvia","Country: Lithuania","Country: Luxembourg","Country: Macao (China)","Country: Mexico","Country: Montenegro","Country: Netherlands","Country: New Zealand","Country: Norway","Country: Peru","Country: Poland","Country: Portugal","Country: Qatar","Country: Russia","Country: Singapore","Country: Slovak Republic","Country: Slovenia","Country: Sweden","Country: Thailand","Country: Turkey","Country: United Kingdom","Country: United States","Country: Uruguay"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":["rgba(77,158,222,1)","rgba(65,134,190,1)","rgba(67,139,197,1)","rgba(21,46,71,1)","rgba(55,114,162,1)","rgba(79,163,228,1)","rgba(51,106,152,1)","rgba(23,51,78,1)","rgba(54,112,160,1)","rgba(60,124,176,1)","rgba(23,51,78,1)","rgba(67,140,197,1)","rgba(76,156,219,1)","rgba(59,123,174,1)","rgba(60,124,176,1)","rgba(60,124,176,1)","rgba(43,90,130,1)","rgba(61,126,179,1)","rgba(86,177,247,1)","rgba(69,142,200,1)","rgba(78,160,225,1)","rgba(55,114,162,1)","rgba(59,123,174,1)","rgba(67,138,195,1)","rgba(63,131,185,1)","rgba(65,134,190,1)","rgba(64,133,187,1)","rgba(43,90,131,1)","rgba(23,50,76,1)","rgba(56,117,167,1)","rgba(74,153,215,1)","rgba(71,146,206,1)","rgba(86,176,246,1)","rgba(22,48,74,1)","rgba(58,120,171,1)","rgba(49,102,147,1)","rgba(75,155,217,1)","rgba(70,145,204,1)","rgba(69,144,202,1)","rgba(56,117,167,1)","rgba(63,130,185,1)","rgba(78,162,226,1)","rgba(23,51,78,1)","rgba(19,43,67,1)","rgba(73,152,213,1)","rgba(66,137,193,1)","rgba(26,56,85,1)"],"opacity":1,"size":[21.4090843995885,19.6542571841452,20.0441309270185,6.8383606536408,17.8771158075723,21.7615948411669,17.1759278364424,8.65805040767082,17.7273126280369,18.8220521460371,8.78289759881132,20.0617682220442,21.2796781267827,18.6585977960027,18.8205473851631,18.8017916100953,15.3967121613041,18.972302672425,22.6771653543307,20.2254482736528,21.5717789513697,17.892363023919,18.6756181813709,19.9705621584581,19.3324045592014,19.6294010289781,19.5021544388267,15.4563295879961,8.36662893319846,18.1963144938591,21.047776580739,20.5540948576287,22.6206301626808,7.66999695100282,18.4377723623404,16.7414131273381,21.1893389680145,20.4775885738132,20.3666518293054,18.1699601177885,19.3268007015797,21.6615889185014,8.72485953289775,3.77952755905512,20.9524023047448,19.819851345343,10.1091451665545],"symbol":"circle","line":{"width":1.88976377952756,"color":["rgba(77,158,222,1)","rgba(65,134,190,1)","rgba(67,139,197,1)","rgba(21,46,71,1)","rgba(55,114,162,1)","rgba(79,163,228,1)","rgba(51,106,152,1)","rgba(23,51,78,1)","rgba(54,112,160,1)","rgba(60,124,176,1)","rgba(23,51,78,1)","rgba(67,140,197,1)","rgba(76,156,219,1)","rgba(59,123,174,1)","rgba(60,124,176,1)","rgba(60,124,176,1)","rgba(43,90,130,1)","rgba(61,126,179,1)","rgba(86,177,247,1)","rgba(69,142,200,1)","rgba(78,160,225,1)","rgba(55,114,162,1)","rgba(59,123,174,1)","rgba(67,138,195,1)","rgba(63,131,185,1)","rgba(65,134,190,1)","rgba(64,133,187,1)","rgba(43,90,131,1)","rgba(23,50,76,1)","rgba(56,117,167,1)","rgba(74,153,215,1)","rgba(71,146,206,1)","rgba(86,176,246,1)","rgba(22,48,74,1)","rgba(58,120,171,1)","rgba(49,102,147,1)","rgba(75,155,217,1)","rgba(70,145,204,1)","rgba(69,144,202,1)","rgba(56,117,167,1)","rgba(63,130,185,1)","rgba(78,162,226,1)","rgba(23,51,78,1)","rgba(19,43,67,1)","rgba(73,152,213,1)","rgba(66,137,193,1)","rgba(26,56,85,1)"]}},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":27.8721461187215,"r":7.30593607305936,"b":41.8264840182648,"l":37.2602739726027},"plot_bgcolor":"rgba(235,235,235,1)","paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-2.45720929225119,2.65759457353058],"tickmode":"array","ticktext":["-2","-1","0","1","2"],"tickvals":[-2,-1,0,1,2],"categoryorder":"array","categoryarray":["-2","-1","0","1","2"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.65296803652968,"tickwidth":0.66417600664176,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(255,255,255,1)","gridwidth":0.66417600664176,"zeroline":false,"anchor":"y","title":{"text":"Average of time spent in the classroom","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-2.20451318844083,3.03967595501725],"tickmode":"array","ticktext":["-2","-1","0","1","2","3"],"tickvals":[-2,-1,0,1,2,3],"categoryorder":"array","categoryarray":["-2","-1","0","1","2","3"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.65296803652968,"tickwidth":0.66417600664176,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(255,255,255,1)","gridwidth":0.66417600664176,"zeroline":false,"anchor":"x","title":{"text":"Amount of spending on education","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":false,"legend":{"bgcolor":"rgba(255,255,255,1)","bordercolor":"transparent","borderwidth":1.88976377952756,"font":{"color":"rgba(0,0,0,1)","family":"","size":11.689497716895}},"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","showSendToCloud":false},"source":"A","attrs":{"1bc07ea84fa6":{"colour":{},"size":{},"x":{},"y":{},"type":"scatter"}},"cur_data":"1bc07ea84fa6","visdat":{"1bc07ea84fa6":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
 <p>
  
 </p>
 <p>A good point to start when beginning an analysis is to visualize the data. In this case we can begin by visualizing the distribution of the scores (the dependent variable in our data). In order to do this we can create a histogram.</p>
 <p><img src="GLM_Tutorial_files/figure-html/histogram%20of%20scores-1.png" width="624" /></p>
 <p>From the histogram it appears that the data is slightly negatively skewed. This would suggest that the use of a standard linear model may not be the best approach. Despite this we can still fit one and see how it deals with the data.</p>
+<p>
+ 
+</p>
 </div>
 </div>
-<div id="section-an-introduction-to-regression" class="section level2">
-<h2>An introduction to regression</h2>
+<div id="section-the-basics" class="section level2">
+<h2>The Basics</h2>
+<div id="section-an-introduction-to-regression" class="section level3">
+<h3><strong>An introduction to regression</strong></h3>
 <p>Regression analysis is a way of predicting an outcome variable <em>Y</em> from one predictor variable <em>X<sub>1</sub></em> (simple regression) or several predictor variables <em>X<sub>1</sub></em>, <em>X<sub>2</sub></em>… (multiple regression) using the folowing general equation:</p>
 <pre><code>outcome = (model) + error</code></pre>
 <p>This means that we predict the outcome by whatever model we fit to the data plus some kind of error. In regression, the model we fit is linear, which means that we summarize a data set with a straight line. In the ecuation, we will replace the word model by things that define the line that we fit to the data. The mathematical equation to estimate the value of the response <em>Y</em> when only the <em>X</em> is known can be generalized as follows:</p>
@@ -213,10 +217,15 @@ ggplotly(
 <ul>
 <li><em>Y</em> is the outcome that we want to predict</li>
 <li><em>X</em><sub>i</sub> is the participants score on the predictor variable.</li>
-<li>Parameter <em>b</em><sub>0</sub> is the intercept and <em>b</em><sub>1</sub> is the slope. Both are known as the <strong>regression coefficients</strong> and we will refer at them in the next sections.</li>
+<li>Parameter <em>b</em><sub>0</sub> is the intercept and <em>b</em><sub>1</sub> is the slope. Both are known as the <strong>regression coefficients</strong> and we will refer at them in the next sections. The common approach to find the line which is as close as possible to our data points, is the least squares criterion.</li>
 <li>E is a residual term, which represents the difference between the score predicted by the line for participant <em>i</em> and the score that participant <em>i</em> actually obtained. From this term is important to understand that it represents the fact that our model will not fit the data collected perfectly.</li>
 </ul>
-<p>###<strong>Previous Graphical Analysis</strong></p>
+<p>Multiple regression it is basically the same as for simple regression except that for every extra predictor you include, you have to add a coefficient. Each predictor variable has its own coefficient, and the outcome variable is predicted from a combination of all the variables multiplied by their respective coefficients plus a residual term.</p>
+<p><em>Y</em> = (<em>b</em><sub>0</sub> + <em>b</em><sub>1</sub> <em>X</em><sub>1</sub><sub>i</sub> + <em>b</em><sub>2</sub> <em>X</em><sub>2</sub><sub>i</sub> +<em>b</em><sub>n</sub> <em>X</em><sub>n</sub><sub>i</sub>) + E</p>
+<p>With this equation, we seek to find the linear combination of predictors that correlate maximally with the outcome variable. Therefore, when we refer to the regression model in multiple regression, we are talking about a model in the form of this last equation.</p>
+</div>
+<div id="section-previous-graphical-analysis" class="section level3">
+<h3><strong>Previous Graphical Analysis</strong></h3>
 <p>The graphical representation of our variables can help visualize any linear relationships between the dependent and the independent variables. As we have multiple predictor variables, a scatter plot is drawn for each one of them against the outcome variable.</p>
 <p>We can visualize the linear relationship between the predictor variables (<code>Spending</code>,<code>Learning</code>, <code>SES</code>) and the response variable (<code>ReadingScore</code>) through a scatter plot using <code>ggplot</code> function:</p>
 <pre class="r"><code>ggplot(learnSpendSES_data, aes(x=Spending, y=ReadingScore)) +
@@ -248,13 +257,12 @@ ggplot(learnSpendSES_data, aes(x=SES, y=ReadingScore)) +
     geom_point()+    
     geom_smooth(method=lm)</code></pre>
 </div>
-<p>We can se that the variable SES does not appear to have a linear distribution since we can see a point cloud where it look as if there are two subsets.</p>
+<p>We can see that the variable SES does not appear to have a linear distribution since we can see a point cloud where it look as if there are two subsets.</p>
 </div>
-<div id="section-simple-models" class="section level2">
-<h2>Simple models</h2>
-<div id="section-simple-linear-regression-model" class="section level3">
-<h3>Simple linear regression model</h3>
-<p>For our linear model we will use the <code>lm()</code> function. Form our data set <code>learnSpendSES</code>, our <code>ReadingScore</code> column will be our dependent variable, whilst the <code>Spending</code> will be used as our independent variables (predictors).</p>
+</div>
+<div id="section-simple-linear-regression-model" class="section level2">
+<h2>Simple linear regression model</h2>
+<p>Now that we have visualized the linear relationship in the scatter plot, lets see the syntax for building the linear model. For our linear model we will use the <code>lm()</code> function. Form our data set <code>learnSpendSES</code>, our <code>ReadingScore</code> column will be our dependent variable, whilst the <code>Spending</code> will be used as our independent variables (predictors).</p>
 <pre class="r"><code># Use the lm function to create a linear model
 LM_model_one &lt;- lm(ReadingScore ~ Spending, data = learnSpendSES_data)
 summary(LM_model_one)</code></pre>
@@ -276,12 +284,23 @@ summary(LM_model_one)</code></pre>
 ## Residual standard error: 40.46 on 45 degrees of freedom
 ## Multiple R-squared:  0.2678, Adjusted R-squared:  0.2516 
 ## F-statistic: 16.46 on 1 and 45 DF,  p-value: 0.0001951</code></pre>
-<p>
- 
-</p>
+<div id="section-what-a-simple-regression-summary-tell-us" class="section level3">
+<h3><strong>What a simple regression summary tell us?</strong></h3>
+<p>Beginning from the bottom we find:</p>
+<pre><code>F-statistic: 16.46 on 1 and 45 DF,  p-value: 0.0001951</code></pre>
+<p>This part of the output tells us the F-ratio and the associated significance value of that F-ratio. For these data is significant at <em>p</em> &lt; .001, therefore, we can conclude that our regression model is significantly predicting ReadingScores.</p>
+<pre><code>Multiple R-squared:  0.2678,    Adjusted R-squared:  0.2516 </code></pre>
+<p>R-square value describes the overall model (so it tells us whether the model is successful in predicting <code>ReadingScore</code>). The value of R-square is a measure of how much of the variability in the outcome is accounted for by the predictors. For our first model this value is .267 which means that <code>Spending</code> accounts for 26.7% of the variation in <code>ReadingScore</code>. The adjusted r-square gives us some idea of how well our model generalizes, and ideally, we would like its value to be the same, or very close to, the value of r-square.</p>
+<pre><code>Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  473.047      5.902  80.144  &lt; 2e-16 ***
+Spending      24.018      5.920   4.057 0.000195 ***
+---
+Signif. codes:  0 *** 0.001 ** 0.01 * 0.05 . 0.1  1</code></pre>
+<p>Coefficients contains the model parameters (the beta values) and the significance of these values. In regression equation, B<sub>0</sub> is the Y intercept and this value is the value in the Estimate column for (intercept), in brackets because it is not a real variable. We can say that B<sub>0</sub> is 473.05, and this can be interpreted as meaning that wen no <code>Spending</code> is done (when X= 0), the model predicts that 473.05 <code>Score</code> would be achieve. We can also read off the value of b1 from the row labelled <code>Spending</code> and this value represent the gradient of the regression line. It is 24.01. Although this value is the slope of the regression line, it is more useful to think of this value as representing the change in the outcome associated with a unit change in the predictor. Therefore, if our predictor variable <code>Spending</code> is increased by one unit, our model predicts that <code>Score</code> will increase 24.01. We also see that the t-test tells us whether the b-value is different from 0. For this variable, we can conclude that the <code>Spending</code> makes a significant contribution (p&lt;.001) to predicting <code>ReadingScore</code>.</p>
 <div id="section-exercise" class="section level4">
 <h4>Exercise</h4>
-<p>Now it is your turn to use<code>lm()</code>function for modeling the relationship between <code>Learning</code> and <code>ReadingScore</code> from <code>learnSpendSES_data</code>.</p>
+<p>Now it is your turn to use<code>lm()</code>function for modelling the relationship between <code>Learning</code> and <code>ReadingScore</code> from <code>learnSpendSES_data</code>.</p>
 <div class="tutorial-exercise" data-label="simple-linear-regression" data-completion="1" data-diagnostics="1" data-startover="1" data-lines="0">
 <pre class="text"><code>#Create the linear model from dataset learnSpendSES_data
 LM_model_two &lt;- lm(~ ,data = ) 
@@ -305,9 +324,6 @@ LM_model_two &lt;- lm(ReadingScore ~ Learning, data = learnSpendSES_data)
 summary(LM_model_two)</code></pre>
 </div>
 <p>As we can see, the coefficient for <code>Learning</code>is negative, indicating that it has a negative association with our outcome variable <code>ReadingScore</code>.</p>
-<p>
- 
-</p>
 <p><div class="panel-heading tutorial-quiz-title"><span data-i18n="text.quiz">Quiz</span></div></p>
 <div class="panel panel-default">
 <div data-label="quiz_simple_linear_model-1" class="tutorial-question panel-body">
@@ -319,8 +335,9 @@ summary(LM_model_two)</code></pre>
 </div>
 </div>
 </div>
-<div id="section-multiple-linear-regression-model" class="section level3">
-<h3>Multiple linear regression model</h3>
+</div>
+<div id="section-multiple-linear-regression-model" class="section level2">
+<h2>Multiple linear regression model</h2>
 <p>When the two predictors, <code>Spending</code> and <code>Learning</code> are included in our regression model, the value of R-square (how much of the variability in the outcome is accounted for by the predictors) will increase? We will use<code>lm()</code> with <code>learnSpendSES_data</code> function for check it.</p>
 <pre class="r"><code># Use the lm function to create a linear model
 LM_model_three &lt;- lm(ReadingScore ~ Spending + Learning, data = learnSpendSES_data)
@@ -406,88 +423,88 @@ summary()</code></pre>
 ## Residual standard error: 31.58 on 39 degrees of freedom
 ## Multiple R-squared:  0.6135, Adjusted R-squared:  0.5442 
 ## F-statistic: 8.845 on 7 and 39 DF,  p-value: 1.77e-06</code></pre>
-<p>For the models with Spending and Learning as predictor variables, the value of adjusted R-square was 0.25. However, when we included SES, this value increases to 0.51. That means that the last model, where Spending and the interaction of Spending and SES were significant, accounts for 51% of the variation in Reading Scores.</p>
-<p>
- 
-</p>
-<p>LM_model_five &lt;- lm(ReadingScore ~ Spending + SES + Spending * SES, data = learnSpendSES_data) summary(LM_model_five)</p>
-<p>For the models with Spending and Learning as predictor variables, the value of adjusted R-square was 0.25. When we included SES, this value increases to 0.51. That means that the last model, where Spending and the interaction of Spending and SES were significant, accounts for 51% of the variation in Reading Scores. We could be happy with this result. However, if we look at the coefficients, we can see that spending has a positive association with ReadingLearning, and that the interaction between spending and SES has a negative relationship. This negative interaction is not easy to interpret and if we visualize the data for SES maybe we can understand better what is happening.</p>
-<p>The variable <code>SES</code> did not appear to have a linear distribution based on the scatter plot visualization in the previous section. In the next section, we will learn other statistics analysis to deal with data with different types of distributions.</p>
+<p>For the models with Spending and Learning as predictor variables, the value of adjusted R-square was 0.25. When we included SES, this value increases to 0.51. That means that the last model, where Spending and the interaction of Spending and SES were significant, accounts for 51% of the variation in Reading Scores. If we look at the coefficients, we can see that <code>Spending</code> has a positive association with <code>ReadingLearning</code>, and that the interaction between <code>spending</code> and <code>SES</code> has a negative relationship. This negative interaction is not easy to interpret.</p>
+<p>The variable <code>SES</code> did not appear to have a linear association with <code>ReadingScore</code>, based on the scatter plot visualization in the previous section. And our outcome variable <code>ReadingScore</code> was lightly negatively skeewed. In the next section, we will learn other statistics analysis to deal with data with different types of distributions.</p>
 </div>
-<div id="section-generalized-linear-models" class="section level3">
-<h3><strong>Generalized Linear Models</strong></h3>
+<div id="section-generalized-linear-models" class="section level2">
+<h2>Generalized Linear Models</h2>
 <p>An alternative approach to analyzing the PISA data could be to use a generalized linear model. A generalized linear model is similar to a general linear model, except some of the constraints are relaxed. This typically makes it better when dealing with data that is not normally distributed, such as is the case with the PISA data.</p>
-<p>There are different family arguments that can be made when using a generalized linear model. These different families allow us to deal with data with different types of distributions. Family distributions include Gaussian (which is the bases of the linear model and ideal for normally distributed data), Binomial (which is useful when dealing with a binomial distribution), and Gamma (which is useful when there is skewed data). These are just a few of the families that can be applied when using a generalized linear model.</p>
-<p>Since we are dealing with data that is negatively skewed we will use the Gamma family in our example. The code for using the glm is very similar to the code needed when creating a linear model. The only difference is now at the end of the code we specify the family and link arguments. Link arguments allow us to apply transformations to the model parameters and also determines the way the model coefficients are interpreted. Changing the link function can, in some cases, result in a better fitting model. There are many different link arguments for each family but for now we will just use the standard identity link.</p>
-<pre class="r"><code># Use the glm finction to create a genearlised linear model
-GLM_mod &lt;- glm(Score ~ Spending * Learning * ESCS * ATTLNACT + Item,
-               data = read_data, 
+<p>There are different family arguments that can be made when using a generalized linear model. These different families allow us to deal with data with different types of distributions. Family distributions include Gaussian (which is the bases of the linear model and ideal for normally distributed data), Binomial (which is useful when dealing with a binomial distribution), and Gamma (which is useful when there is skewed data). These are just a few of the families that can be applied when using a generalized linear model. Since we are dealing with data that is negatively skewed we will use the Gamma family in our example. If you are not very familiar with this distribution, it looks like this:</p>
+<pre class="r"><code># R program to plot gamma distribution
+  
+# Specify x-values for gamma function
+x_pgamma &lt;- seq(0, 2, by = 0.04)   
+  
+# Apply pgamma function
+y_pgamma &lt;- pgamma(x_pgamma, shape = 6) 
+  
+# Plot pgamma values
+plot(y_pgamma)</code></pre>
+<p><img src="GLM_Tutorial_files/figure-html/gamma%20distribution-1.png" width="624" /></p>
+<p>The code for using the glm is very similar to the code needed when creating a linear model. The only difference is now at the end of the code we specify the family and link arguments. Link arguments allow us to apply transformations to the model parameters and also determines the way the model coefficients are interpreted. Changing the link function can, in some cases, result in a better fitting model. There are many different link arguments for each family but for now we will just use the standard identity link.</p>
+<pre class="r"><code># Use the glm function to create a generalised linear model
+GLM_model &lt;- glm(ReadingScore ~ Spending * Learning * SES,
+               data = learnSpendSES_data, 
 # specify the family as gamma with an identity link
                family= Gamma(link = &quot;identity&quot;))
 # Get the output from the generalised linear model
-summary(GLM_mod)</code></pre>
+summary(GLM_model)</code></pre>
 <pre><code>## 
 ## Call:
-## glm(formula = Score ~ Spending * Learning * ESCS * ATTLNACT + 
-##     Item, family = Gamma(link = &quot;identity&quot;), data = read_data)
+## glm(formula = ReadingScore ~ Spending * Learning * SES, family = Gamma(link = &quot;identity&quot;), 
+##     data = learnSpendSES_data)
 ## 
 ## Deviance Residuals: 
-##      Min        1Q    Median        3Q       Max  
-## -0.90019  -0.13104   0.00439   0.12767   0.55900  
+##       Min         1Q     Median         3Q        Max  
+## -0.114340  -0.048310  -0.004377   0.033034   0.179301  
 ## 
 ## Coefficients:
-##                                 Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept)                     486.5152     4.7998 101.361  &lt; 2e-16 ***
-## Spending                         26.3577     2.0405  12.917  &lt; 2e-16 ***
-## Learning                          0.4280     2.3863   0.179   0.8577    
-## ESCS                             27.5863     2.0885  13.209  &lt; 2e-16 ***
-## ATTLNACT                          3.0047     2.0298   1.480   0.1389    
-## ItemPV1READ                       0.4998     6.4532   0.077   0.9383    
-## ItemPV2READ                      -1.4741     6.4392  -0.229   0.8189    
-## ItemPV3READ                      -0.5713     6.4456  -0.089   0.9294    
-## ItemPV4READ                      -0.3387     6.4472  -0.053   0.9581    
-## ItemPV5READ                      -0.9090     6.4432  -0.141   0.8878    
-## ItemPV6READ                      -1.8476     6.4366  -0.287   0.7741    
-## ItemPV7READ                      -1.1848     6.4413  -0.184   0.8541    
-## ItemPV8READ                       0.2317     6.4513   0.036   0.9713    
-## ItemPV9READ                       1.4259     6.4597   0.221   0.8253    
-## Spending:Learning                17.4008     2.9834   5.833 5.89e-09 ***
-## Spending:ESCS                    -1.4277     1.9509  -0.732   0.4643    
-## Learning:ESCS                   -10.0167     2.4943  -4.016 6.03e-05 ***
-## Spending:ATTLNACT                 5.3574     2.0896   2.564   0.0104 *  
-## Learning:ATTLNACT                -1.0406     2.3463  -0.443   0.6574    
-## ESCS:ATTLNACT                    -4.6280     2.1525  -2.150   0.0316 *  
-## Spending:Learning:ESCS           -6.8004     2.7844  -2.442   0.0146 *  
-## Spending:Learning:ATTLNACT       -6.6104     2.7304  -2.421   0.0155 *  
-## Spending:ESCS:ATTLNACT            2.2585     1.8969   1.191   0.2339    
-## Learning:ESCS:ATTLNACT          -14.4538     2.4378  -5.929 3.31e-09 ***
-## Spending:Learning:ESCS:ATTLNACT -17.6719     2.6886  -6.573 5.57e-11 ***
+##                       Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)            495.119      7.535  65.711  &lt; 2e-16 ***
+## Spending                31.308      7.836   3.995 0.000278 ***
+## Learning                19.391      9.574   2.025 0.049722 *  
+## SES                    -13.203      9.033  -1.462 0.151864    
+## Spending:Learning       15.555      9.038   1.721 0.093179 .  
+## Spending:SES           -32.808      7.502  -4.373 8.83e-05 ***
+## Learning:SES           -29.494     11.947  -2.469 0.018047 *  
+## Spending:Learning:SES  -14.871      6.896  -2.157 0.037263 *  
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
 ## 
-## (Dispersion parameter for Gamma family taken to be 0.03807456)
+## (Dispersion parameter for Gamma family taken to be 0.004397072)
 ## 
-##     Null deviance: 214.32  on 3999  degrees of freedom
-## Residual deviance: 162.78  on 3975  degrees of freedom
-## AIC: 47746
+##     Null deviance: 0.46831  on 46  degrees of freedom
+## Residual deviance: 0.16814  on 39  degrees of freedom
+## AIC: 465.09
 ## 
-## Number of Fisher Scoring iterations: 7</code></pre>
+## Number of Fisher Scoring iterations: 5</code></pre>
 <p>
  
 </p>
-<p>Here we can see that the output presented when we use the glm function is very similar to the output when we use the lm function. One of the main differences is to do with the goodness of fit statistic presented in the two outputs. when we use the lm function the goodness of fit statistic is given as the adjusted R-squared. with the glm function, the goodness of fit statistic given is the Akaike Information Criteria (AIC) score.</p>
-<p>From the output we can see that there are differences in the significance values in the glm output compared to the lm output. In the glm output we now find that the there are significant main effects of spending, economic social and cultural status, and attitudes towards education. There is now significant two way interactions between learning and economic social and cultural status; spending and attitudes towards education and; economic social and cultural status and attitudes towards education. Significant three way interactions were also found between spending, learning and Economic social and cultural status, as well as between spending, economic social and cultural status, and attitudes towards education.</p>
+<p>Here we can see that the output presented when we use the glm function is very similar to the output when we use the lm function. One of the main differences is to do with the goodness of fit statistic presented in the two outputs. when we use the lm function the goodness of fit statistic is given as the adjusted R-squared. with the glm function, the goodness of fit statistic given is the <em>Akaike Information Criteria</em> (AIC) score.</p>
+<p>From the output we can see that there are differences in the significance values in the glm output compared to the lm output. In the glm output we now find that two are significant main effects of <code>Spending</code> and <code>Learning</code>. There is now significant two way interactions between <code>Spending</code> and <code>Learning</code> and between <code>Spending</code>and <code>SES</code>. Significant three way interactions were also found among <code>Spending</code>, <code>Learning</code> and <code>SES</code>.</p>
 <p>
  
 </p>
-</div>
 <div id="section-model-comparison" class="section level3">
 <h3><strong>Model comparison</strong></h3>
-<p>Now that we have fitted a generalized linear model to the data we can check to see if it really fits the data better than our original linear model. There are multiple ways to do this. One of the simplest ways to compare the models is to look at the Akaike Information Criterion (AIC). This is a goodness of fit statistic which takes into account how well a model explains the data and adds a penalty for model complexity. AIC scores can be used to compare the goodness of fit of different models. The general rule when comparing models using AIC is that the model with the lowest AIC value fits the data better. The AIC is quite arbitrary however, as there are no set guidelines for using it. We can obtain the AIC value by using the <code>AIC()</code> function.</p>
+<p>Now that we have fitted a generalized linear model to the data we can check to see if it really fits the data better than our original linear model. One of the simplest ways, is to compare the models is to look at the Akaike Information Criterion (AIC). This is a goodness of fit statistic which takes into account how well a model explains the data and adds a penalty for model complexity. AIC scores can be used to compare the goodness of fit of different models. The general rule when comparing models using AIC is that the model with the lowest AIC value fits the data better. The AIC is quite arbitrary however, as there are no set guidelines for using it. We can obtain the AIC value by using the <code>AIC()</code> function.</p>
 <pre class="r"><code># run the AIC for the linear model
-lm_AIC &lt;- AIC(LM_mod)
+lm_AIC &lt;- AIC(LM_model_one)
 lm_AIC</code></pre>
-<pre><code>## [1] 47522.13</code></pre>
+<pre><code>## [1] 485.1722</code></pre>
+<pre class="r"><code># run the AIC for the linear model
+lm_AIC &lt;- AIC(LM_model_three)
+lm_AIC</code></pre>
+<pre><code>## [1] 485.0428</code></pre>
+<pre class="r"><code># run the AIC for the linear model
+lm_AIC &lt;- AIC(LM_mod_four)
+lm_AIC</code></pre>
+<pre><code>## [1] 486.7955</code></pre>
+<pre class="r"><code># run the AIC for the linear model
+lm_AIC &lt;- AIC(LM_model_five)
+lm_AIC</code></pre>
+<pre><code>## [1] 467.14</code></pre>
 <pre class="r"><code># Run the AIC for the generalised linear model
 glm_AIC &lt;- AIC(GLM_mod)
 glm_AIC</code></pre>
@@ -814,8 +831,8 @@ AIC(GLMM_dat)</code></pre>
 ##         .user_code = user_code)
 ##     legacy_graded(correct = FALSE, message = message)
 ## }
-## &lt;bytecode: 0x0000000026de9a50&gt;
-## &lt;environment: 0x0000000026de8340&gt;</code></pre>
+## &lt;bytecode: 0x0000000025376ea8&gt;
+## &lt;environment: 0x0000000025375a78&gt;</code></pre>
 <p>
  
 </p>
