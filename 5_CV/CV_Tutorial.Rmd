@@ -323,3 +323,102 @@ knitr::kable(
 
 
 ## External CV
+
+External validation involves the use of independently derived datasets, to validate the performance of a model that was trained on a different input data. When having two datasets, one dataset is commonly used for training a model and the sendcond dataset is then used for testing the model. 
+For our external cross-validation, we will use the 2015 dataset for training and the 2018 dataset for testing. 
+
+### Splitting the Dataset
+
+```{r}
+
+# Loading the datasets 
+
+dataset_2015 <-read.csv("CountrySummary2015.csv", header = TRUE)
+dataset_2018 <-read.csv("countrySummary.csv", header = TRUE)
+
+# Prepare the 2015 dataset 
+# Exclude variables that are not present in both datasets. In our case ExtraCurSciClub & TeacherQualification are only present in the 2015 dataset. 
+
+dataset_2015 <- dataset_2015[,-c(17, 22)]
+
+# Exclude countries that are not present in both datasets 
+# Countrie to be excluded: Algeria, B-S-J-G (China), Brunei Darussalam, CABA (Argentina), Chinese Taipei, Country, Trinidad and Tobago, Tunisia, Trinidad and Tobago,Tunisia 
+
+dataset_2015 <- dataset_2015[-c(17, 53, 55, 56, 57, 58, 59, 66, 68, 69, 77, 86),]
+
+# New dataset for 2015 that only contains variables and countries also present in the 2018 dataset
+
+training_data <- dataset_2015
+
+# Prepare the 2018 dataset 
+# Exclude variables that are not present in both datasets (excluded varaibles: TeacherMasters, ExtraCur, Competitiveness,TeacherInterest)
+
+dataset_2018 <- dataset_2018[,-c(5, 7, 17, 21)]
+
+
+# We will use SocioEcoStatus as independent and Discipline as dependent variable in our model. 
+# Check whether the variables have been measured within the same range. 
+
+hist(testing_data$SocioEcoStatus)
+hist(training_data$SocioEcoStatus)
+
+hist(testing_data$Discipline)
+hist(training_data$Discipline)
+
+# Delete rows without data for our dependent and independent variable  
+
+dataset_2018 <- dataset_2018[!is.na(dataset_2018$SocioEcoStatus),]
+dataset_2018 <- dataset_2018[!is.na(dataset_2018$Discipline),]
+
+# New dataset for 2018 that only contains variables and countries also present in the 2015 dataset
+
+testing_data <- dataset_2018
+
+
+```
+
+### Training the Model
+
+Next, we can fit a model to the training data and find the desired fit index ($R^2$ in this case).
+
+```{r}
+# Fitting a model to the training data
+train.fit <- lm(Discipline ~ SocioEcoStatus, training_data)
+
+# Extracting R-Squared from the training model
+train_R_Squared <- summary(train.fit)$r.squared # (it's around 0.02)
+```
+
+### Predicting Values in the Test Data
+
+Using the model fitted to the training data, we need to calculate predictions for the 
+values of $Discipline$ in the testing data based on the observed values of $SocioEcoStatus$ in the testing data and the parameters $\beta_0$ and $\beta_1$ from the model fitted above. The `predict()` function from the `stats` package can plug in the $SocioEcoStauts$ values from the testing data into the model in order to estimate the $Discipline$ values.
+
+```{r}
+# Predicting values of y, using the model fit to the training data, from the values of x in the testing data.
+prediction <- predict(train.fit,testing_data)
+```
+
+
+### Calculating Test $R^2$
+
+$R^2$ for this prediction can be calculated from the differences between each predicted value of $Discipline$ and the corresponding observed value of $Discipline$. These differences are known as residuals. The $R^2$ statistic, in this case, will tell us how well the model parameters derived from the training sample fit the data in the testing sample.
+
+```{r}
+# Subtracting predicted values of Discipline from actual values of Discipline
+residuals <- testing_data$Discipline - prediction
+
+# Calculating R-Squared
+residuals_ss <- sum((residuals)^2)
+total_ss <- sum((testing_data$LearningTime - mean(testing_data$LearningTime))^2)
+
+
+test_R_Squared <- 1 - residuals_ss/total_ss
+```
+
+
+The model fitted to the training data fits that data with an $R^2$ of around `r signif(train_R_Squared, digits = 3)`. 
+This same model fit the testing data with an $R^2$ of around `r signif(test_R_Squared, digits = 3)`. 
+
+This means that the model fit both samples of data well. 
+The fact that the testing data was 'unseen' during the model fitting process suggests the model would fit well to other unseen data (e.g., data collected in the future), providing evidence of predictive validity.
