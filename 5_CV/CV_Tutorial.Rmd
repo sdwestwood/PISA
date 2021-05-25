@@ -8,20 +8,7 @@ output:
 
 runtime: shiny_prerendered
 ---
-```
-To do list
-* add references
 
-* add quiz
-
-* add section on 'external' cross validation
-
-* Fix js 
-
-* add practical PISA example
-
-* format for tutorial set-up
-```
 <hr>
 
 ```{r setup, include=FALSE}
@@ -29,352 +16,6 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 ```
 <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.1.9/p5.js"></script>
-
-<!-- this is some javascript to make the interactive K-means thing -->
-
-```{js, echo = FALSE}
-let n = 36;
-let p = 16;
-let gridSize = 16;
-let pointSize = 12;
-let k = 12;
-
-let kVec = [2, 4, 8, 16, 32];
-
-let nSlider, pSlider, pause;
-
-let stg = 0;
-let stgMove = 0;
-let phase = 0;
-
-let rands = [];
-let points = [];
-let pointsShuffled = [];
-
-function setup() {
-  kFoldsDiv = createCanvas(400, 200);
-  kFoldsDiv.parent('kFoldsDiv');
-  
-  nSlider = createSlider(32, 192, 144, 32);
-  nSlider.position(0, 180);
-  nSlider.parent('kFoldsDiv')
-  nSlider.style('width', '128px')
-  nSlider.input(reset);
-  
-  kSlider = createSlider(0, 4, 1, 1);
-  kSlider.position(140, 180);
-  kSlider.parent('kFoldsDiv')
-  kSlider.style('width', '128px')
-  kSlider.input(reset);
-  
-  for (let i = 0; i < n; i++) {
-    rands[i] = i;
-  }
-  
-  k = kVec[kSlider.value()];
-  stgMove = floor(n/k);
-  
-  n = nSlider.value();
-  p = stgMove;
-  
-  for (let i = 0; i < n; i++) {
-    
-    points[i] = new Point(gridSize+i%24*gridSize, gridSize+floor(i/24)*gridSize, pointSize, 
-                          i, i, points);
-      
-  }
-  
-  pointsShuffled = shuffle(points, false);
-  
-}
-
-function draw() {
-  background(255);
-  if (phase == 0) {
-    phase0();
-  } else if (phase == 1) {
-    phase1();
-  } else if (phase == 2) {
-    //points = [];
-    phase2();
-  }
-  
-}
-
-function phase1() {
-  
-  // checking two points have finished moving
-  if (round(points[0].x) == pointsShuffled[points[0].i1].xStart & frameCount % 40 == 0) {
-    if (round(points[10].x) == pointsShuffled[points[10].i1].xStart & frameCount % 40 == 0) {
-      phase = 2;
-    } 
-  }
-
-  for (let i = 0; i < n; i++) {
-    
-    points[i].move(); 
-    points[i].show1();
-    
-    if (i % p == 0) {
-      stroke(255, 50, 50);
-      strokeWeight(2)
-      line(gridSize+i%24*gridSize-gridSize/2, gridSize+floor(i/24)*gridSize+6, 
-           gridSize+i%24*gridSize-gridSize/2, gridSize+floor(i/24)*gridSize-6)
-    }
-      
-  }
-  
-  
-  
-  n = nSlider.value();
-  k = kVec[kSlider.value()];
-  
-  // TEXT
-  textSize(24);
-  fill(0);
-  text("N = ", 8, 180);
-  text(n, 52, 180);
-  
-  text("k = ", 148, 180);
-  text(k, 188, 180);
-  
-  // Shuffling!
-  text("Shuffling...", 278, 194)
-
-}
-
-function phase0() {
-  k = kVec[kSlider.value()];
-  stgMove = floor(n/k);
-  
-  n = nSlider.value();
-  p = stgMove;
-  
-  
-  for (i = 0; i < n; i++) {
-    fill(50, 50, 255);
-    noStroke();
-    ellipse(gridSize+i%24*gridSize, gridSize+floor(i/24)*gridSize, pointSize)
-    if (i % p == 0) {
-      stroke(255, 50, 50);
-      strokeWeight(2)
-      line(gridSize+i%24*gridSize-gridSize/2, gridSize+floor(i/24)*gridSize+6, 
-           gridSize+i%24*gridSize-gridSize/2, gridSize+floor(i/24)*gridSize-6)
-    }
-  }
-  
-  // TEXT
-  textSize(24);
-  fill(0);
-  text("N = ", 8, 180);
-  text(n, 52, 180);
-  
-  text("k = ", 148, 180);
-  text(k, 188, 180);
-  
-  if (p > n) {
-    fill(255, 50, 50);
-    textSize(16);
-    text("p > N", 236, 176);
-  }
-  
-  // BUTTON
-    fill(50, 50, 240);
-    noStroke(0);
-    rect(288, 160, 96, 36, 20);
-    fill(255);
-    textSize(24);
-    text("Start", 308, 186);
-  
-}
-
-function mousePressed() {
-  
-  if (mouseX > 288 & mouseX < 288+96 & mouseY > 160 & mouseY < 160+36 & phase == 0) {
-    phase = 1;
-    for (let i = 0; i < n; i++) {
-      points[i] = new Point(gridSize+i%24*gridSize, gridSize+floor(i/24)*gridSize, pointSize, 
-                            i, i, points);
-    }
-  
-  pointsShuffled = shuffle(points, false);
-  }
- 
-}
-
-function phase2() {
-  
-  k = kVec[kSlider.value()];
-  stgMove = floor(n/k);
-  
-  if (frameCount % 40 == 0 & stg < n) {
-    stg += stgMove;
-  }
-  
-  if (stg > n) {
-    stg = 0;
-  }
-  
-  n = nSlider.value();
-  p = stgMove;
-  
-  startP = stg;
-  endP = startP + p;
-  
-  for (i = 0; i < n; i++) {
-    if (endP <= n) {
-      if (i+1 <= endP & i+1 > startP & stg < n) {
-        fill(255, 50, 50);
-      } else {
-        fill(50, 50, 255);
-      }
-    } else {
-    
-      if (i+1 > startP | i+1 <= endP-n & stg < n) {
-        fill(255, 50, 50);
-      } else {
-        fill(50, 50, 255);
-      }
-    }
-    
-    noStroke();
-    ellipse(gridSize+i%24*gridSize, gridSize+floor(i/24)*gridSize, pointSize)
-    
-  }
-  
-  
-  // TEXT
-  textSize(24);
-  fill(0);
-  text("N = ", 8, 180);
-  text(n, 52, 180);
-  
-  text("k = ", 148, 180);
-  text(k, 188, 180);
-  
-  if (p > n) {
-    fill(255, 50, 50);
-    textSize(16);
-    text("p > N", 236, 176);
-  }
-  
-  // KEY
-  noFill();
-  stroke(0);
-  rect(288, 144, 96, 48);
-  noStroke();
-  fill(50, 50, 255);
-  ellipse(300, 158, pointSize);
-  fill(0);
-  textSize(16);
-  text("= training", 312, 164);
-  
-  fill(255, 50, 50);
-  ellipse(300, 178, pointSize);
-  fill(0);
-  textSize(16);
-  text("= testing", 312, 184);
-  
-  if (stg >= n) {
-    
-    phase = 0;
-    stg = 0;
-  
-  }
-  
-}
-
-function togglePause() {
-  if (stgMove == 1) {
-    stgMove = 0;
-  } else {
-    stgMove = 1;
-  }
-}
-
-function reset() {
-  phase = 0;
-  stg = 0;
-  stgMove = 0;
-  
-  for (let i = 0; i < n; i++) {
-    rands[i] = i;
-  }
-  
-  points = [];
-  k = kVec[kSlider.value()];
-  stgMove = floor(n/k);
-  
-  n = nSlider.value();
-  p = stgMove;
-  
-  for (let i = 0; i < n; i++) {
-    
-    points[i] = new Point(gridSize+i%24*gridSize, gridSize+floor(i/24)*gridSize, pointSize, 
-                          i, i);
-      
-  }
-  
-  pointsShuffled = shuffle(points, false);
-  
-}
-
-class Point {
-  constructor(x, y, size, index_2, index_1, vector) {
-  
-      this.x = x;
-      this.y = y;
-      this.xStart = x;
-      this.yStart = y;
-      this.size = size;
-      this.i1 = index_1;
-      this.i2 = index_2;
-      
-      this.vector = vector;
-  
-  }
-  
-  move() {
-  
-    this.x = lerp(this.x, pointsShuffled[this.i1].xStart, 0.05);
-    this.y = lerp(this.y, pointsShuffled[this.i1].yStart, 0.05);
-  
-  }
-  
-  show1() {
-    
-    noStroke();
-    fill(50, 50, 255)
-    ellipse(this.x, this.y, this.size)
-  
-  }
-  
-  show2() {
-  
-    if (endP <= n) {
-      if (this.i2+1 <= endP & this.i2+1 > startP) {
-        fill(255, 50, 50);
-      } else {
-        fill(50, 50, 255);
-      }
-    } else {
-    
-      if (this.i2+1 > startP | this.i2+1 <= endP-n) {
-        fill(255, 50, 50);
-      } else {
-        fill(50, 50, 255);
-      }
-    }
-    
-    noStroke();
-    ellipse(this.x, this.y, this.size)
-  
-  }
-  
-}
-
-
-```
 
 ## What is Cross-Validation?
 
@@ -440,11 +81,11 @@ The above arguments also indicate the impact of value of k on the results of k-f
 
 ### External Cross-Validation
 
-# Cross-validation in R
+## Cross-validation in R
 
-## Holdout Cross-Validation
+### Holdout Cross-Validation
 
-### Simulating a Dataset
+#### Simulating a Dataset
 
 The plot below shows a clear positive relationship between variables $x$ and $y$. To demonstrate the application of cross-validation, we will train and test the model $y_{i} = \beta_0 + \beta_1x_{i}$ using this dataset. This is a simple linear regression model.
 
@@ -460,7 +101,7 @@ ggplot(dataset,
   theme_minimal()
 ```
 
-### Splitting the Dataset
+#### Splitting the Dataset
 
 This first step for simple holdout cross-validation is splitting the dataset into testing and training data.
 
@@ -477,7 +118,7 @@ training_data <- dataset[training_rows, ]
 testing_data <- dataset[-training_rows, ]
 ```
 
-### Training the Model
+#### Training the Model
 
 Next, we can fit a model to the training data and find the desired fit index ($R^2$ in this case).
 
@@ -489,7 +130,7 @@ train.fit <- lm(y ~ x, training_data)
 train_R_Squared <- summary(train.fit)$r.squared # (it's around 0.8)
 ```
 
-### Predicting Values in the Test Data
+#### Predicting Values in the Test Data
 
 Using the model fitted to the training data, we need to calculate predictions for the values of $y$ in the testing data based on the observed values of $x$ in the testing data and the parameters $\beta_0$ and $\beta_1$ from the model fitted above. The `predict()` function from the `stats` package can plug in the $x$ values from the testing data into the model in order to estimate the $y$ values.
 
@@ -498,7 +139,7 @@ Using the model fitted to the training data, we need to calculate predictions fo
 prediction <- predict(train.fit, data.frame(x = testing_data$x))
 ```
 
-### Calculating Test $R^2$
+#### Calculating Test $R^2$
 
 $R^2$ for this prediction can be calculated from the differences between each predicted value of $y$ and the corresponding observed value of $y$. These differences are known as residuals. The $R^2$ statistic, in this case, will tell us how well the model parameters derived from the training sample fit the data in the testing sample.
 
@@ -517,9 +158,9 @@ The model fitted to the training data fits that data with an $R^2$ of around `r 
 
 This means that the model fit both sub-samples of data well. The fact that the testing data was 'unseen' during the model fitting process suggests the model would fit well to other unseen data (e.g., data collected in the future), providing evidence of predictive validity. 
 
-## K-folds Cross-Validation
+### K-folds Cross-Validation
 
-### Introduction
+#### Introduction
 
 Implementing $k$-folds cross validation works much the same as above, only we repeat the process using different divisions of the data (into training and testing sub-samples) each time. We can essentially wrap all the R code above in [a loop, or use an iterative function](https://r4ds.had.co.nz/iteration.html#the-map-functions).
 
@@ -531,7 +172,7 @@ First, we need to decide on the value of $k$. For this demonstration, we will se
 k <- 5
 ```
 
-### Splitting the Data
+#### Splitting the Data
 
 Next, we need to split the data into $k$ (5) training and testing sets, where the testing sets are 1/5th the size of the whole dataset.
 
@@ -559,7 +200,7 @@ for (i in 1:k) {
 
 ```
 
-### Iterating Through the Samples
+#### Iterating Through the Samples
 
 Now we need to iterate through all the testing sub-samples (as defined by `testing_indexes`) using the rest of the data to train the model. (This will be the same model as above: $y_{i} = \beta_0 + \beta_1x_{i}$).
 
@@ -634,7 +275,7 @@ The mean $R^2$ for the training sub-samples is `r round(mean(train_R_Squared_Rep
 
 The conclusion we could draw from this analysis is the same as the conclusion we drew above, from the simple holdout cross-validation. The model performs well on unseen data, providing evidence of its predictive validity.
 
-## LOOCV
+### LOOCV
 
 ```{r}
 # 'Looping through' all data points 
