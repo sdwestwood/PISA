@@ -20,7 +20,7 @@ set.seed(123) #reproducible simulation
 library(tidyverse) #data manipulation
 library(plotly) #visualization features
 library(ggplot2) #visualization features
-library(ggalt) #visualization features
+#library(ggalt) #visualization features
 library(shiny) #interactive plots
 
 library(kmodR) #k-means simultaneous outlier detection 
