@@ -20,7 +20,7 @@ set.seed(123) #reproducible simulation
 library(tidyverse) #data manipulation
 library(plotly) #visualization features
 library(ggplot2) #visualization features
-library(ggalt) #visualization features
+#library(ggalt) #visualization features
 library(shiny) #interactive plots
 
 library(kmodR) #k-means simultaneous outlier detection 
@@ -108,7 +108,7 @@ k.values <- 1:10
 
 #This function computes wss for a given value of k
 wss <- function(k) {
-  kmeans(bull_dis[,2:3], k, nstart = 100 )$tot.withinss
+  kmeans(bull_dis[,2:3], k, nstart = 100)$tot.withinss
 }
 
 #Creates vector of extracted wss across all values of k for raw and scaled data
@@ -539,7 +539,7 @@ Take a look at how specifying $k$ affects the clustering solution.
 ```{r ksetup, echo = FALSE, message = FALSE, context = 'setup'}
 k.values <- 1:15
 
-wss.values <- wss.all()
+wss.values <- wss.all(data=bull_dis[,2:3])
 ```
 
 ```{r kui, echo = FALSE}
