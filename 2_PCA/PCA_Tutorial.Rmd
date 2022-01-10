@@ -23,7 +23,7 @@ library(gradethis) #custom feedback
 gradethis::gradethis_setup()
 
 # load pre-made datasets and functions
-load(file = "PCA.Rdata")
+load(file = "PCA2.Rdata")
 ```
 
 ## The Basics
